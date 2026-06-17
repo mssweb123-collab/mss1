@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Online Admission – MSS Matriculation School</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+.page-hero {
+  background: radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.2) 0%, transparent 60%),
+              radial-gradient(circle at 20% 80%, rgba(79, 70, 229, 0.15) 0%, transparent 60%),
+              linear-gradient(135deg, #0f1026 0%, #1e1b4b 100%);
+  padding: 8rem 2rem 5rem;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin-bottom: .75rem;
+  position: relative;
+  z-index: 2;
+}
+.page-hero p {
+  opacity: .85;
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Floating Glow spheres for Hero Background ── */
+.hero-bg-glows {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+.glow-sphere {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  mix-blend-mode: screen;
+  will-change: transform;
+  animation: float-sphere 12s ease-in-out infinite;
+}
+@keyframes float-sphere {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+.sphere-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+  top: -10%;
+  right: -5%;
+}
+.sphere-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+  bottom: -10%;
+  left: -5%;
+  animation-delay: -6s;
+}
+
+.admission-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+.info-sidebar {
+  position: sticky;
+  top: calc(var(--navbar-height) + 1rem);
+}
+.info-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.02);
+  margin-bottom: 1.5rem;
+  transition: var(--transition);
+}
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.04);
+}
+.info-card h4 {
+  color: var(--primary-dark);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  margin-bottom: 1.25rem;
+  font-size: 1.15rem;
+  padding-bottom: .75rem;
+  border-bottom: 2px solid var(--border-color);
+}
+.info-list li {
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: .95rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: .6rem;
+}
+.info-list li:last-child {
+  border-bottom: none;
+}
+.form-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+}
+.form-section-title {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--white);
+  padding: .8rem 1.4rem;
+  border-radius: 12px;
+  font-size: .95rem;
+  font-weight: 700;
+  margin: 2rem 0 1.25rem;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.15);
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.25rem;
+}
+.steps-bar {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: 2rem;
+}
+.step-dot {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-color);
+  transition: all .3s var(--ease-smooth);
+}
+.step-dot.done {
+  background: var(--primary);
+}
+.step-dot.active {
+  background: var(--accent);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+}
+.success-screen {
+  display: none;
+  text-align: center;
+  padding: 4rem 2rem;
+}
+.success-screen .icon {
+  font-size: 4.5rem;
+  margin-bottom: 1.5rem;
+}
+.success-screen h3 {
+  color: var(--primary-dark);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: .75rem;
+}
+@media(max-width:900px) {
+  .page-hero {
+    padding: 6.5rem 1.25rem 3.5rem !important;
+  }
+  .admission-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem !important;
+  }
+  .info-sidebar {
+    position: static;
+  }
+  .info-card, .form-card {
+    padding: 1.5rem !important;
+    border-radius: 20px !important;
+  }
+  .form-row, .form-row-3 {
+    grid-template-columns: 1fr;
+    gap: 1rem !important;
+  }
+  .steps-bar {
+    margin-bottom: 1.5rem !important;
+    gap: 0.35rem !important;
+  }
+  .step-dot {
+    height: 4px !important;
+  }
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="mainNav">
+  <div class="nav-logo"><img src="../assets/logo.png" alt="MSS"/><div class="nav-logo-text">MSS Matriculation School<span>Uppatty, The Nilgiris</span></div></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="../index.html">Home</a></li><li><a href="about.html">About</a></li>
+    <li><a href="gallery.html">Gallery</a></li><li><a href="contact.html">Contact</a></li>
+    <li><a href="admission.html" class="active">Admission</a></li>
+    <li><a href="student-login.html" class="btn-nav">Student Login</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="page-hero">
+  <div class="hero-bg-glows">
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+  </div>
+  <h1>📝 Online Admission Form</h1>
+  <p style="opacity:.85;">Apply for admission to MSS Matriculation School – Academic Year 2025-26</p>
+  <div style="margin-top:1rem;opacity:.65;font-size:.85rem;"><a href="../index.html" style="color:var(--accent-light);">Home</a> / Admission</div>
+</div>
+
+<section class="section page-enter">
+  <div class="container">
+    <div class="admission-layout">
+      <!-- Sidebar -->
+      <div class="info-sidebar">
+        <div class="info-card">
+          <h4>📌 Admission Guidelines</h4>
+          <ul class="info-list">
+            <li><span>🎓</span>Classes I – X available</li>
+            <li><span>📅</span>Academic Year: June – March</li>
+            <li><span>📋</span>Application: Online / In-person</li>
+            <li><span>✅</span>Confirm with school after submission</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <h4>📎 Required Documents</h4>
+          <ul class="info-list">
+            <li><span>📄</span>Birth Certificate</li>
+            <li><span>📄</span>TC from previous school</li>
+            <li><span>📷</span>Passport-size photos (4)</li>
+            <li><span>🏠</span>Residential proof</li>
+            <li><span>📊</span>Previous mark sheets</li>
+            <li><span>🪪</span>Aadhaar card (student + parent)</li>
+          </ul>
+        </div>
+        <div class="info-card" style="background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:#fff;">
+          <h4 style="color:var(--accent-light);border-color:rgba(255,255,255,.2);">📞 Need Help?</h4>
+          <p style="font-size:.88rem;opacity:.9;margin-bottom:.75rem;">Contact the school office for admission enquiries</p>
+          <a href="tel:+919487020243" style="color:var(--accent-light);font-weight:700;font-size:.95rem;">+91 9487020243</a>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="form-card">
+        <div class="steps-bar"><div class="step-dot active" id="s1"></div><div class="step-dot" id="s2"></div><div class="step-dot" id="s3"></div></div>
+
+        <!-- Google Form Integration -->
+        <form id="admissionForm" action="https://docs.google.com/forms/d/e/1FAIpQLSf7WBz6aS6QCNwIbqK9ScYYTqALlsEoTz1ezOEg8nzRaep9-A/formResponse" method="POST" target="admFrame" onsubmit="handleAdmissionSubmit()">
+          <!-- Hidden Google Form fields -->
+          <input type="hidden" name="entry.2005620554" id="g_name"/>
+          <input type="hidden" name="entry.1045781291" id="g_dob"/>
+          <input type="hidden" name="entry.1065046570" id="g_gender"/>
+          <input type="hidden" name="entry.1166974658" id="g_class"/>
+          <input type="hidden" name="entry.845593786" id="g_nationality"/>
+          <input type="hidden" name="entry.1507500832" id="g_religion"/>
+          <input type="hidden" name="entry.778413439" id="g_father"/>
+          <input type="hidden" name="entry.1621108661" id="g_mother"/>
+          <input type="hidden" name="entry.1145361484" id="g_phone"/>
+          <input type="hidden" name="entry.467945051" id="g_email"/>
+          <input type="hidden" name="entry.435277275" id="g_email2"/>
+          <input type="hidden" name="entry.985947907" id="g_address"/>
+          <input type="hidden" name="entry.1361581348" id="g_occFather"/>
+          <input type="hidden" name="entry.1536944370" id="g_income"/>
+          <input type="hidden" name="entry.1532146991" id="g_prevSchool"/>
+          <input type="hidden" name="entry.1594997995" id="g_lastClass"/>
+          <input type="hidden" name="entry.508026373" id="g_transport"/>
+          <input type="hidden" name="entry.491004187" id="g_notes"/>
+
+          <div class="form-section-title">👤 Student Information</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Student Full Name *</label><input type="text" class="form-control" id="admName" placeholder="Enter full name" required/></div>
+            <div class="form-group"><label class="form-label">Date of Birth *</label><input type="date" class="form-control" id="admDob" required/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Gender *</label><select class="form-control form-select" id="admGender" required><option value="">Select Gender</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+            <div class="form-group"><label class="form-label">Applying for Class *</label><select class="form-control form-select" id="admClass" required><option value="">Select Class</option><option>Class I</option><option>Class II</option><option>Class III</option><option>Class IV</option><option>Class V</option><option>Class VI</option><option>Class VII</option><option>Class VIII</option><option>Class IX</option><option>Class X</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Nationality</label><input type="text" class="form-control" value="Indian" id="admNationality"/></div>
+            <div class="form-group"><label class="form-label">Religion</label><input type="text" class="form-control" id="admReligion" placeholder="Religion"/></div>
+          </div>
+
+          <div class="form-section-title">👨‍👩‍👦 Parent / Guardian Information</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Father's Name *</label><input type="text" class="form-control" id="admFather" placeholder="Father's full name" required/></div>
+            <div class="form-group"><label class="form-label">Mother's Name *</label><input type="text" class="form-control" id="admMother" placeholder="Mother's full name" required/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Contact Phone *</label><input type="tel" class="form-control" id="admPhone" placeholder="+91 XXXXXXXXXX" required/></div>
+            <div class="form-group"><label class="form-label">Email Address</label><input type="email" class="form-control" id="admEmail" placeholder="parent@email.com"/></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Residential Address *</label>
+            <textarea class="form-control" id="admAddress" rows="2" placeholder="House No, Street, Village, District, Pincode" required></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Father's Occupation</label><input type="text" class="form-control" id="admOccFather" placeholder="Occupation"/></div>
+            <div class="form-group"><label class="form-label">Annual Income</label><input type="text" class="form-control" id="admIncome" placeholder="Annual family income"/></div>
+          </div>
+
+          <div class="form-section-title">🏫 Previous School Details</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Previous School Name</label><input type="text" class="form-control" id="admPrevSchool" placeholder="School name (if any)"/></div>
+            <div class="form-group"><label class="form-label">Last Class Passed</label><input type="text" class="form-control" id="admLastClass" placeholder="e.g., Class IV"/></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Transport Requirement</label>
+            <select class="form-control form-select" id="admTransport">
+              <option value="dayscholar">Day Scholar (Own Transport)</option>
+              <option value="bus">School Bus Required</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Additional Information</label>
+            <textarea class="form-control" id="admNotes" rows="2" placeholder="Any medical conditions, special needs, or additional information"></textarea>
+          </div>
+
+          <div style="background:#fff3cd;border-radius:8px;padding:1rem;margin-bottom:1.5rem;font-size:.85rem;color:#856404;">
+            ⚠️ <strong>Note:</strong> Submitting this form sends your application. The school office will contact you within 2–3 working days to confirm your admission and provide a roll number.
+          </div>
+          <button type="submit" class="btn btn-primary w-full" style="justify-content:center;font-size:1rem;">Submit Application 🚀</button>
+        </form>
+
+        <div class="success-screen" id="admSuccess">
+          <div class="icon">🎉</div>
+          <h3>Application Submitted Successfully!</h3>
+          <p style="color:#6c757d;max-width:400px;margin:0 auto 1.5rem;">Thank you for applying to MSS Matriculation School. Our team will contact you within 2–3 working days.</p>
+          <p style="color:var(--primary);font-weight:600;font-size:.9rem;">📞 For urgent queries: <a href="tel:+919487020243" style="color:var(--accent);">+91 9487020243</a></p>
+          <a href="../index.html" class="btn btn-primary mt-3">Back to Home</a>
+        </div>
+        <iframe name="admFrame" style="display:none;"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col"><img src="../assets/logo.png" alt="MSS" style="height:44px;margin-bottom:.75rem;"/><p>MSS Matriculation School, Uppatty, The Nilgiris, Tamil Nadu</p></div>
+      <div class="footer-col"><h4>Pages</h4><a href="../index.html">Home</a><a href="about.html">About</a><a href="gallery.html">Gallery</a><a href="contact.html">Contact</a></div>
+      <div class="footer-col"><h4>Contact</h4><p>📞 +91 9487020243</p><p>✉️ info@mssmatricschool.com</p></div>
+    </div>
+    <div class="footer-bottom">© 2024 MSS Matriculation School. All rights reserved.</div>
+  </div>
+</footer>
+<div id="toast-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/app.js"></script>
+<script>
+function handleAdmissionSubmit() {
+  // Compile all form data into Google Form fields
+  document.getElementById('g_name').value = document.getElementById('admName').value;
+  document.getElementById('g_dob').value = document.getElementById('admDob').value;
+  document.getElementById('g_gender').value = document.getElementById('admGender').value;
+  document.getElementById('g_class').value = document.getElementById('admClass').value;
+  document.getElementById('g_nationality').value = document.getElementById('admNationality').value;
+  document.getElementById('g_religion').value = document.getElementById('admReligion').value;
+  document.getElementById('g_father').value = document.getElementById('admFather').value;
+  document.getElementById('g_mother').value = document.getElementById('admMother').value;
+  document.getElementById('g_phone').value = document.getElementById('admPhone').value;
+  const email = document.getElementById('admEmail').value;
+  document.getElementById('g_email').value = email;
+  document.getElementById('g_email2').value = email;
+  document.getElementById('g_address').value = document.getElementById('admAddress').value;
+  document.getElementById('g_occFather').value = document.getElementById('admOccFather').value;
+  document.getElementById('g_income').value = document.getElementById('admIncome').value;
+  document.getElementById('g_prevSchool').value = document.getElementById('admPrevSchool').value;
+  document.getElementById('g_lastClass').value = document.getElementById('admLastClass').value;
+  document.getElementById('g_transport').value = document.getElementById('admTransport').options[document.getElementById('admTransport').selectedIndex].text;
+  document.getElementById('g_notes').value = document.getElementById('admNotes').value;
+
+  // Storing application inside offline-first DB layer (replicates to Supabase)
+  const newAdmission = {
+    admName: document.getElementById('admName').value,
+    admDob: document.getElementById('admDob').value,
+    admGender: document.getElementById('admGender').value,
+    admClass: document.getElementById('admClass').value,
+    nationality: document.getElementById('admNationality').value,
+    religion: document.getElementById('admReligion').value,
+    admFather: document.getElementById('admFather').value,
+    admMother: document.getElementById('admMother').value,
+    phone: document.getElementById('admPhone').value,
+    email: email,
+    address: document.getElementById('admAddress').value,
+    occFather: document.getElementById('admOccFather').value,
+    income: document.getElementById('admIncome').value,
+    prevSchool: document.getElementById('admPrevSchool').value,
+    lastClass: document.getElementById('admLastClass').value,
+    transport: document.getElementById('admTransport').value,
+    notes: document.getElementById('admNotes').value,
+    status: 'pending',
+    submittedAt: new Date().toISOString()
+  };
+
+  const admissions = DB.get('admissions') || [];
+  newAdmission.id = 'app_' + Date.now();
+  admissions.push(newAdmission);
+  DB.set('admissions', admissions);
+
+  // Update step indicators
+  document.getElementById('s1').className = 'step-dot done';
+  document.getElementById('s2').className = 'step-dot done';
+  document.getElementById('s3').className = 'step-dot active';
+
+  setTimeout(() => {
+    document.getElementById('admissionForm').style.display = 'none';
+    document.getElementById('admSuccess').style.display = 'block';
+    showToast('Application submitted successfully!', 'success');
+  }, 800);
+}
+</script>
+</body>
+</html>

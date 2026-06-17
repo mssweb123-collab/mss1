@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Teacher Login – MSS School</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <style>
+    /* ── Floating Glow spheres for Login Background ── */
+    .login-bg-glows {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .glow-sphere {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.15;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+    .sphere-1 {
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+      top: -10%;
+      right: -10%;
+      animation: floatSphere1 22s infinite alternate ease-in-out;
+    }
+    .sphere-2 {
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+      bottom: -5%;
+      left: -5%;
+      animation: floatSphere2 18s infinite alternate ease-in-out;
+    }
+    .sphere-3 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #f87171 0%, transparent 70%);
+      top: 40%;
+      left: 20%;
+      animation: floatSphere3 28s infinite alternate ease-in-out;
+    }
+
+    @keyframes floatSphere1 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(-50px, 30px, 0) scale(1.1); }
+    }
+    @keyframes floatSphere2 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(45px, -45px, 0) scale(1.15); }
+    }
+    @keyframes floatSphere3 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(-30px, -30px, 0) scale(0.9); }
+    }
+
+    /* ── Back to Home Link ── */
+    .back-home {
+      position: fixed;
+      top: 2rem;
+      left: 2rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      font-weight: 600;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: var(--transition);
+    }
+    .back-home:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateX(-4px);
+    }
+
+    /* ── Login Card Enhancements ── */
+    .login-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 3.25rem 2.75rem;
+      box-shadow: 0 30px 60px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(79, 70, 229, 0.05);
+      transition: var(--transition);
+    }
+    .login-card:hover {
+      box-shadow: 0 35px 70px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(79, 70, 229, 0.08);
+    }
+
+    /* ── Login Icon & Logo ── */
+    .login-icon {
+      background: #fff;
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.15);
+      position: relative;
+      padding: 3px;
+      transition: transform 0.4s var(--ease-smooth);
+    }
+    .login-icon:hover {
+      transform: scale(1.05);
+    }
+    .login-icon::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1.5px dashed var(--primary-light);
+      animation: rotateBorder 12s linear infinite;
+    }
+    .login-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+    @keyframes rotateBorder {
+      to { transform: rotate(360deg); }
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-bottom: 2.25rem;
+    }
+    .logo-wrap h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--primary-dark);
+      font-size: 1.75rem;
+      font-weight: 850;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.01em;
+    }
+    .logo-wrap p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      max-width: 280px;
+      margin: 0 auto;
+      line-height: 1.4;
+    }
+
+    /* ── Input Groups with Sibling-state Icons ── */
+    .input-with-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-with-icon .form-control {
+      padding-left: 3.25rem;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      width: 100%;
+      height: 50px;
+      font-size: 0.98rem;
+      transition: var(--transition);
+    }
+    .input-with-icon .input-icon {
+      position: absolute;
+      left: 1.25rem;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      pointer-events: none;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+    .input-with-icon .form-control:focus {
+      background: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+    .input-with-icon .form-control:focus + .input-icon {
+      color: var(--primary);
+      transform: scale(1.08);
+    }
+
+    .input-with-icon .form-control.tpass-control {
+      padding-right: 3.25rem;
+    }
+
+    /* Password toggle button */
+    .pw-toggle {
+      position: absolute;
+      right: 1.1rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+    }
+    .pw-toggle:hover {
+      color: var(--primary);
+      transform: scale(1.08);
+    }
+
+    /* ── Login Error Message ── */
+    .login-error-msg {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      animation: shake 0.4s var(--ease-smooth);
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    /* ── Login Submit Button ── */
+    .btn-submit {
+      height: 50px;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-submit i {
+      font-size: 1.15rem;
+      transition: transform 0.3s var(--ease-bounce);
+    }
+    .btn-submit:hover i {
+      transform: translateX(4px);
+    }
+
+    /* ── Login Footer Link ── */
+    .portal-link {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    .portal-link a {
+      color: var(--primary);
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: var(--transition);
+    }
+    .portal-link a:hover {
+      color: var(--accent);
+      transform: translateX(3px);
+    }
+
+    @media (max-width: 480px) {
+      .back-home {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        padding: 0.5rem 0.9rem;
+        font-size: 0.8rem;
+      }
+      .login-page {
+        padding: 4.5rem 1rem 1.5rem;
+        align-items: flex-start;
+      }
+      .login-card {
+        padding: 2.25rem 1.25rem;
+        border-radius: 20px;
+      }
+      .logo-wrap h2 {
+        font-size: 1.5rem;
+      }
+      .logo-wrap p {
+        font-size: 0.88rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="login-page">
+  <div class="login-bg-glows">
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+    <div class="glow-sphere sphere-3"></div>
+  </div>
+
+  <a class="back-home" href="../index.html">
+    <i class="bi bi-arrow-left"></i> Back to Home
+  </a>
+
+  <div class="login-card page-enter">
+    <div class="logo-wrap">
+      <div class="login-icon">
+        <img src="../assets/logo.png" alt="MSS Logo" class="login-logo-img"/>
+      </div>
+      <h2>Teacher Login</h2>
+      <p>Access your classes, marks uploading, and student attendance</p>
+    </div>
+
+    <form id="teacherLoginForm">
+      <div class="form-group">
+        <label class="form-label" for="tUser">Username</label>
+        <div class="input-with-icon">
+          <input type="text" class="form-control" id="tUser" placeholder="Teacher username" required autocomplete="username"/>
+          <i class="bi bi-person-badge-fill"></i>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="tPass">Password</label>
+        <div class="input-with-icon">
+          <input type="password" class="form-control tpass-control" id="tPass" placeholder="Your password" required autocomplete="current-password"/>
+          <i class="bi bi-key-fill"></i>
+          <button type="button" class="pw-toggle" onclick="togglePw()">
+            <i class="bi bi-eye" id="toggleIcon"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div id="loginError" class="login-error-msg">
+        <i class="bi bi-exclamation-circle-fill"></i> Invalid credentials. Access denied.
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full btn-submit">
+        <span>Sign In</span>
+        <i class="bi bi-arrow-right-short"></i>
+      </button>
+    </form>
+    
+    <div class="portal-link">
+      <a href="admin-login.html">
+        <span>Admin Portal Login</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/demo-data.js"></script>
+<script src="../js/app.js"></script>
+<script>
+let attempts = 0;
+function togglePw() {
+  const inp = document.getElementById('tPass');
+  const icon = document.getElementById('toggleIcon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.classList.remove('bi-eye');
+    icon.classList.add('bi-eye-slash');
+  } else {
+    inp.type = 'password';
+    icon.classList.remove('bi-eye-slash');
+    icon.classList.add('bi-eye');
+  }
+}
+document.getElementById('teacherLoginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  if (attempts >= 5) { showToast('Too many attempts', 'error'); return; }
+  const user = document.getElementById('tUser').value.trim();
+  const pass = document.getElementById('tPass').value;
+  const session = Auth.loginTeacher(user, pass);
+  if (session) {
+    showToast('Welcome, ' + session.name, 'success');
+    setTimeout(() => window.location.href = 'teacher-dashboard.html', 600);
+  } else {
+    attempts++;
+    const errorEl = document.getElementById('loginError');
+    errorEl.style.display = 'flex';
+    errorEl.style.animation = 'none';
+    errorEl.offsetHeight; /* trigger reflow */
+    errorEl.style.animation = null; 
+    showToast('Invalid credentials', 'error');
+  }
+});
+</script>
+</body>
+</html>

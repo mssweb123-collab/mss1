@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Daily Attendance – MSS School</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+      min-height: 100vh;
+    }
+    
+    .header-bar {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1.2rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--glass-shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-bar h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--primary-dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-btn {
+      background: var(--white);
+      border: 1px solid var(--border-color);
+      color: var(--primary-dark);
+      padding: 0.55rem 1.2rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn:hover {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+      transform: translateX(-3px);
+    }
+
+    .container-content {
+      padding: 2rem 1rem;
+      max-width: 760px;
+      margin: 0 auto;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .control-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--glass-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .search-date-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 580px) {
+      .search-date-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .progress-bar-container {
+      background: var(--border-color);
+      height: 8px;
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .progress-bar-fill {
+      background: linear-gradient(90deg, var(--primary), var(--success));
+      width: 0%;
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width 0.4s ease;
+    }
+
+    .student-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem;
+      background: var(--white);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .student-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .student-info {
+      flex: 1;
+    }
+
+    .student-name {
+      font-weight: 700;
+      color: var(--primary-dark);
+      font-size: 1.1rem;
+    }
+
+    .student-roll {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-top: 2px;
+    }
+
+    .student-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .att-btn {
+      padding: 0.65rem 1.4rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      background: var(--white);
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--text-secondary);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      min-width: 95px;
+      justify-content: center;
+    }
+
+    .att-btn.present-active {
+      background: linear-gradient(135deg, #34d399, var(--success));
+      color: var(--white);
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+
+    .att-btn.absent-active {
+      background: linear-gradient(135deg, #f87171, var(--danger));
+      color: var(--white);
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    }
+
+    @media (max-width: 480px) {
+      .student-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+      }
+      .student-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+      }
+      .att-btn {
+        padding: 0.75rem;
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/demo-data.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    const session = Auth.requireRole('teacher', 'teacher-login.html');
+  </script>
+
+  <header class="header-bar">
+    <h1><i class="bi bi-calendar-check-fill icon-accent"></i> Daily Attendance</h1>
+    <button class="back-btn" onclick="window.location.href='teacher-dashboard.html'">
+      <i class="bi bi-arrow-left"></i> Dashboard
+    </button>
+  </header>
+
+  <main class="container-content page-enter">
+    <!-- Class Selector Card for Teachers managing multiple classes -->
+    <div class="control-card" id="classSelectorCard" style="display: none; margin-bottom: 0.25rem;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label" style="font-size: 0.85rem; font-weight: 750;"><i class="bi bi-mortarboard-fill"></i> Select Class to Mark Attendance</label>
+        <select id="classSelectDropdown" class="form-control" onchange="switchClass(this.value)" style="margin-bottom:0; font-weight:700; color:var(--primary-dark);"></select>
+      </div>
+    </div>
+    <div class="control-card">
+      <div class="search-date-grid">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size: 0.85rem;"><i class="bi bi-search"></i> Search Student</label>
+          <input type="text" id="searchBar" class="form-control" placeholder="Search by name or roll number..." oninput="filterStudents()"/>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-size: 0.85rem;"><i class="bi bi-calendar3"></i> Date</label>
+          <input type="date" id="attDate" class="form-control"/>
+        </div>
+      </div>
+      <div>
+        <div class="flex-between" style="font-size: 0.88rem; font-weight: 700; color: var(--primary-dark);">
+          <span>Marking Progress</span>
+          <span id="progressText">0 / 0 Marked</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="student-list" id="attendanceList"></div>
+  </main>
+
+  <div id="toast-container"></div>
+
+  <script>
+    let myClassId = null;
+    let myClassIds = [];
+    let students = [];
+
+    if (session) {
+      const teachers = DB.get('teachers') || [];
+      const teacher = teachers.find(t => t.id === session.id);
+      if (teacher) {
+        myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
+        myClassId = myClassIds[0] || null;
+        
+        if (myClassIds.length > 1) {
+          const classes = DB.get('classes') || [];
+          const selector = document.getElementById('classSelectDropdown');
+          selector.innerHTML = classes.filter(c => myClassIds.includes(c.id)).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+          document.getElementById('classSelectorCard').style.display = 'block';
+        }
+      }
+      
+      document.getElementById('attDate').value = today();
+      document.getElementById('attDate').addEventListener('change', loadAttendance);
+      
+      loadAttendance();
+
+      // Listen to database sync
+      window.addEventListener('mss-db-sync', loadAttendance);
+    }
+
+    function getMyStudents() {
+      const allStudents = DB.get('students') || [];
+      return allStudents.filter(s => s.classId === myClassId);
+    }
+
+    function loadAttendance() {
+      students = getMyStudents();
+      renderStudentsList();
+    }
+
+    function renderStudentsList() {
+      const date = document.getElementById('attDate').value;
+      const list = document.getElementById('attendanceList');
+      if (students.length === 0) {
+        list.innerHTML = "<div class='card text-center'><div class='card-body'><p class='text-muted'>No students found in your class.</p></div></div>";
+        updateProgress(0, 0);
+        return;
+      }
+
+      const searchQuery = document.getElementById('searchBar').value.toLowerCase().trim();
+      const filtered = students.filter(s => 
+        s.name.toLowerCase().includes(searchQuery) || 
+        s.rollNo.includes(searchQuery)
+      );
+
+      const bulkLog = Attendance.getBulkForDate(date, 'class');
+      let markedCount = 0;
+
+      // Count marked records for total students in this class
+      students.forEach(s => {
+        const att = bulkLog.find(l => l.studentId === s.id);
+        if (att && (att.present === true || att.present === false)) {
+          markedCount++;
+        }
+      });
+
+      updateProgress(markedCount, students.length);
+
+      if (filtered.length === 0) {
+        list.innerHTML = "<div class='text-center p-4'><p class='text-muted'>No matching students found.</p></div>";
+        return;
+      }
+
+      list.innerHTML = filtered.map(s => {
+        const att = bulkLog.find(l => l.studentId === s.id);
+        const present = att ? att.present : null;
+        
+        return `
+          <div class="student-item">
+            <div class="student-info">
+              <div class="student-name">${s.name}</div>
+              <div class="student-roll">Roll No: ${s.rollNo}</div>
+            </div>
+            <div class="student-actions">
+              <button class="att-btn ${present === true ? 'present-active' : ''}" onclick="markAtt('${s.id}', true)">
+                <i class="bi ${present === true ? 'bi-check-circle-fill' : 'bi-circle'}"></i> Present
+              </button>
+              <button class="att-btn ${present === false ? 'absent-active' : ''}" onclick="markAtt('${s.id}', false)">
+                <i class="bi ${present === false ? 'bi-x-circle-fill' : 'bi-circle'}"></i> Absent
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function markAtt(studentId, present) {
+      const date = document.getElementById('attDate').value;
+      if (!date) {
+        showToast('Select a date', 'error');
+        return;
+      }
+      Attendance.markClass(studentId, date, present);
+      renderStudentsList(); // Quick UI refresh
+      showToast('Attendance recorded', 'success');
+    }
+
+    window.switchClass = function(classId) {
+      myClassId = classId;
+      loadAttendance();
+    };
+
+    function filterStudents() {
+      renderStudentsList();
+    }
+
+    function updateProgress(marked, total) {
+      const progressText = document.getElementById('progressText');
+      const progressFill = document.getElementById('progressFill');
+      progressText.textContent = `${marked} / ${total} Marked`;
+      const pct = total > 0 ? (marked / total) * 100 : 0;
+      progressFill.style.width = `${pct}%`;
+    }
+  </script>
+</body>
+</html>

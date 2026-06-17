@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Manage Subjects – MSS School</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+      min-height: 100vh;
+    }
+    
+    .header-bar {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1.2rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--glass-shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-bar h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--primary-dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-btn {
+      background: var(--white);
+      border: 1px solid var(--border-color);
+      color: var(--primary-dark);
+      padding: 0.55rem 1.2rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn:hover {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+      transform: translateX(-3px);
+    }
+
+    .container-content {
+      padding: 2rem 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .control-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .subject-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      background: var(--white);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .subject-item-row:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(79, 70, 229, 0.15);
+    }
+
+    .subject-title {
+      font-weight: 700;
+      color: var(--primary-dark);
+      font-size: 1.1rem;
+    }
+
+    .delete-subject-btn {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: none;
+      padding: 0.5rem;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      transition: var(--transition);
+    }
+
+    .delete-subject-btn:hover {
+      background: var(--danger);
+      color: var(--white);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/demo-data.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    const session = Auth.requireRole('teacher', 'teacher-login.html');
+  </script>
+
+  <header class="header-bar">
+    <h1><i class="bi bi-book-half icon-accent"></i> Class Subjects</h1>
+    <button class="back-btn" onclick="window.location.href='teacher-dashboard.html'">
+      <i class="bi bi-arrow-left"></i> Dashboard
+    </button>
+  </header>
+
+  <main class="container-content page-enter">
+    <!-- Class Selector Card -->
+    <div class="control-card" id="classSelectorCard" style="display: none; margin-bottom: 0.25rem;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label" style="font-size: 0.85rem; font-weight: 750;"><i class="bi bi-mortarboard-fill"></i> Select Class to Edit Subjects</label>
+        <select id="classSelectDropdown" class="form-control" onchange="switchClass(this.value)" style="margin-bottom:0; font-weight:700; color:var(--primary-dark);"></select>
+      </div>
+    </div>
+    <div class="control-card">
+      <label class="form-label" style="font-size: 0.85rem;"><i class="bi bi-plus-circle"></i> Add New Subject</label>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: nowrap;">
+        <input type="text" id="newSubjectName" class="form-control" placeholder="e.g. History, Geography..." style="margin-bottom:0;"/>
+        <button class="btn btn-primary btn-sm" onclick="addSubject()" style="white-space: nowrap; padding: 0.6rem 1.25rem;">Add</button>
+      </div>
+    </div>
+
+    <div style="font-weight: 700; color: var(--text-secondary); margin-bottom: -0.5rem;">Current Subjects</div>
+    <div class="student-list" id="subjectsList" style="display: grid; gap: 0.75rem;"></div>
+  </main>
+
+  <div id="toast-container"></div>
+
+  <script>
+    let myClassId = null;
+    let myClassIds = [];
+
+    if (session) {
+      const teachers = DB.get('teachers') || [];
+      const teacher = teachers.find(t => t.id === session.id);
+      if (teacher) {
+        myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
+        myClassId = myClassIds[0] || null;
+        
+        if (myClassIds.length > 1) {
+          const classes = DB.get('classes') || [];
+          const selector = document.getElementById('classSelectDropdown');
+          selector.innerHTML = classes.filter(c => myClassIds.includes(c.id)).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+          document.getElementById('classSelectorCard').style.display = 'block';
+        }
+      }
+      
+      loadSubjectsList();
+
+      // Listen to database sync
+      window.addEventListener('mss-db-sync', loadSubjectsList);
+    }
+
+    window.switchClass = function(classId) {
+      myClassId = classId;
+      loadSubjectsList();
+    };
+
+    function loadSubjectsList() {
+      const subjectsObj = DB.get('subjects') || {};
+      const classSubjects = subjectsObj[myClassId] || ['English', 'Maths', 'Science'];
+      const list = document.getElementById('subjectsList');
+
+      if (classSubjects.length === 0) {
+        list.innerHTML = "<div class='text-center p-4'><p class='text-muted'>No subjects added to your class yet.</p></div>";
+        return;
+      }
+
+      list.innerHTML = classSubjects.map(sub => `
+        <div class="subject-item-row">
+          <div class="subject-title">${sub}</div>
+          <button class="delete-subject-btn" onclick="removeSubject('${sub}')" title="Delete Subject">
+            <i class="bi bi-trash3-fill"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function addSubject() {
+      const input = document.getElementById('newSubjectName');
+      const name = input.value.trim();
+      if (!name) {
+        showToast('Please type a subject name', 'error');
+        return;
+      }
+      
+      const subjectsObj = DB.get('subjects') || {};
+      const classSubjects = subjectsObj[myClassId] || ['English', 'Maths', 'Science'];
+      
+      if (classSubjects.some(s => s.toLowerCase() === name.toLowerCase())) {
+        showToast('Subject already exists', 'error');
+        return;
+      }
+      
+      classSubjects.push(name);
+      subjectsObj[myClassId] = classSubjects;
+      DB.set('subjects', subjectsObj);
+      
+      input.value = '';
+      showToast(`Subject "${name}" added`, 'success');
+      loadSubjectsList();
+    }
+
+    function removeSubject(subName) {
+      const confirmed = confirm(`Are you sure you want to remove "${subName}" from class subjects? This cannot be undone.`);
+      if (!confirmed) return;
+      
+      const subjectsObj = DB.get('subjects') || {};
+      let classSubjects = subjectsObj[myClassId] || ['English', 'Maths', 'Science'];
+      
+      classSubjects = classSubjects.filter(s => s !== subName);
+      subjectsObj[myClassId] = classSubjects;
+      DB.set('subjects', subjectsObj);
+      
+      showToast(`Subject "${subName}" removed`, 'success');
+      loadSubjectsList();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>About – MSS Matriculation School</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+.about-hero {
+  background: radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.2) 0%, transparent 60%),
+              radial-gradient(circle at 20% 80%, rgba(79, 70, 229, 0.15) 0%, transparent 60%),
+              linear-gradient(135deg, #0f1026 0%, #1e1b4b 100%);
+  padding: 8rem 2rem 5rem;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.about-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin-bottom: .75rem;
+  position: relative;
+  z-index: 2;
+}
+.about-hero p {
+  opacity: .85;
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  position: relative;
+  z-index: 2;
+}
+.breadcrumb {
+  margin-top: 1.25rem;
+  opacity: .65;
+  font-size: .85rem;
+  position: relative;
+  z-index: 2;
+}
+.breadcrumb a {
+  color: var(--accent-light);
+}
+
+/* ── Floating Glow spheres for Hero Background ── */
+.hero-bg-glows {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+.glow-sphere {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  mix-blend-mode: screen;
+  will-change: transform;
+  animation: float-sphere 12s ease-in-out infinite;
+}
+@keyframes float-sphere {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+.sphere-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+  top: -10%;
+  right: -5%;
+}
+.sphere-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+  bottom: -10%;
+  left: -5%;
+  animation-delay: -6s;
+}
+
+.mission-vision {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+.mv-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: var(--text-primary);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+  transition: var(--transition);
+}
+.mv-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(79, 70, 229, 0.15);
+  box-shadow: 0 20px 40px rgba(79, 70, 229, 0.08);
+}
+.mv-card h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 0.85rem;
+  color: var(--primary);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.mv-card p {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  font-size: 0.98rem;
+}
+
+.curriculum-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+  margin-top: 2rem;
+}
+.curriculum-list li {
+  background: rgba(79, 70, 229, 0.04);
+  border: 1px solid rgba(79, 70, 229, 0.07);
+  border-left: 4px solid var(--accent);
+  padding: 0.8rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.93rem;
+  color: var(--primary-dark);
+  font-weight: 600;
+  transition: var(--transition);
+}
+.curriculum-list li:hover {
+  background: rgba(79, 70, 229, 0.08);
+  transform: translateX(6px);
+}
+
+.staff-card {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.02);
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.staff-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 45px rgba(79, 70, 229, 0.15);
+  border-color: rgba(79, 70, 229, 0.1);
+}
+.staff-card img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  object-position: top;
+}
+.staff-info {
+  padding: 1.5rem;
+}
+.staff-info .role {
+  color: var(--accent);
+  font-size: .75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 0.25rem;
+}
+.staff-info h4 {
+  color: var(--primary-dark);
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: .25rem 0;
+}
+.staff-info p {
+  color: var(--text-secondary);
+  font-size: .88rem;
+  font-weight: 500;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(var(--primary), var(--accent));
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 2rem;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -2.4rem;
+  top: .35rem;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+.tl-year {
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: .05em;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.tl-text {
+  color: var(--text-secondary);
+  font-size: .95rem;
+  margin-top: .3rem;
+  line-height: 1.6;
+}
+@media(max-width: 768px) {
+  .mission-vision {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+  .about-hero {
+    padding: 6.5rem 1.25rem 3.5rem !important;
+  }
+  .mv-card {
+    padding: 1.5rem !important;
+    border-radius: 20px !important;
+  }
+  .staff-card img {
+    height: 200px !important;
+  }
+  .section {
+    padding: 3rem 0 !important;
+  }
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="mainNav">
+  <div class="nav-logo">
+    <img src="../assets/logo.png" alt="MSS"/><div class="nav-logo-text">MSS Matriculation School<span>Uppatty, The Nilgiris</span></div>
+  </div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="../index.html">Home</a></li><li><a href="about.html" class="active">About</a></li>
+    <li><a href="gallery.html">Gallery</a></li><li><a href="contact.html">Contact</a></li>
+    <li><a href="admission.html">Admission</a></li>
+    <li><a href="student-login.html" class="btn-nav">Student Login</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="about-hero">
+  <div class="hero-bg-glows">
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+  </div>
+  <h1>About Our School</h1>
+  <p>Three decades of nurturing young minds with quality education, character formation, and holistic development.</p>
+  <div class="breadcrumb"><a href="../index.html">Home</a> / About</div>
+</div>
+
+<section class="section page-enter">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;" class="about-inner-responsive">
+      <div>
+        <p style="color:var(--accent);font-weight:600;font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;">Our Story</p>
+        <h2 class="section-title">MSS Matriculation School</h2>
+        <div class="accent-line"></div>
+        <p style="color:var(--text-secondary);line-height:1.85;margin-bottom:1rem;">MSS Matriculation School was established in <strong>1992</strong> at Uppatty, Pandalur Block, The Nilgiris District, Tamil Nadu. It is a co-educational institution managed by <strong>M.S.S Trust (Minority Service Society)</strong> under the auspices of Uppatty Juma Masjid Committee.</p>
+        <p style="color:var(--text-secondary);line-height:1.85;margin-bottom:1rem;">Started as an English medium nursery and primary school, it grew into a full Matriculation school in the year <strong>2000</strong>. The medium of instruction is English with Hindi and Malayalam also included.</p>
+        <p style="color:var(--text-secondary);line-height:1.85;">Our institution is situated in the midst of serene and lush greenery, providing an ideal environment for learning and growth.</p>
+      </div>
+      <div style="position:relative;">
+        <img src="../A/mss1.jpg" alt="MSS School" style="border-radius:16px;width:100%;box-shadow:0 12px 40px rgba(79,70,229,.15);"/>
+        <div style="position:absolute;bottom:-12px;left:-12px;background:var(--accent);color:#fff;padding:.8rem 1.4rem;border-radius:12px;font-weight:700;font-size:.9rem;box-shadow:0 6px 20px rgba(124,58,237,.3);">🏫 Est. 1992 | Nilgiris, TN</div>
+      </div>
+    </div>
+
+    <!-- Mission & Vision -->
+    <div class="mission-vision">
+      <div class="mv-card">
+        <h3>🎯 Our Mission</h3>
+        <p>"Quality Education and Character Formation" — Our school provides student-centric education through modern learning systems bringing out excellence, competencies and citizenship behavior in students, to ensure the genius in every child and create lifelong learners.</p>
+      </div>
+      <div class="mv-card">
+        <h3>🔭 Our Vision</h3>
+        <p>Motto: <strong>"Learn Lead Achieve"</strong> — We inspire a passion for learning and commit ourselves to holistic development of youth, bringing out their full potential, molding morally upright, socially responsible and resourceful citizens.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Curriculum -->
+<section class="section" style="background:#f8f9fa;">
+  <div class="container">
+    <div class="section-header text-center">
+      <h2 class="section-title">Our Curriculum</h2>
+      <div class="accent-line"></div>
+      <p class="section-subtitle">A well-rounded curriculum developing the total personality of every child</p>
+    </div>
+    <p style="color:#495057;line-height:1.85;max-width:800px;margin:0 auto 2rem;text-align:center;">The curriculum develops total personality with equal emphasis on academic as well as physical and creative activities. MSS strictly follows all norms advised by the Government of Tamil Nadu.</p>
+    <ul class="curriculum-list">
+      <li>📚 Academic Subjects (Tamil, English, Maths, Science, Social)</li>
+      <li>💻 Computer Skills for all students</li>
+      <li>🎨 Art & Craft activities</li>
+      <li>🏃 Physical Training & Sports</li>
+      <li>🌿 Field Trips & Workshops</li>
+      <li>🤝 Club Activities</li>
+      <li>❤️ Social Service Visits</li>
+      <li>📝 Monthly evaluations & Parent-Teacher Meetings</li>
+      <li>📋 Worksheets for learning assessment</li>
+      <li>🌟 Special classes for slow learners (Saturdays)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Timeline -->
+<section class="section">
+  <div class="container" style="max-width:700px;">
+    <div class="section-header text-center">
+      <h2 class="section-title">Our Journey</h2>
+      <div class="accent-line"></div>
+    </div>
+    <div class="timeline mt-3">
+      <div class="tl-item"><div class="tl-year">1992</div><div class="tl-text">MSS School established as English medium nursery and primary school in Uppatty, Nilgiris.</div></div>
+      <div class="tl-item"><div class="tl-year">2000</div><div class="tl-text">School upgraded to full Matriculation status, expanding to Classes I–X.</div></div>
+      <div class="tl-item"><div class="tl-year">2005</div><div class="tl-text">Computer lab established, bringing technology-based learning to students.</div></div>
+      <div class="tl-item"><div class="tl-year">2010</div><div class="tl-text">Expanded infrastructure with new classrooms, science lab, and sports facilities.</div></div>
+      <div class="tl-item"><div class="tl-year">2020</div><div class="tl-text">Introduced digital learning systems and online parent communication portal.</div></div>
+      <div class="tl-item"><div class="tl-year">2024</div><div class="tl-text">Launched real-time bus tracking and digital attendance management system.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Management -->
+<section class="section" style="background:#f8f9fa;">
+  <div class="container">
+    <div class="section-header text-center">
+      <h2 class="section-title">School Management</h2>
+      <div class="accent-line"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;">
+      <div class="staff-card"><img src="../A/PRINCIPAL.jpg" alt="Principal"/>
+        <div class="staff-info"><div class="role">Principal</div><h4>Ms. Kavitha</h4><p>📞 9442791922</p></div>
+      </div>
+      <div class="staff-card"><img src="../A/CORRESPONDENT.jpg" alt="Correspondent"/>
+        <div class="staff-info"><div class="role">Correspondent</div><h4>Dr. Anwar Hamzath</h4><p>📞 9443523706</p></div>
+      </div>
+      <div class="staff-card"><img src="../A/chairmain.jpg" alt="Chairman"/>
+        <div class="staff-info"><div class="role">Chairman</div><h4>Mr. K. Ali</h4><p>📞 9585929200</p></div>
+      </div>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:1.5rem;margin-top:1.5rem;box-shadow:var(--shadow-sm);">
+      <h4 style="color:var(--primary-dark);font-weight:700;margin-bottom:.5rem;">Secretary</h4>
+      <p>Mr. Shajith A P — 📞 9443902085</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col"><img src="../assets/logo.png" alt="MSS" style="height:44px;margin-bottom:.75rem;"/><p>MSS Matriculation School, Uppatty, Pandalur, The Nilgiris, Tamil Nadu 643241</p></div>
+      <div class="footer-col"><h4>Pages</h4><a href="../index.html">Home</a><a href="about.html">About</a><a href="gallery.html">Gallery</a><a href="contact.html">Contact</a></div>
+      <div class="footer-col"><h4>Contact</h4><p>📞 +91 9487020243</p><p>✉️ info@mssmatricschool.com</p></div>
+    </div>
+    <div class="footer-bottom">© 2024 MSS Matriculation School. All rights reserved.</div>
+  </div>
+</footer>
+<div id="toast-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/app.js"></script>
+<style>
+@media(max-width:768px){.about-inner-responsive{grid-template-columns:1fr !important;}}
+</style>
+</body>
+</html>

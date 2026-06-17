@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Download Portal Apps – MSS Matriculation School</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <style>
+    .page-hero {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      padding: 6.5rem 2rem 4.5rem;
+      text-align: center;
+      color: #white;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.12) 0%, transparent 40%);
+      pointer-events: none;
+    }
+    .page-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      margin-bottom: .75rem;
+      font-weight: 900;
+      color: #fff;
+    }
+    .page-hero p {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .download-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 3.5rem;
+      align-items: center;
+      margin-top: 2rem;
+    }
+    .showcase-column {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .phone-mockup-wrapper {
+      position: relative;
+      max-width: 380px;
+      width: 100%;
+      border-radius: 40px;
+      padding: 10px;
+      background: #111827;
+      box-shadow: 0 30px 60px -15px rgba(79, 70, 229, 0.22),
+                  0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+                  0 20px 40px -10px rgba(0, 0, 0, 0.3);
+      border: 4px solid rgba(255, 255, 255, 0.06);
+    }
+    .phone-mockup-wrapper img {
+      width: 100%;
+      border-radius: 32px;
+      display: block;
+    }
+    .glow-ring {
+      position: absolute;
+      inset: -20px;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .app-cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+    .app-card {
+      background: var(--white);
+      border: 1px solid rgba(15, 23, 42, 0.04);
+      border-radius: 28px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.01);
+      display: flex;
+      gap: 1.5rem;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .app-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: var(--primary);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .app-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.1);
+      border-color: rgba(79, 70, 229, 0.08);
+    }
+    .app-card:hover::before {
+      opacity: 1;
+    }
+    .app-icon-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+    .app-card.student-app .app-icon-box {
+      background: rgba(79, 70, 229, 0.08);
+      color: var(--primary);
+    }
+    .app-card.teacher-app .app-icon-box {
+      background: rgba(124, 58, 237, 0.08);
+      color: var(--accent);
+    }
+    .app-card.bus-app .app-icon-box {
+      background: rgba(16, 185, 129, 0.08);
+      color: var(--success);
+    }
+    .app-info-panel {
+      flex: 1;
+    }
+    .app-info-panel h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .app-info-panel h3 span {
+      font-size: 0.75rem;
+      background: rgba(15, 23, 42, 0.04);
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .app-info-panel p {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      margin-bottom: 1.2rem;
+    }
+    .features-tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .feature-tag {
+      font-size: 0.78rem;
+      background: #f8fafc;
+      border: 1px solid rgba(15, 23, 42, 0.03);
+      color: var(--text-secondary);
+      padding: 0.25rem 0.65rem;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .btn-download-app {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: var(--primary);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 16px;
+      font-weight: 750;
+      font-size: 0.92rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.18);
+    }
+    .btn-download-app:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.25);
+    }
+    .app-card.teacher-app .btn-download-app {
+      background: var(--accent);
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.18);
+    }
+    .app-card.teacher-app .btn-download-app:hover {
+      background: var(--accent-dark);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.25);
+    }
+    .app-card.bus-app .btn-download-app {
+      background: var(--success);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.18);
+    }
+    .app-card.bus-app .btn-download-app:hover {
+      background: #059669;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25);
+    }
+    .meta-metrics {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+    }
+    @media(max-width: 900px) {
+      .download-layout {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      .showcase-column {
+        order: 2;
+      }
+      .phone-mockup-wrapper {
+        max-width: 320px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar" id="mainNav">
+    <div class="nav-logo">
+      <img src="../assets/logo.png" alt="MSS Logo" />
+      <div class="nav-logo-text">MSS Matriculation School<span>Uppatty, The Nilgiris</span></div>
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="admission.html">Admission</a></li>
+      <li><a href="student-login.html" class="btn-nav">Student Login</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <div class="page-hero">
+    <h1>📱 Download MSS Portal Apps</h1>
+    <p>Get seamless access to your portal dashboard, tracking systems, and class configurations directly on your Android device.</p>
+    <div style="margin-top:1rem; opacity:.75; font-size:.88rem; font-weight:700;">
+      <a href="../index.html" style="color:var(--accent-light); text-decoration:none;">Home</a> / Download Apps
+    </div>
+  </div>
+
+  <section class="section page-enter">
+    <div class="container">
+      <div class="download-layout">
+        <!-- Showcase Column -->
+        <div class="showcase-column">
+          <div class="glow-ring"></div>
+          <div class="phone-mockup-wrapper">
+            <img src="../assets/app_mockup.png" alt="Mobile App Showcase Mockup" />
+          </div>
+        </div>
+
+        <!-- Download Cards List -->
+        <div class="app-cards-list">
+          <!-- Card 1: Student App -->
+          <div class="app-card student-app">
+            <div class="app-icon-box">
+              <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div class="app-info-panel">
+              <h3>Student & Parent Portal <span>v2.4.0</span></h3>
+              <p>Check marks, view real-time class attendance logs, track bus boardings, and communicate directly with class teachers.</p>
+              <div class="features-tag-list">
+                <span class="feature-tag">✨ Attendance Tracker</span>
+                <span class="feature-tag">✨ Grade Sheets</span>
+                <span class="feature-tag">✨ Bus Boarding Alerts</span>
+              </div>
+              <button class="btn-download-app" onclick="triggerDownload('Student Portal')">
+                <i class="bi bi-android2"></i> Download APK
+              </button>
+              <div class="meta-metrics">
+                <span>File Size: 18.2 MB</span>
+                <span>•</span>
+                <span>Requires Android 6.0+</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Teacher App -->
+          <div class="app-card teacher-app">
+            <div class="app-icon-box">
+              <i class="bi bi-person-video3"></i>
+            </div>
+            <div class="app-info-panel">
+              <h3>Teacher Workspace <span>v1.8.5</span></h3>
+              <p>Manage multi-class attendance logs, check subject syllabi, compile student marks reports, and track transit updates easily.</p>
+              <div class="features-tag-list">
+                <span class="feature-tag">✨ Multi-Class Support</span>
+                <span class="feature-tag">✨ Grading Dashboard</span>
+                <span class="feature-tag">✨ Push Notifications</span>
+              </div>
+              <button class="btn-download-app" onclick="triggerDownload('Teacher Workspace')">
+                <i class="bi bi-android2"></i> Download APK
+              </button>
+              <div class="meta-metrics">
+                <span>File Size: 22.4 MB</span>
+                <span>•</span>
+                <span>Requires Android 7.0+</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Bus Attendance & Tracking -->
+          <div class="app-card bus-app">
+            <div class="app-icon-box">
+              <i class="bi bi-bus-front-fill"></i>
+            </div>
+            <div class="app-info-panel">
+              <h3>Transit & Driver Assist <span>v1.2.1</span></h3>
+              <p>Specifically designed for bus conductors and drivers. Support for morning/evening check shifts, one-click calls to parents, and offline data sync.</p>
+              <div class="features-tag-list">
+                <span class="feature-tag">✨ Shift Selection</span>
+                <span class="feature-tag">✨ One-Tap Parent Call</span>
+                <span class="feature-tag">✨ Offline-First</span>
+              </div>
+              <button class="btn-download-app" onclick="triggerDownload('Transit & Driver Assist')">
+                <i class="bi bi-android2"></i> Download APK
+              </button>
+              <div class="meta-metrics">
+                <span>File Size: 14.8 MB</span>
+                <span>•</span>
+                <span>Requires Android 5.0+</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <img src="../assets/logo.png" alt="MSS" style="height:48px;margin-bottom:.75rem;" />
+          <p>MSS Matriculation School, Uppatty, Pandalur Taluk, The Nilgiris, Tamil Nadu 643241</p>
+        </div>
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <a href="../index.html">Home</a>
+          <a href="about.html">About School</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+          <a href="admission.html">Admission</a>
+        </div>
+        <div class="footer-col">
+          <h4>Portals</h4>
+          <a href="student-login.html">Student Login</a>
+          <a href="teacher-login.html">Teacher Login</a>
+          <a href="admin-login.html">Admin Login</a>
+          <a href="bus-attendance.html">Bus Attendance</a>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <p>📞 +91 9487020243</p>
+          <p>✉️ info@mssmatricschool.com</p>
+          <p>📍 Uppatty, Pandalur, Nilgiris, TN</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        © 2026 MSS Matriculation School. All rights reserved. | Designed with ❤️ for MSS Trust
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    function triggerDownload(appName) {
+      showToast(`${appName} APK download started.`, 'success');
+      console.log(`User clicked download link for: ${appName}`);
+    }
+
+    // Toggle Mobile Navbar
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById('navToggle');
+      const links = document.getElementById('navLinks');
+      if (toggle && links) {
+        toggle.addEventListener('click', () => {
+          links.classList.toggle('active');
+          toggle.classList.toggle('active');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

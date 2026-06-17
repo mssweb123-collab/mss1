@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Teacher Dashboard – MSS School</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* ── Floating Glow spheres for Dashboard Background ── */
+    .dashboard-bg-glows {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: -2;
+      pointer-events: none;
+      opacity: 0.15;
+    }
+    .glow-sphere {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      mix-blend-mode: multiply;
+      will-change: transform;
+    }
+    .sphere-1 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+      top: -5%;
+      right: -5%;
+    }
+    .sphere-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+      bottom: -10%;
+      left: -5%;
+    }
+    
+    /* ── Elegant Glassmorphic Header ── */
+    .dashboard-header {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      padding: 1rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 30px rgba(15, 23, 42, 0.02);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .dashboard-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 850;
+      font-size: 1.5rem;
+      color: var(--primary-dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      padding: 0.55rem 1.25rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    
+    .logout-btn:hover {
+      background: var(--danger);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+    
+    .dashboard-content {
+      padding: 2.5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 2rem;
+    }
+
+    /* Summary Panel / Stats */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .summary-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 1.5rem 2rem;
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(15, 23, 42, 0.02);
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      transition: var(--transition);
+    }
+
+    .summary-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 45px rgba(79, 70, 229, 0.06);
+    }
+
+    .summary-icon {
+      font-size: 1.6rem;
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-students { background: rgba(79, 70, 229, 0.06); color: var(--primary); }
+    .icon-attendance { background: rgba(16, 185, 129, 0.06); color: var(--success); }
+    .icon-transport { background: rgba(245, 158, 11, 0.06); color: var(--warning); }
+
+    .summary-info h3 {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 0.15rem;
+      letter-spacing: 0.05em;
+      font-weight: 750;
+    }
+
+    .summary-info p {
+      font-size: 1.35rem;
+      font-weight: 850;
+      color: var(--primary-dark);
+      margin: 0;
+    }
+
+    /* Action Cards */
+    .action-menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .menu-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 24px;
+      padding: 1.75rem;
+      box-shadow: 0 15px 35px rgba(15, 23, 42, 0.02);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      transition: var(--transition);
+      text-align: left;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 25px 50px rgba(79, 70, 229, 0.08);
+      border-color: rgba(79, 70, 229, 0.15);
+    }
+
+    .menu-icon {
+      font-size: 2rem;
+      color: var(--primary);
+      background: rgba(79, 70, 229, 0.05);
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+
+    .menu-card:hover .menu-icon {
+      background: var(--primary);
+      color: var(--white);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    }
+
+    .menu-details h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .menu-details p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin: 0;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    /* Student Directory */
+    .directory-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 28px;
+      padding: 2rem;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.03);
+    }
+
+    .panel-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .directory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+
+    .student-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.01);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: var(--transition);
+    }
+    
+    .student-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(79, 70, 229, 0.05);
+      border-color: rgba(79, 70, 229, 0.15);
+    }
+
+    .student-card-header {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .student-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+    }
+
+    .student-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .student-details h4 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 0.15rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .student-details .roll-no {
+      font-size: 0.78rem;
+      font-weight: 750;
+      color: var(--primary);
+      margin-bottom: 0.15rem;
+    }
+
+    /* Meta Badges */
+    .student-meta-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      border-top: 1px dashed rgba(15, 23, 42, 0.08);
+      padding-top: 0.75rem;
+      margin-top: 0.25rem;
+    }
+    .meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 750;
+      border: 1px solid rgba(15, 23, 42, 0.05);
+      background: rgba(15, 23, 42, 0.02);
+      color: var(--text-secondary);
+    }
+    .meta-badge.dob-badge {
+      background: rgba(6, 182, 212, 0.05);
+      color: var(--info);
+      border-color: rgba(6, 182, 212, 0.1);
+    }
+    .meta-badge.parent-badge {
+      background: rgba(124, 58, 237, 0.05);
+      color: var(--accent);
+      border-color: rgba(124, 58, 237, 0.1);
+    }
+    .meta-badge.transport-badge.bus-mode {
+      background: rgba(245, 158, 11, 0.05);
+      color: var(--warning);
+      border-color: rgba(245, 158, 11, 0.1);
+    }
+    .meta-badge.transport-badge.walk-mode {
+      background: rgba(16, 185, 129, 0.05);
+      color: var(--success);
+      border-color: rgba(16, 185, 129, 0.1);
+    }
+
+    @media (max-width: 580px) {
+      .dashboard-header {
+        padding: 1rem 1.2rem;
+      }
+      .dashboard-header h1 {
+        font-size: 1.3rem;
+      }
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+      .action-menu {
+        grid-template-columns: 1fr;
+      }
+      .directory-panel {
+        padding: 1.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/demo-data.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    const session = Auth.requireRole('teacher', 'teacher-login.html');
+  </script>
+
+  <div class="dashboard-bg-glows">
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+  </div>
+
+  <header class="dashboard-header">
+    <div>
+      <h1 id="teacherNameHeader">
+        <i class="bi bi-mortarboard-fill" style="color: var(--primary);"></i> Teacher Portal
+      </h1>
+      <div id="classNameDisplay" style="font-size: 0.88rem; font-weight: 600; color: var(--text-secondary); margin-top: 2px;">Loading class info...</div>
+    </div>
+    <button class="logout-btn" onclick="Auth.logout(); window.location.href='teacher-login.html'">
+      <i class="bi bi-box-arrow-right"></i> Sign Out
+    </button>
+  </header>
+
+  <main class="dashboard-content page-enter">
+    
+    <!-- Class Info and Stats -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon icon-students"><i class="bi bi-people-fill"></i></div>
+        <div class="summary-info">
+          <h3>Class Strength</h3>
+          <p id="statTotalStudents">0</p>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon icon-attendance"><i class="bi bi-check-all"></i></div>
+        <div class="summary-info">
+          <h3>Today's Attendance</h3>
+          <p id="statPresentToday">0 / 0</p>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon icon-transport"><i class="bi bi-bus-front-fill"></i></div>
+        <div class="summary-info">
+          <h3>Transport Split</h3>
+          <p id="statTransportInfo" style="font-size: 1rem; margin-top: 5px;">Loading...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions Menu -->
+    <div class="action-menu">
+      <div class="menu-card" onclick="window.location.href='teacher-attendance.html'">
+        <div class="menu-icon"><i class="bi bi-calendar-check"></i></div>
+        <div class="menu-details">
+          <h2>Daily Attendance</h2>
+          <p>Mark, edit and track daily attendance records for class students.</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="window.location.href='teacher-marks.html'">
+        <div class="menu-icon"><i class="bi bi-journal-check"></i></div>
+        <div class="menu-details">
+          <h2>Enter & Edit Marks</h2>
+          <p>Add exam scores (Quarterly, Half Yearly, Annual) and manage performance.</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="window.location.href='teacher-transport.html'">
+        <div class="menu-icon"><i class="bi bi-bus-front"></i></div>
+        <div class="menu-details">
+          <h2>Manage Transport</h2>
+          <p>Update commute modes and assign bus routes for class students.</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="window.location.href='teacher-subjects.html'">
+        <div class="menu-icon"><i class="bi bi-book-half"></i></div>
+        <div class="menu-details">
+          <h2>Manage Subjects</h2>
+          <p>Add, edit or remove the curriculum subjects taught in your class.</p>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Student Directory -->
+    <div class="directory-panel">
+      <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; width: 100%;">
+        <span><i class="bi bi-person-lines-fill icon-accent"></i> My Class Directory</span>
+        <button class="btn btn-primary btn-sm" onclick="downloadAllProgressCards()" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: var(--radius-full);">
+          <i class="bi bi-file-earmark-pdf-fill"></i> Download Bulk Progress Cards
+        </button>
+      </div>
+      <div class="form-group">
+        <input type="text" id="searchBar" class="form-control" placeholder="Search student name or roll no..." oninput="filterDirectory()"/>
+      </div>
+      <div class="directory-grid" id="directoryGrid"></div>
+    </div>
+
+  </main>
+
+  <div id="toast-container"></div>
+
+  <script>
+    let myClassId = null;
+    let cachedStudents = [];
+
+    if (session) {
+      const teachers = DB.get('teachers') || [];
+      const teacher = teachers.find(t => t.id === session.id);
+      if (teacher) {
+        document.getElementById('teacherNameHeader').textContent = teacher.name;
+        window.myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
+        myClassId = window.myClassIds[0] || null;
+        const classes = DB.get('classes') || [];
+        const assignedClasses = classes.filter(c => window.myClassIds.includes(c.id));
+        if (assignedClasses.length > 0) {
+          document.getElementById('classNameDisplay').textContent = `Classes: ${assignedClasses.map(c => c.name).join(', ')}`;
+        } else {
+          document.getElementById('classNameDisplay').textContent = `Class: Not Assigned`;
+        }
+      }
+      
+      loadDashboardData();
+
+      // Listen to database sync
+      window.addEventListener('mss-db-sync', () => {
+        loadDashboardData();
+      });
+    }
+
+    function getMyStudents() {
+      const allStudents = DB.get('students') || [];
+      return allStudents.filter(s => window.myClassIds.includes(s.classId));
+    }
+
+    function loadDashboardData() {
+      const students = getMyStudents();
+      cachedStudents = students;
+      const totalCount = students.length;
+      
+      // Transport stats
+      const busCount = students.filter(s => s.type === 'bus').length;
+      const scholarCount = totalCount - busCount;
+      
+      // Attendance stats for today
+      const dateToday = today();
+      const bulkLog = Attendance.getBulkForDate(dateToday, 'class');
+      let presentCount = 0;
+      
+      students.forEach(s => {
+        const att = bulkLog.find(l => l.studentId === s.id);
+        if (att && att.present) {
+          presentCount++;
+        }
+      });
+      
+      // Update DOM
+      document.getElementById('statTotalStudents').textContent = totalCount;
+      document.getElementById('statPresentToday').textContent = `${presentCount} / ${totalCount}`;
+      document.getElementById('statTransportInfo').textContent = `🚌 ${busCount} Bus | 🚶‍♂️ ${scholarCount} Walk`;
+      
+      renderDirectory(students);
+    }
+
+    function renderDirectory(studentList) {
+      const grid = document.getElementById('directoryGrid');
+      if (studentList.length === 0) {
+        grid.innerHTML = "<div style='grid-column: 1/-1; text-align:center; padding: 2rem;'><p class='text-muted'>No students in this class.</p></div>";
+        return;
+      }
+
+      const subjectsObj = DB.get('subjects') || {};
+      const classSubjects = subjectsObj[s.classId] || ['English', 'Maths', 'Science'];
+      const allMarks = DB.get('marks') || {};
+
+      grid.innerHTML = studentList.map(s => {
+        const isBus = s.type === 'bus';
+        const smarks = allMarks[s.id] || {};
+        
+        // Build Marks table rows
+        const marksRows = classSubjects.map(sub => {
+          const marks = smarks[sub] || {};
+          const qMark = marks.exam1 !== undefined ? marks.exam1 : '-';
+          const hMark = marks.exam2 !== undefined ? marks.exam2 : '-';
+          const aMark = marks.exam3 !== undefined ? marks.exam3 : '-';
+          return `
+            <tr>
+              <td style="padding: 0.5rem; font-weight:700; color: var(--primary);">${sub}</td>
+              <td style="padding: 0.5rem; text-align:center; font-weight: 700;">${qMark}</td>
+              <td style="padding: 0.5rem; text-align:center; font-weight: 700;">${hMark}</td>
+              <td style="padding: 0.5rem; text-align:center; font-weight: 700;">${aMark}</td>
+            </tr>
+          `;
+        }).join('');
+
+        return `
+          <div class="student-card">
+            <div class="student-card-header">
+              <div class="student-avatar">${s.name.charAt(0)}</div>
+              <div class="student-details">
+                <h4>${s.name}</h4>
+                <div class="roll-no">Roll No: ${s.rollNo}</div>
+              </div>
+            </div>
+            
+            <div class="student-meta-badges">
+              <span class="meta-badge dob-badge"><i class="bi bi-calendar-event"></i> Born: ${formatDate(s.dob)}</span>
+              <span class="meta-badge parent-badge"><i class="bi bi-people"></i> Parent: ${s.parentName || 'N/A'}</span>
+              <span class="meta-badge transport-badge ${isBus ? 'bus-mode' : 'walk-mode'}">
+                <i class="bi ${isBus ? 'bi-bus-front' : 'bi-person-walking'}"></i> ${isBus ? 'School Bus' : 'Day Scholar'}
+              </span>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+              <button class="btn btn-outline btn-sm" style="flex: 1;" onclick="toggleMarks('${s.id}')">
+                <i class="bi bi-bar-chart-fill"></i> View Marks
+              </button>
+              <button class="btn btn-primary btn-sm" style="flex: 1; background: linear-gradient(135deg, var(--success), #059669); border-color: transparent; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);" onclick="downloadProgressCard('${s.id}')">
+                <i class="bi bi-download"></i> Progress Card
+              </button>
+            </div>
+
+            <!-- Expanded Marks Accordion -->
+            <div class="student-marks-expand" id="marks_expand_${s.id}" style="display:none; border-top: 1px solid var(--border-color); padding-top: 0.75rem; margin-top: 0.25rem;">
+              <h5 style="font-size: 0.85rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.5rem;">Academic Report</h5>
+              <div style="overflow-x: auto; width: 100%;">
+                <table style="width: 100%; font-size: 0.82rem; border-collapse: collapse;">
+                  <thead>
+                    <tr style="background: var(--bg-main); border-bottom: 2px solid var(--border-color);">
+                      <th style="padding: 0.5rem; text-align: left; color: var(--text-secondary); background: none; font-size: 0.78rem;">Subject</th>
+                      <th style="padding: 0.5rem; text-align: center; color: var(--text-secondary); background: none; font-size: 0.78rem;">Qtr</th>
+                      <th style="padding: 0.5rem; text-align: center; color: var(--text-secondary); background: none; font-size: 0.78rem;">Half</th>
+                      <th style="padding: 0.5rem; text-align: center; color: var(--text-secondary); background: none; font-size: 0.78rem;">Ann</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${marksRows.length > 0 ? marksRows : '<tr><td colspan="4" style="text-align:center; padding: 0.5rem; color: var(--text-muted);">No subjects defined.</td></tr>'}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleMarks(studentId) {
+      const container = document.getElementById(`marks_expand_${studentId}`);
+      if (container) {
+        if (container.style.display === 'none') {
+          container.style.display = 'block';
+        } else {
+          container.style.display = 'none';
+        }
+      }
+    }
+
+    function generateProgressCardHtml(s) {
+      const classes = DB.get('classes') || [];
+      const cls = classes.find(c => c.id === s.classId);
+      const className = cls ? cls.name : 'Unknown';
+
+      const subjectsObj = DB.get('subjects') || {};
+      const classSubjects = subjectsObj[s.classId] || ['English', 'Maths', 'Science'];
+
+      const allMarks = DB.get('marks') || {};
+      const smarks = allMarks[s.id] || {};
+
+      let totalQ = 0, totalH = 0, totalA = 0;
+      let countQ = 0, countH = 0, countA = 0;
+
+      const rowsHtml = classSubjects.map(sub => {
+        const marks = smarks[sub] || {};
+        const qMark = marks.exam1 !== undefined ? marks.exam1 : '-';
+        const hMark = marks.exam2 !== undefined ? marks.exam2 : '-';
+        const aMark = marks.exam3 !== undefined ? marks.exam3 : '-';
+
+        if (qMark !== '-') { totalQ += Number(qMark); countQ++; }
+        if (hMark !== '-') { totalH += Number(hMark); countH++; }
+        if (aMark !== '-') { totalA += Number(aMark); countA++; }
+
+        return `
+          <tr>
+            <td style="border: 1px solid #cbd5e1; padding: 0.75rem; font-weight: 700; color: #1e293b;">${sub}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 700; font-size: 1.05rem;">${qMark}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 700; font-size: 1.05rem;">${hMark}</td>
+            <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 700; font-size: 1.05rem;">${aMark}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Calculations summary rows
+      const maxTotalQ = countQ * 100;
+      const maxTotalH = countH * 100;
+      const maxTotalA = countA * 100;
+
+      const pctQ = countQ > 0 ? ((totalQ / maxTotalQ) * 100).toFixed(1) + '%' : '-';
+      const pctH = countH > 0 ? ((totalH / maxTotalH) * 100).toFixed(1) + '%' : '-';
+      const pctA = countA > 0 ? ((totalA / maxTotalA) * 100).toFixed(1) + '%' : '-';
+
+      const totalRow = `
+        <tr style="background-color: #f8fafc; font-weight: bold; border-top: 2px solid #cbd5e1;">
+          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; color: #3730a3; font-weight: 800;">Total Obtained</td>
+          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 800; color: #3730a3;">${countQ > 0 ? `${totalQ} / ${maxTotalQ}` : '-'}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 800; color: #3730a3;">${countH > 0 ? `${totalH} / ${maxTotalH}` : '-'}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 800; color: #3730a3;">${countA > 0 ? `${totalA} / ${maxTotalA}` : '-'}</td>
+        </tr>
+        <tr style="background-color: #f8fafc; font-weight: bold;">
+          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; color: #0f172a;">Percentage</td>
+          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; color: #0f172a;">${pctQ}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; color: #0f172a;">${pctH}</td>
+          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; color: #0f172a;">${pctA}</td>
+        </tr>
+      `;
+
+      return `
+        <div class="card-container">
+          <div class="school-header">
+            <img src="../assets/logo.png" alt="MSS Logo" class="school-logo-print"/>
+            <div class="header-text-block">
+              <h1 class="school-title">MSS MATRICULATION SCHOOL</h1>
+              <p class="school-subtitle">Uppatty, Gudalur, The Nilgiris</p>
+              <p class="report-title">Student Progress Report Card</p>
+            </div>
+          </div>
+          
+          <div class="student-info-grid">
+            <div>
+              <div class="info-item"><strong>Student Name:</strong> ${s.name}</div>
+              <div class="info-item"><strong>Roll Number:</strong> ${s.rollNo}</div>
+              <div class="info-item"><strong>Class:</strong> ${className}</div>
+            </div>
+            <div>
+              <div class="info-item"><strong>Date of Birth:</strong> ${formatDate(s.dob)}</div>
+              <div class="info-item"><strong>Parent Name:</strong> ${s.parentName || 'N/A'}</div>
+              <div class="info-item"><strong>Academic Year:</strong> 2024-2025</div>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align: left; width: 40%;">Subject</th>
+                <th style="width: 20%; text-align: center;">Quarterly</th>
+                <th style="width: 20%; text-align: center;">Half Yearly</th>
+                <th style="width: 20%; text-align: center;">Annual</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+              ${totalRow}
+            </tbody>
+          </table>
+
+          <div class="signatures-row">
+            <div class="sig-box">
+              <div class="sig-line"></div>
+              <div style="font-size: 0.85rem; font-weight: 700; color: #475569;">Parent / Guardian</div>
+            </div>
+            <div class="sig-box">
+              <div class="sig-line"></div>
+              <div style="font-size: 0.85rem; font-weight: 700; color: #475569;">Class Teacher</div>
+            </div>
+            <div class="sig-box">
+              <div class="sig-line"></div>
+              <div style="font-size: 0.85rem; font-weight: 700; color: #475569;">Principal</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    const printTemplate = (cardsContent) => `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <base href="${window.location.href}">
+        <title>Progress Reports</title>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+        <style>
+          body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #0f172a;
+            background-color: #ffffff;
+            padding: 2rem;
+            margin: 0;
+          }
+          .card-container {
+            max-width: 800px;
+            margin: 0 auto 3rem auto;
+            border: 1px solid rgba(79, 70, 229, 0.12);
+            padding: 3.5rem;
+            border-radius: 24px;
+            box-shadow: 0 15px 40px rgba(79, 70, 229, 0.04);
+            background: #ffffff;
+            position: relative;
+          }
+          /* Double border accent */
+          .card-container::before {
+            content: '';
+            position: absolute;
+            inset: 1.25rem;
+            border: 1px dashed rgba(79, 70, 229, 0.2);
+            border-radius: 16px;
+            pointer-events: none;
+          }
+          .card-container::after {
+            content: '';
+            position: absolute;
+            inset: 1.5rem;
+            border: 2px solid rgba(79, 70, 229, 0.35);
+            border-radius: 14px;
+            pointer-events: none;
+          }
+          .school-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+          }
+          .school-logo-print {
+            width: 85px;
+            height: 85px;
+            object-fit: contain;
+          }
+          .header-text-block {
+            flex: 1;
+            border-left: 2px solid rgba(79, 70, 229, 0.25);
+            padding-left: 1.5rem;
+          }
+          .school-title {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #1e1b4b;
+            margin: 0 0 0.1rem 0;
+            letter-spacing: -0.02em;
+          }
+          .school-subtitle {
+            font-size: 0.88rem;
+            color: #4f46e5;
+            margin: 0 0 0.4rem 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          }
+          .report-title {
+            font-size: 1.1rem;
+            color: #312e81;
+            margin: 0;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+          }
+          .student-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.25rem;
+            font-size: 0.95rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            border-left: 4px solid #4f46e5;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
+          }
+          .info-item {
+            margin-bottom: 0.5rem;
+            color: #334155;
+          }
+          .info-item strong {
+            color: #64748b;
+            font-weight: 600;
+            margin-right: 0.25rem;
+          }
+          table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 2.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+          }
+          th {
+            background: linear-gradient(135deg, #3730a3 0%, #4f46e5 100%);
+            color: #ffffff;
+            border: none;
+            border-bottom: 2px solid #312e81;
+            padding: 0.85rem 1.25rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+          }
+          td {
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #cbd5e1;
+            padding: 0.85rem 1.25rem;
+            font-size: 0.95rem;
+            color: #334155;
+          }
+          td:last-child, th:last-child {
+            border-right: none;
+          }
+          tr:last-child td {
+            border-bottom: none;
+          }
+          tr:nth-child(even) {
+            background-color: #f8fafc;
+          }
+          .signatures-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4.5rem;
+            padding-top: 1rem;
+          }
+          .sig-box {
+            text-align: center;
+            width: 180px;
+          }
+          .sig-line {
+            border-top: 1.5px solid #cbd5e1;
+            margin-bottom: 0.6rem;
+          }
+          @media print {
+            body {
+              padding: 0;
+              background: none;
+            }
+            .card-container {
+              border: none;
+              box-shadow: none;
+              padding: 2.5rem;
+              margin: 0;
+              page-break-after: always;
+              break-after: page;
+            }
+            .card-container::before {
+              border-color: rgba(79, 70, 229, 0.3);
+            }
+            .card-container::after {
+              content: '';
+              position: absolute;
+              inset: 1.5rem;
+              border: 2px solid rgba(79, 70, 229, 0.4);
+              border-radius: 14px;
+              pointer-events: none;
+            }
+            .card-container:last-child {
+              page-break-after: avoid;
+              break-after: avoid;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        ${cardsContent}
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 500);
+          };
+        <\/script>
+      </body>
+      </html>
+    `;
+
+    function downloadProgressCard(studentId) {
+      const allStudents = DB.get('students') || [];
+      const s = allStudents.find(stu => stu.id === studentId);
+      if (!s) return;
+
+      const printWindow = window.open('', '_blank');
+      const cardsContent = generateProgressCardHtml(s);
+      
+      printWindow.document.open();
+      printWindow.document.write(printTemplate(cardsContent));
+      printWindow.document.close();
+    }
+
+    function downloadAllProgressCards() {
+      const students = getMyStudents();
+      if (students.length === 0) {
+        showToast('No students to download.', 'warning');
+        return;
+      }
+
+      const printWindow = window.open('', '_blank');
+      const cardsContent = students.map(s => generateProgressCardHtml(s)).join('\n');
+      
+      printWindow.document.open();
+      printWindow.document.write(printTemplate(cardsContent));
+      printWindow.document.close();
+    }
+
+    function filterDirectory() {
+      const query = document.getElementById('searchBar').value.toLowerCase().trim();
+      const filtered = cachedStudents.filter(s => 
+        s.name.toLowerCase().includes(query) || 
+        s.rollNo.toLowerCase().includes(query)
+      );
+      renderDirectory(filtered);
+    }
+  </script>
+</body>
+</html>

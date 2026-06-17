@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Student Dashboard – MSS School</title>
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#4f46e5" />
+  
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* ── Floating Glow spheres for Dashboard Background ── */
+    .dashboard-bg-glows {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: -2;
+      pointer-events: none;
+      opacity: 0.15;
+    }
+    .glow-sphere {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      mix-blend-mode: multiply;
+      will-change: transform;
+      animation: float-sphere 12s ease-in-out infinite;
+    }
+    @keyframes float-sphere {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+    .sphere-1 {
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+      top: -5%;
+      right: -5%;
+    }
+    .sphere-2 {
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+      bottom: -10%;
+      left: -5%;
+      animation-delay: -6s;
+    }
+    
+    /* ── Elegant Glassmorphic Header ── */
+    .dashboard-header {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      padding: 1rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 30px rgba(15, 23, 42, 0.02);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .dashboard-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 850;
+      font-size: 1.5rem;
+      color: var(--primary-dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .header-logo {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      border-radius: 50%;
+      border: 1.5px solid rgba(15, 23, 42, 0.08);
+      background: #fff;
+      padding: 2px;
+    }
+
+    .btn-toggle-details {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      margin: 1rem auto 0;
+      transition: all 0.3s ease;
+      padding: 0.5rem 0.8rem;
+      border-radius: var(--radius-md);
+      background: rgba(79, 70, 229, 0.05);
+      width: 100%;
+    }
+    .btn-toggle-details:hover {
+      color: var(--accent);
+      background: rgba(79, 70, 229, 0.1);
+    }
+    
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      padding: 0.55rem 1.25rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    
+    .logout-btn:hover {
+      background: var(--danger);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+    
+    .dashboard-content {
+      padding: 2.5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 2rem;
+    }
+    
+    /* ── Hero Profile Card ── */
+    .profile-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 28px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.04);
+      display: flex;
+      gap: 2.25rem;
+      align-items: center;
+      animation: pageFadeUp 0.6s var(--ease-smooth);
+    }
+    
+    .profile-avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 2.8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      box-shadow: 0 8px 25px rgba(79, 70, 229, 0.2);
+      border: 4px solid #fff;
+    }
+    
+    .profile-info h2 {
+      color: var(--primary-dark);
+      margin-bottom: 0.25rem;
+      font-size: 1.9rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 850;
+    }
+    
+    .profile-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.85rem;
+    }
+    
+    .profile-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 1px solid rgba(15, 23, 42, 0.05);
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    .profile-badge.class-pill {
+      background: rgba(79, 70, 229, 0.05);
+      color: var(--primary);
+      border-color: rgba(79, 70, 229, 0.1);
+    }
+    .profile-badge.roll-pill {
+      background: rgba(124, 58, 237, 0.05);
+      color: var(--accent);
+      border-color: rgba(124, 58, 237, 0.1);
+    }
+    .profile-badge.dob-pill {
+      background: rgba(6, 182, 212, 0.05);
+      color: var(--info);
+      border-color: rgba(6, 182, 212, 0.1);
+    }
+    .profile-badge.transport-pill.bus-mode {
+      background: rgba(245, 158, 11, 0.05);
+      color: var(--warning);
+      border-color: rgba(245, 158, 11, 0.1);
+    }
+    .profile-badge.transport-pill.walk-mode {
+      background: rgba(16, 185, 129, 0.05);
+      color: var(--success);
+      border-color: rgba(16, 185, 129, 0.1);
+    }
+    
+    .grid-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-header {
+        padding: 1rem 1.25rem;
+      }
+      .logout-btn span {
+        display: none;
+      }
+      .logout-btn {
+        padding: 0.55rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .grid-panels {
+        grid-template-columns: 1fr;
+      }
+      .profile-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem;
+      }
+      .profile-badges {
+        justify-content: center;
+      }
+      .marks-table {
+        min-width: 100% !important;
+      }
+      .marks-table th, .marks-table td {
+        padding: 0.8rem 0.5rem !important;
+        font-size: 0.82rem !important;
+      }
+    }
+    
+    .panel-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 28px;
+      padding: 2rem;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.03);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .panel-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 25px 55px rgba(79, 70, 229, 0.07);
+      border-color: rgba(79, 70, 229, 0.12);
+    }
+    
+    .panel-title {
+      color: var(--primary-dark);
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 1.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1.5px solid rgba(15, 23, 42, 0.05);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-accent {
+      color: var(--primary);
+      font-size: 1.35rem;
+    }
+
+    /* ── Progress Rings & Stats ── */
+    .stats-visualization {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .progress-ring-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-ring {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    .progress-ring-circle-bg {
+      stroke: rgba(15, 23, 42, 0.04);
+      stroke-width: 9px;
+    }
+
+    .progress-ring-circle {
+      stroke-width: 9px;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.8s ease-in-out;
+    }
+
+    .progress-ring-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .stat-num {
+      font-size: 1.9rem;
+      font-weight: 850;
+      color: var(--primary-dark);
+      line-height: 1;
+    }
+    
+    .stat-label {
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-weight: 750;
+      margin-top: 4px;
+      letter-spacing: 0.06em;
+    }
+
+    .stats-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .meta-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      display: inline-block;
+    }
+
+    .bg-success { background: var(--success); }
+    .bg-accent { background: var(--accent); }
+    .bg-light { background: var(--text-muted); }
+
+    /* Day Scholar Card View */
+    .dayscholar-badge-container {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: rgba(15, 23, 42, 0.02);
+      border-radius: 20px;
+      border: 1px solid rgba(15, 23, 42, 0.04);
+      margin-top: 0.5rem;
+    }
+
+    .dayscholar-icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      animation: bounce 2s infinite;
+    }
+
+    .dayscholar-badge-container h4 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .dayscholar-badge-container p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* ── Exam Selector Tabs ── */
+    .exam-tabs {
+      display: inline-flex;
+      gap: 0.35rem;
+      background: rgba(79, 70, 229, 0.05);
+      border: 1px solid rgba(79, 70, 229, 0.08);
+      padding: 0.4rem;
+      border-radius: var(--radius-full);
+      margin-bottom: 1.75rem;
+    }
+
+    .exam-tab-btn {
+      padding: 0.55rem 1.25rem;
+      border: none;
+      border-radius: var(--radius-full);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .exam-tab-btn:hover {
+      color: var(--primary);
+      background: rgba(79, 70, 229, 0.04);
+    }
+
+    .exam-tab-btn.active {
+      background: var(--primary);
+      color: var(--white);
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+    }
+
+    /* ── Marks Metrics & Tables ── */
+    .marks-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+    
+    .marks-table tbody tr {
+      transition: all 0.25s ease;
+    }
+
+    .marks-table tbody tr:hover {
+      background: rgba(79, 70, 229, 0.025);
+    }
+
+    .marks-table th, .marks-table td {
+      padding: 1.1rem 1.5rem;
+      text-align: left;
+      border-bottom: 1.5px solid rgba(15, 23, 42, 0.04);
+      font-size: 0.95rem;
+    }
+    
+    .marks-table th {
+      color: var(--text-secondary);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      background: rgba(15, 23, 42, 0.02);
+    }
+
+    .subject-tag {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(79, 70, 229, 0.05);
+      padding: 0.35rem 0.7rem;
+      border-radius: 8px;
+      border: 1px solid rgba(79, 70, 229, 0.08);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .marks-metric-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-width: 160px;
+    }
+
+    .marks-val {
+      font-size: 0.95rem;
+      font-weight: 850;
+      color: var(--text-primary);
+    }
+
+    .marks-max {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .marks-progress-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(15, 23, 42, 0.05);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .marks-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: var(--radius-full);
+      transition: width 0.8s var(--ease-smooth);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.8rem;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 750;
+    }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-info { background: #e0f2fe; color: #075985; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-accent { background: #f3e8ff; color: #6b21a8; }
+    
+    /* ── Animation Strip ── */
+    .animation-strip {
+      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+      padding: 1rem 0;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 28px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.03);
+      grid-column: 1 / -1;
+    }
+    
+    .animation-scene {
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+      position: relative;
+      height: 150px;
+    }
+    
+    .anim-road {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 32px;
+      background: #1e293b;
+      border-top: 3px solid #475569;
+      overflow: hidden;
+    }
+    
+    .anim-road::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 200%;
+      height: 2px;
+      background: repeating-linear-gradient(90deg, #e2e8f0, #e2e8f0 18px, transparent 18px, transparent 36px);
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.6;
+    }
+
+    .anim-road.moving::before {
+      animation: road-scroll 0.8s linear infinite;
+    }
+
+    @keyframes road-scroll {
+      from { transform: translate3d(0, -50%, 0); }
+      to { transform: translate3d(-36px, -50%, 0); }
+    }
+    
+    .anim-sky {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 32px;
+      background: linear-gradient(180deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.02) 100%);
+    }
+
+    .mountain-range {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    .anim-sun {
+      position: absolute;
+      top: 15px;
+      right: 18%;
+      width: 28px;
+      height: 28px;
+      background: radial-gradient(circle, #fef08a 0%, #facc15 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(253, 224, 71, 0.5);
+      animation: sun-pulse 4s ease-in-out infinite alternate;
+      z-index: 1;
+    }
+
+    @keyframes sun-pulse {
+      0% { transform: scale(1); box-shadow: 0 0 15px rgba(253, 224, 71, 0.4); }
+      100% { transform: scale(1.15); box-shadow: 0 0 30px rgba(253, 224, 71, 0.8); }
+    }
+    
+    .scenery-tree {
+      position: absolute;
+      bottom: 32px;
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 22px solid rgba(16, 185, 129, 0.35);
+      z-index: 2;
+    }
+    .tree-1 { left: 24%; }
+    .tree-2 { left: 45%; border-bottom-height: 28px; opacity: 0.8; }
+    .tree-3 { left: 70%; }
+
+    .anim-cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.5);
+      z-index: 2;
+    }
+    .cloud-1 {
+      width: 50px;
+      height: 16px;
+      top: 15px;
+      animation: float-cloud 35s linear infinite;
+    }
+    .cloud-2 {
+      width: 70px;
+      height: 22px;
+      top: 35px;
+      animation: float-cloud 25s linear infinite reverse;
+    }
+    .cloud-3 {
+      width: 40px;
+      height: 14px;
+      top: 25px;
+      animation: float-cloud 45s linear infinite;
+    }
+
+    @keyframes float-cloud {
+      0% { left: -80px; }
+      100% { left: 105%; }
+    }
+    
+    .anim-house, .anim-school {
+      position: absolute;
+      bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 5;
+    }
+    
+    .anim-house {
+      left: 4%;
+    }
+    
+    .anim-school {
+      right: 4%;
+    }
+    
+    .house-svg, .school-svg {
+      width: 82px;
+      height: 98px;
+      filter: drop-shadow(0 6px 12px rgba(79, 70, 229, 0.08));
+      transition: var(--transition);
+    }
+    .house-svg:hover, .school-svg:hover {
+      transform: scale(1.03);
+    }
+    
+    .anim-bus {
+      position: absolute;
+      bottom: 32px;
+      transition: left 3s cubic-bezier(0.25, 1, 0.5, 1);
+      left: 8%;
+      z-index: 10;
+    }
+
+    .anim-bus.bus-moving {
+      animation: bus-vibrate 0.12s ease-in-out infinite alternate;
+    }
+    
+    @keyframes bus-vibrate {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-2px); }
+    }
+    
+    .bus-svg {
+      width: 104px;
+      height: 58px;
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.16));
+    }
+
+    .spinning-wheel {
+      animation: spin-wheel 1.2s linear infinite;
+      animation-play-state: paused;
+    }
+
+    .bus-moving .spinning-wheel {
+      animation-play-state: running;
+    }
+
+    @keyframes spin-wheel {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .headlight-beam {
+      animation: beam-pulse 0.8s infinite alternate;
+    }
+    @keyframes beam-pulse {
+      0% { opacity: 0.25; }
+      100% { opacity: 0.75; }
+    }
+    
+    .anim-label {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: var(--white);
+      padding: 0.5rem 1.5rem;
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+      z-index: 20;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .anim-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      margin-right: 8px;
+      animation: pulse 1.2s infinite;
+    }
+    
+    .dot-green {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+    
+    .dot-orange {
+      background: var(--warning);
+      box-shadow: 0 0 8px var(--warning);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .4; transform: scale(.75); }
+    }
+
+    /* ── Live Attendance Checkpoints Timeline ── */
+    .checkpoints-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+      position: relative;
+    }
+    
+    .checkpoints-wrapper::before {
+      content: '';
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      top: 35%;
+      height: 3px;
+      background: rgba(15, 23, 42, 0.06);
+      z-index: 1;
+      transform: translateY(-50%);
+    }
+
+    .checkpoints-wrapper.single-step::before {
+      display: none;
+    }
+
+    .checkpoint-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      text-align: center;
+    }
+
+    .checkpoint-icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      border: 3px solid #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .checkpoint-step.completed .checkpoint-icon-circle {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+    }
+
+    .checkpoint-step.absent .checkpoint-icon-circle {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
+    }
+
+    .checkpoint-step.pending .checkpoint-icon-circle {
+      background: #fff;
+      color: var(--primary);
+      border: 3px solid var(--primary-light);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.06);
+    }
+
+    .checkpoint-name {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-top: 0.75rem;
+    }
+
+    .checkpoint-time {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+
+    .checkpoint-status-badge {
+      display: inline-block;
+      margin-top: 0.45rem;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.2rem 0.55rem;
+      border-radius: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .checkpoint-status-badge.badge-pending {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+    .checkpoint-status-badge.badge-completed {
+      background: #e2fbf0;
+      color: #065f46;
+    }
+    .checkpoint-status-badge.badge-absent {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* ── Bus Usage Year Grid ── */
+    .bus-year-container {
+      margin-top: 1.5rem;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      padding-top: 1.25rem;
+      width: 100%;
+    }
+
+    .bus-year-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .bus-year-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .bus-month-card {
+      background: #f8fafc;
+      border: 1px solid rgba(15, 23, 42, 0.04);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 0.4rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .bus-month-card.active {
+      background: rgba(124, 58, 237, 0.06);
+      border: 1.5px solid rgba(124, 58, 237, 0.3);
+    }
+
+    .bus-month-card.active .month-name {
+      color: var(--accent);
+      font-weight: 900;
+    }
+
+    .month-name {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.2rem;
+      display: block;
+    }
+
+    .month-count {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: block;
+    }
+
+    .bus-total-banner {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.1rem;
+      color: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.15);
+    }
+
+    .bus-total-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.95;
+    }
+
+    .bus-total-value {
+      font-size: 1.15rem;
+      font-weight: 900;
+    }
+
+    @media (max-width: 480px) {
+      /* Header & Container */
+      .dashboard-header {
+        padding: 0.85rem 1rem;
+      }
+      .dashboard-header h1 {
+        font-size: 1.25rem;
+        gap: 0.4rem;
+      }
+      .header-logo {
+        width: 28px;
+        height: 28px;
+        padding: 1px;
+      }
+      .logout-btn span {
+        display: none;
+      }
+      .logout-btn {
+        padding: 0.5rem;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .dashboard-content {
+        padding: 1.25rem 0.85rem;
+        gap: 1.25rem;
+      }
+
+      /* Profile Card */
+      .profile-card {
+        padding: 1.5rem 1rem;
+        border-radius: 20px;
+        gap: 1.25rem;
+      }
+      .profile-avatar {
+        width: 76px;
+        height: 76px;
+        font-size: 2rem;
+      }
+      .profile-info h2 {
+        font-size: 1.35rem;
+      }
+      .profile-badge {
+        font-size: 0.78rem;
+        padding: 0.35rem 0.75rem;
+      }
+
+      /* Panel Cards */
+      .panel-card {
+        padding: 1.5rem 1rem;
+        border-radius: 20px;
+      }
+      .panel-title {
+        font-size: 1.05rem;
+        margin-bottom: 1.25rem;
+      }
+
+      /* Stats Stack */
+      .stats-visualization {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+        text-align: center;
+      }
+      .stats-meta {
+        align-items: center;
+        width: 100%;
+      }
+      .meta-item {
+        justify-content: center;
+      }
+
+      /* Live Checkpoints - Vertical Stepper */
+      .checkpoints-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding-left: 2rem;
+      }
+      .checkpoints-wrapper::before {
+        left: 2.25rem;
+        top: 0.5rem;
+        bottom: 0.5rem;
+        width: 3px;
+        height: auto;
+        transform: none;
+      }
+      .checkpoint-step {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        gap: 1rem;
+        width: 100%;
+      }
+      .checkpoint-icon-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+      .checkpoint-name {
+        margin-top: 0;
+      }
+      .checkpoint-status-badge {
+        margin-top: 0;
+        margin-left: auto;
+      }
+
+      /* Exam tabs */
+      .exam-tabs {
+        display: flex;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .exam-tab-btn {
+        flex: 1 0 auto;
+        text-align: center;
+        padding: 0.55rem 0.85rem;
+        font-size: 0.8rem;
+      }
+      
+      /* Bus Year Grid on Mobile */
+      .bus-year-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.4rem;
+      }
+      .bus-month-card {
+        padding: 0.6rem 0.25rem;
+      }
+      .month-name {
+        font-size: 0.65rem;
+      }
+      .month-count {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/demo-data.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    const session = Auth.requireRole('student', 'student-login.html');
+  </script>
+
+  <div class="dashboard-bg-glows">
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+  </div>
+
+  <header class="dashboard-header">
+    <h1>
+      <img src="../assets/logo.png" alt="MSS Logo" class="header-logo"/> Student Portal
+    </h1>
+    <button class="logout-btn" onclick="Auth.logout(); window.location.href='student-login.html'">
+      <i class="bi bi-box-arrow-right"></i> <span>Sign Out</span>
+    </button>
+  </header>
+
+  <main class="dashboard-content page-enter">
+    <div class="profile-card" id="profileCard">
+      <!-- Injected via JS -->
+    </div>
+
+    <!-- BUS ANIMATION STRIP -->
+    <div class="animation-strip" id="animStrip" style="display:none;">
+      <div class="animation-scene" id="animScene">
+        <div class="anim-sky">
+          <svg class="mountain-range" viewBox="0 0 1000 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,80 L80,45 L160,75 L240,35 L320,65 L400,30 L480,80 L560,40 L640,70 L720,25 L800,60 L880,20 L960,75 L1000,55 L1000,100 L0,100 Z" fill="rgba(79, 70, 229, 0.05)" />
+            <path d="M0,90 L120,65 L280,90 L440,55 L600,80 L760,60 L920,85 L1000,75 L1000,100 L0,100 Z" fill="rgba(124, 58, 237, 0.07)" />
+          </svg>
+          <div class="anim-sun"></div>
+          <div class="anim-cloud cloud-1"></div>
+          <div class="anim-cloud cloud-2" style="animation-delay: -10s;"></div>
+          <div class="anim-cloud cloud-3" style="animation-delay: -20s;"></div>
+        </div>
+        <div class="scenery-tree tree-1"></div>
+        <div class="scenery-tree tree-2"></div>
+        <div class="scenery-tree tree-3"></div>
+        <div class="anim-road" id="animRoad"></div>
+        <!-- House -->
+        <div class="anim-house">
+          <svg class="house-svg" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="30" width="60" height="35" fill="var(--white)" stroke="var(--primary)" stroke-width="2" rx="4" />
+            <polygon points="5,32 40,8 75,32" fill="var(--accent)" />
+            <rect x="30" y="45" width="20" height="20" fill="var(--primary)" rx="2" />
+            <rect x="14" y="36" width="12" height="10" fill="#bae6fd" rx="1" />
+            <rect x="54" y="36" width="12" height="10" fill="#bae6fd" rx="1" />
+            <text x="40" y="82" text-anchor="middle" font-size="10" fill="var(--text-secondary)" font-weight="600">Home</text>
+          </svg>
+        </div>
+        <!-- Bus -->
+        <div class="anim-bus" id="animBus">
+          <svg class="bus-svg" viewBox="0 0 130 60" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="100,30 128,22 128,44 100,36" fill="rgba(253,224,71,0.45)" class="headlight-beam" />
+            <rect x="2" y="10" width="100" height="36" fill="var(--accent)" rx="6" />
+            <rect x="2" y="10" width="100" height="12" fill="var(--accent-light)" rx="6" />
+            <rect x="8" y="16" width="18" height="10" fill="#bae6fd" rx="2" opacity=".9" />
+            <rect x="30" y="16" width="18" height="10" fill="#bae6fd" rx="2" opacity=".9" />
+            <rect x="52" y="16" width="18" height="10" fill="#bae6fd" rx="2" opacity=".9" />
+            <rect x="74" y="16" width="18" height="10" fill="#bae6fd" rx="2" opacity=".9" />
+            <rect x="8" y="30" width="14" height="10" fill="#bae6fd" rx="1" opacity=".85" />
+            <rect x="30" y="30" width="14" height="10" fill="#bae6fd" rx="1" opacity=".85" />
+            <rect x="52" y="30" width="14" height="10" fill="#bae6fd" rx="1" opacity=".85" />
+            <rect x="80" y="24" width="18" height="16" fill="var(--accent-light)" rx="3" />
+            <!-- Spinning wheels -->
+            <g class="spinning-wheel" style="transform-origin: 20px 48px;">
+              <circle cx="20" cy="48" r="8" fill="#1e293b" />
+              <line x1="20" y1="40" x2="20" y2="56" stroke="#e2e8f0" stroke-width="1.5" />
+              <line x1="12" y1="48" x2="28" y2="48" stroke="#e2e8f0" stroke-width="1.5" />
+              <circle cx="20" cy="48" r="3" fill="#e2e8f0" />
+            </g>
+            <g class="spinning-wheel" style="transform-origin: 80px 48px;">
+              <circle cx="80" cy="48" r="8" fill="#1e293b" />
+              <line x1="80" y1="40" x2="80" y2="56" stroke="#e2e8f0" stroke-width="1.5" />
+              <line x1="72" y1="48" x2="88" y2="48" stroke="#e2e8f0" stroke-width="1.5" />
+              <circle cx="80" cy="48" r="3" fill="#e2e8f0" />
+            </g>
+            <text x="51" y="44" text-anchor="middle" font-size="8" fill="var(--white)" font-weight="bold" letter-spacing="0.05em">MSS BUS</text>
+          </svg>
+        </div>
+        <!-- School -->
+        <div class="anim-school">
+          <svg class="school-svg" viewBox="0 0 90 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="25" width="80" height="46" fill="var(--white)" stroke="var(--primary)" stroke-width="2" rx="6" />
+            <rect x="25" y="10" width="40" height="15" fill="var(--primary-dark)" rx="3" />
+            <polygon points="20,12 45,0 70,12" fill="var(--accent)" />
+            <rect x="36" y="47" width="18" height="24" fill="var(--primary)" rx="2" />
+            <rect x="10" y="32" width="12" height="10" fill="#bae6fd" rx="1" />
+            <rect x="68" y="32" width="12" height="10" fill="#bae6fd" rx="1" />
+            <rect x="10" y="48" width="12" height="10" fill="#bae6fd" rx="1" />
+            <rect x="68" y="48" width="12" height="10" fill="#bae6fd" rx="1" />
+            <text x="45" y="85" text-anchor="middle" font-size="10" fill="var(--text-secondary)" font-weight="600">School</text>
+          </svg>
+        </div>
+        <!-- Status Label -->
+        <div class="anim-label" id="animLabel">
+          <span class="anim-dot dot-orange" id="animDot"></span>
+          <span id="animStatus">Tracking...</span>
+        </div>
+      </div>
+    </div>
+    <!-- Live Checkpoints Card -->
+    <div class="panel-card" style="margin-bottom: 0.5rem;" id="checkpointsCard">
+      <div class="panel-title">
+        <i class="bi bi-geo-alt-fill icon-accent"></i> Today's Live Checkpoints
+      </div>
+      <div class="checkpoints-wrapper" id="checkpointsWrapper">
+        <!-- Injected dynamically via JS -->
+      </div>
+    </div>
+
+    <div class="grid-panels">
+      <!-- Attendance Card -->
+      <div class="panel-card">
+        <div class="panel-title flex-between">
+          <span><i class="bi bi-calendar3 icon-accent"></i> Academic Attendance</span>
+          <span class="badge badge-accent">2024-25</span>
+        </div>
+        <div class="stats-visualization">
+          <div class="progress-ring-container">
+            <svg class="progress-ring" width="120" height="120">
+              <defs>
+                <linearGradient id="attGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="var(--primary-light)" />
+                  <stop offset="100%" stop-color="var(--primary)" />
+                </linearGradient>
+              </defs>
+              <circle class="progress-ring-circle-bg" cx="60" cy="60" r="50" fill="transparent"/>
+              <circle class="progress-ring-circle" id="attendanceProgressRing" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16" fill="transparent" style="stroke: url(#attGrad);"/>
+            </svg>
+            <div class="progress-ring-text">
+              <span class="stat-num" id="classAttCount">0</span>
+              <span class="stat-label">Days</span>
+            </div>
+          </div>
+          <div class="stats-meta">
+            <div class="meta-item">
+              <span class="meta-dot bg-success"></span>
+              <span>Present: <strong id="presentDaysLabel">0</strong> Days</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-dot bg-danger"></span>
+              <span>Absent: <strong id="absentDaysLabel">0</strong> Days</span>
+            </div>
+            <div class="meta-item" style="border-top: 1px dashed rgba(15, 23, 42, 0.08); padding-top: 0.4rem; margin-top: 0.2rem;">
+              <span class="meta-dot bg-primary"></span>
+              <span>Total School Days: <strong>220</strong> Days</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bus Usage Card -->
+      <div class="panel-card" id="busPanel">
+        <div class="panel-title flex-between">
+          <span><i class="bi bi-bus-front icon-accent"></i> Bus Attendance</span>
+          <span class="badge badge-success" id="currMonthStr">Month</span>
+        </div>
+        <div class="stats-visualization">
+          <div class="progress-ring-container">
+            <svg class="progress-ring" width="120" height="120">
+              <defs>
+                <linearGradient id="busGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="var(--accent-light)" />
+                  <stop offset="100%" stop-color="var(--accent)" />
+                </linearGradient>
+              </defs>
+              <circle class="progress-ring-circle-bg" cx="60" cy="60" r="50" fill="transparent"/>
+              <circle class="progress-ring-circle" id="busProgressRing" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16" fill="transparent" style="stroke: url(#busGrad);"/>
+            </svg>
+            <div class="progress-ring-text">
+              <span class="stat-num" id="busAttCount">0</span>
+              <span class="stat-label">Trips</span>
+            </div>
+          </div>
+          <div class="stats-meta">
+            <div class="meta-item">
+              <span class="meta-dot bg-accent"></span>
+              <span>Trips: <strong id="busTripsLabel">0</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Card -->
+    <div class="panel-card">
+      <div class="panel-title">
+        <i class="bi bi-bar-chart-line icon-accent"></i> Academic Performance
+      </div>
+
+      <!-- Exam Selector Pills -->
+      <div class="exam-tabs" id="examTabs" role="tablist" aria-label="Select Exam">
+        <button class="exam-tab-btn active" data-exam="exam1" id="tab-exam1" onclick="selectExamTab(this)">
+          📝 Quarterly
+        </button>
+        <button class="exam-tab-btn" data-exam="exam2" id="tab-exam2" onclick="selectExamTab(this)">
+          📘 Half Yearly
+        </button>
+        <button class="exam-tab-btn" data-exam="exam3" id="tab-exam3" onclick="selectExamTab(this)">
+          🏆 Annual
+        </button>
+      </div>
+
+      <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%;">
+        <table class="marks-table" style="min-width: 480px;">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Marks Obtained</th>
+              <th>Max Marks</th>
+              <th>Grade</th>
+            </tr>
+          </thead>
+          <tbody id="marksBody">
+            <!-- Injected via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="toast-container"></div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js').catch(err => console.log('SW Registration failed', err));
+      });
+    }
+    if (session) {
+      loadStudentData();
+      window.addEventListener('mss-db-sync', loadStudentData);
+    }
+
+    let selectedExam = 'exam1';
+
+    function selectExamTab(btn) {
+      document.querySelectorAll('.exam-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedExam = btn.dataset.exam;
+      renderMarks();
+    }
+
+    function getGrade(mark) {
+      if(mark >= 90) return '<span class="badge badge-success">A1</span>';
+      if(mark >= 80) return '<span class="badge badge-success">A2</span>';
+      if(mark >= 70) return '<span class="badge badge-info">B1</span>';
+      if(mark >= 60) return '<span class="badge badge-info">B2</span>';
+      if(mark >= 50) return '<span class="badge badge-warning">C1</span>';
+      if(mark >= 40) return '<span class="badge badge-warning">C2</span>';
+      return '<span class="badge badge-danger">D</span>';
+    }
+
+    function updateProgressRing(circleId, count, target) {
+      const circle = document.getElementById(circleId);
+      if(!circle) return;
+      const pct = Math.min(Math.max((count / target) * 100, 0), 100);
+      const radius = circle.r.baseVal.value;
+      const circumference = radius * 2 * Math.PI;
+      circle.style.strokeDasharray = `${circumference} ${circumference}`;
+      const offset = circumference - (pct / 100) * circumference;
+      circle.style.strokeDashoffset = offset;
+    }
+
+    function loadStudentData() {
+      const students = DB.get('students') || [];
+      const classes = DB.get('classes') || [];
+      const student = students.find(s => s.id === session.id);
+      
+      if(!student) return;
+
+      const cls = classes.find(c => c.id === student.classId)?.name || '';
+
+      // Profile
+      const transportPill = student.type === 'bus'
+        ? `<span class="profile-badge transport-pill bus-mode"><i class="bi bi-bus-front"></i> School Bus</span>`
+        : `<span class="profile-badge transport-pill walk-mode"><i class="bi bi-person-walking"></i> Day Scholar</span>`;
+
+      document.getElementById('profileCard').innerHTML = `
+        <div class="profile-avatar">${student.name.charAt(0)}</div>
+        <div class="profile-info">
+          <h2>${student.name}</h2>
+          <div class="profile-badges">
+            <span class="profile-badge class-pill"><i class="bi bi-mortarboard"></i> ${cls}</span>
+            <span class="profile-badge roll-pill"><i class="bi bi-hash"></i> Roll No: ${student.rollNo}</span>
+            <span class="profile-badge dob-pill"><i class="bi bi-calendar-event"></i> Born: ${formatDate(student.dob)}</span>
+            ${transportPill}
+          </div>
+        </div>
+      `;
+
+      // Attendance
+      const classAtt = DB.get('classAttendance') || {};
+      const presentCount = classAtt[student.id] ? classAtt[student.id].presentCount : 0;
+      const totalSchoolDays = 220;
+      const absentCount = totalSchoolDays - presentCount;
+
+      document.getElementById('classAttCount').textContent = presentCount;
+      document.getElementById('presentDaysLabel').textContent = presentCount;
+      document.getElementById('absentDaysLabel').textContent = absentCount;
+      
+      // Update Attendance progress ring (Target 220 Days)
+      setTimeout(() => {
+        updateProgressRing('attendanceProgressRing', presentCount, totalSchoolDays);
+      }, 300);
+
+      // Bus
+      if(student.type === 'dayscholar') {
+        document.getElementById('busPanel').innerHTML = `
+          <div class="panel-title"><i class="bi bi-person-walking icon-accent"></i> Bus Usage</div>
+          <div class="dayscholar-badge-container">
+            <div class="dayscholar-icon">🚶‍♂️</div>
+            <h4>Day Scholar</h4>
+            <p>Own Commute / Walk</p>
+          </div>
+        `;
+      } else {
+        const month = currentMonth();
+        document.getElementById('currMonthStr').textContent = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+        const busAtt = DB.get('busAttendance') || {};
+        const studentBusData = busAtt[student.id] || {};
+        const bCount = studentBusData[month] || 0;
+        document.getElementById('busAttCount').textContent = bCount;
+        document.getElementById('busTripsLabel').textContent = bCount;
+        
+        // Update Bus progress ring (Target 44 Trips)
+        setTimeout(() => {
+          updateProgressRing('busProgressRing', bCount, 44);
+        }, 300);
+
+        // Render Year-long Month-by-month Breakdown
+        const activeYear = currentAcademicYear();
+        const startYear = parseInt(activeYear.split('-')[0], 10);
+        
+        const monthOrder = [
+          { key: `${startYear}-06`, name: 'Jun' },
+          { key: `${startYear}-07`, name: 'Jul' },
+          { key: `${startYear}-08`, name: 'Aug' },
+          { key: `${startYear}-09`, name: 'Sep' },
+          { key: `${startYear}-10`, name: 'Oct' },
+          { key: `${startYear}-11`, name: 'Nov' },
+          { key: `${startYear}-12`, name: 'Dec' },
+          { key: `${startYear + 1}-01`, name: 'Jan' },
+          { key: `${startYear + 1}-02`, name: 'Feb' },
+          { key: `${startYear + 1}-03`, name: 'Mar' },
+          { key: `${startYear + 1}-04`, name: 'Apr' },
+          { key: `${startYear + 1}-05`, name: 'May' }
+        ];
+
+        let totalTrips = 0;
+        let gridHtml = '';
+
+        monthOrder.forEach(item => {
+          const trips = studentBusData[item.key] || 0;
+          totalTrips += trips;
+          const isActive = item.key === month ? 'active' : '';
+          gridHtml += `
+            <div class="bus-month-card ${isActive}">
+              <span class="month-name">${item.name}</span>
+              <span class="month-count">${trips}</span>
+            </div>
+          `;
+        });
+
+        // Remove existing container if any
+        const existingContainer = document.getElementById('busYearContainer');
+        if (existingContainer) existingContainer.remove();
+
+        const yearContainer = document.createElement('div');
+        yearContainer.id = 'busYearContainer';
+        yearContainer.className = 'bus-year-container';
+        yearContainer.innerHTML = `
+          <div class="bus-year-title" style="margin-top: 0.5rem;">
+            <span>Academic Year Summary</span>
+            <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">Year: ${activeYear}</span>
+          </div>
+          <div class="bus-total-banner">
+            <span class="bus-total-label">Total Year Trips</span>
+            <span class="bus-total-value">${totalTrips} Trips</span>
+          </div>
+          <div id="busMonthlyGridWrapper" style="display: none; margin-top: 1rem; border-top: 1px dashed rgba(15, 23, 42, 0.06); padding-top: 1rem;">
+            <div class="bus-year-grid">
+              ${gridHtml}
+            </div>
+          </div>
+          <button type="button" id="toggleBusDetailsBtn" class="btn-toggle-details" onclick="toggleBusDetails()">
+            <i class="bi bi-chevron-down"></i> View Monthly Details
+          </button>
+        `;
+        document.getElementById('busPanel').appendChild(yearContainer);
+      }
+
+      // Marks
+      window.studentId = student.id;
+      window.classId = student.classId;
+      renderMarks();
+
+      // Render checkpoints
+      renderCheckpoints(student);
+
+      // Render animation
+      renderAnimation(student);
+    }
+
+    function renderCheckpoints(student) {
+      const wrapper = document.getElementById('checkpointsWrapper');
+      if (!wrapper) return;
+      
+      const att = Attendance.getStudentAttendance(student.id, today());
+      
+      if (student.type === 'dayscholar') {
+        wrapper.classList.add('single-step');
+        
+        // Only Class attendance checkpoint
+        const clsAtt = att.class;
+        let stepClass = 'pending';
+        let icon = 'bi-mortarboard';
+        let statusText = 'Pending';
+        let timeText = 'Scheduled 09:00 AM';
+        
+        if (clsAtt) {
+          if (clsAtt.present === true) {
+            stepClass = 'completed';
+            icon = 'bi-check-lg';
+            statusText = 'Present';
+            timeText = 'Marked In School';
+          } else if (clsAtt.present === false) {
+            stepClass = 'absent';
+            icon = 'bi-x-lg';
+            statusText = 'Absent';
+            timeText = 'Marked Absent';
+          }
+        }
+        
+        wrapper.innerHTML = `
+          <div class="checkpoint-step ${stepClass}">
+            <div class="checkpoint-icon-circle">
+              <i class="bi ${icon}"></i>
+            </div>
+            <div class="checkpoint-name">School Classroom</div>
+            <div class="checkpoint-time">${timeText}</div>
+            <span class="checkpoint-status-badge badge-${stepClass}">${statusText}</span>
+          </div>
+        `;
+      } else {
+        wrapper.classList.remove('single-step');
+        
+        // 3 check-points: Morning Bus, Class, Evening Bus
+        // 1. Morning Bus
+        const mb = att.busMorning;
+        let mbClass = 'pending';
+        let mbIcon = 'bi-bus-front';
+        let mbStatus = 'Pending';
+        let mbTime = 'Scheduled 07:45 AM';
+        if (mb) {
+          if (mb.present === true) {
+            mbClass = 'completed';
+            mbIcon = 'bi-check-lg';
+            mbStatus = 'Boarded';
+            mbTime = 'Checked-in';
+          } else if (mb.present === false) {
+            mbClass = 'absent';
+            mbIcon = 'bi-x-lg';
+            mbStatus = 'Absent';
+            mbTime = 'Missed Bus';
+          }
+        }
+        
+        // 2. Class
+        const clsAtt = att.class;
+        let clsClass = 'pending';
+        let clsIcon = 'bi-mortarboard';
+        let clsStatus = 'Pending';
+        let clsTime = 'Scheduled 09:00 AM';
+        if (clsAtt) {
+          if (clsAtt.present === true) {
+            clsClass = 'completed';
+            clsIcon = 'bi-check-lg';
+            clsStatus = 'Present';
+            clsTime = 'Marked In School';
+          } else if (clsAtt.present === false) {
+            clsClass = 'absent';
+            clsIcon = 'bi-x-lg';
+            clsStatus = 'Absent';
+            clsTime = 'Marked Absent';
+          }
+        }
+        
+        // 3. Evening Bus
+        const eb = att.busEvening;
+        let ebClass = 'pending';
+        let ebIcon = 'bi-bus-front';
+        let ebStatus = 'Pending';
+        let ebTime = 'Scheduled 04:15 PM';
+        if (eb) {
+          if (eb.present === true) {
+            ebClass = 'completed';
+            ebIcon = 'bi-check-lg';
+            ebStatus = 'Boarded';
+            ebTime = 'Checked-in';
+          } else if (eb.present === false) {
+            ebClass = 'absent';
+            ebIcon = 'bi-x-lg';
+            ebStatus = 'Absent';
+            ebTime = 'Missed Bus';
+          }
+        }
+        
+        wrapper.innerHTML = `
+          <div class="checkpoint-step ${mbClass}">
+            <div class="checkpoint-icon-circle">
+              <i class="bi ${mbIcon}"></i>
+            </div>
+            <div class="checkpoint-name">Morning Bus</div>
+            <div class="checkpoint-time">${mbTime}</div>
+            <span class="checkpoint-status-badge badge-${mbClass}">${mbStatus}</span>
+          </div>
+          
+          <div class="checkpoint-step ${clsClass}">
+            <div class="checkpoint-icon-circle">
+              <i class="bi ${clsIcon}"></i>
+            </div>
+            <div class="checkpoint-name">Classroom</div>
+            <div class="checkpoint-time">${clsTime}</div>
+            <span class="checkpoint-status-badge badge-${clsClass}">${clsStatus}</span>
+          </div>
+          
+          <div class="checkpoint-step ${ebClass}">
+            <div class="checkpoint-icon-circle">
+              <i class="bi ${ebIcon}"></i>
+            </div>
+            <div class="checkpoint-name">Evening Bus</div>
+            <div class="checkpoint-time">${ebTime}</div>
+            <span class="checkpoint-status-badge badge-${ebClass}">${ebStatus}</span>
+          </div>
+        `;
+      }
+    }
+
+    function renderAnimation(student) {
+      document.getElementById('animStrip').style.display = 'block';
+      const att = Attendance.getStudentAttendance(student.id, today());
+      
+      const bus = document.getElementById('animBus');
+      const label = document.getElementById('animStatus');
+      const dot = document.getElementById('animDot');
+      
+      let state = 'home';
+      
+      if (student.type === 'bus') {
+        if (att.busEvening && att.busEvening.present === true) {
+          state = 'evening-bus';
+        } else if (att.class && att.class.present === true) {
+          state = 'school';
+        } else if (att.busMorning && att.busMorning.present === true) {
+          state = 'morning-bus';
+        } else {
+          state = 'home';
+        }
+      } else {
+        if (att.class && att.class.present === true) {
+          state = 'school';
+        } else {
+          state = 'home';
+        }
+      }
+      
+      setTimeout(() => {
+        const road = document.getElementById('animRoad');
+        if (state === 'school') {
+          bus.style.left = '82%';
+          label.textContent = '🏫 Arrived at School — Attendance Taken!';
+          dot.className = 'anim-dot dot-green';
+          if (road) road.classList.remove('moving');
+          bus.classList.remove('bus-moving');
+        } else if (state === 'morning-bus') {
+          bus.style.left = '50%';
+          label.textContent = '🚌 On Morning Bus — Heading to School';
+          dot.className = 'anim-dot dot-orange';
+          if (road) road.classList.add('moving');
+          bus.classList.add('bus-moving');
+        } else if (state === 'evening-bus') {
+          bus.style.left = '50%';
+          label.textContent = '🚌 On Evening Bus — Heading Home';
+          dot.className = 'anim-dot dot-orange';
+          if (road) road.classList.add('moving');
+          bus.classList.add('bus-moving');
+        } else {
+          bus.style.left = '8%';
+          label.textContent = student.type === 'bus' ? '🏠 At Home — Waiting to board Morning Bus' : '🏠 At Home';
+          dot.className = 'anim-dot dot-orange';
+          if (road) road.classList.remove('moving');
+          bus.classList.remove('bus-moving');
+        }
+      }, 500);
+    }
+
+    function renderMarks() {
+      const exam = selectedExam;
+      const allMarks = DB.get('marks') || {};
+      const subjects = (DB.get('subjects') || {})[window.classId] || [];
+      const sMarks = allMarks[window.studentId] || {};
+      
+      const tbody = document.getElementById('marksBody');
+      
+      if(subjects.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">No subjects defined.</td></tr>';
+        return;
+      }
+
+      let totalObtained = 0;
+      let totalMax = 0;
+
+      const rows = subjects.map(sub => {
+        const mark = (sMarks[sub] && sMarks[sub][exam] !== undefined) ? sMarks[sub][exam] : '-';
+        if(mark !== '-') {
+          totalObtained += mark;
+          totalMax += 100;
+        }
+
+        const progressWidth = mark !== '-' ? `${mark}%` : '0%';
+        const progressDisplay = mark !== '-' 
+          ? `<div class="marks-metric-container">
+               <span class="marks-val">${mark} <span class="marks-max">/ 100</span></span>
+               <div class="marks-progress-track">
+                 <div class="marks-progress-bar" style="width: ${progressWidth};"></div>
+               </div>
+             </div>` 
+          : `<span class="text-muted">-</span>`;
+
+        return `
+          <tr>
+            <td><span class="subject-tag">${sub}</span></td>
+            <td>${progressDisplay}</td>
+            <td>100</td>
+            <td>${mark !== '-' ? getGrade(mark) : '-'}</td>
+          </tr>
+        `;
+      });
+
+      if(totalMax > 0) {
+        const pct = ((totalObtained / totalMax) * 100).toFixed(1);
+        rows.push(`
+          <tr style="background: rgba(79, 70, 229, 0.04); font-weight: bold;">
+            <td><span class="subject-tag" style="background: var(--primary); color: var(--white); border: none;">Total</span></td>
+            <td>
+              <div class="marks-metric-container">
+                <span class="marks-val">${totalObtained} <span class="marks-max">/ ${totalMax}</span></span>
+                <div class="marks-progress-track">
+                  <div class="marks-progress-bar" style="width: ${pct}%; background: linear-gradient(90deg, var(--accent), var(--primary-light));"></div>
+                </div>
+              </div>
+            </td>
+            <td>${totalMax}</td>
+            <td><span class="badge badge-accent">${pct}%</span></td>
+          </tr>
+        `);
+      }
+
+      tbody.innerHTML = rows.join('');
+    }
+
+    function toggleBusDetails() {
+      const wrapper = document.getElementById('busMonthlyGridWrapper');
+      const btn = document.getElementById('toggleBusDetailsBtn');
+      if (wrapper.style.display === 'none' || !wrapper.style.display) {
+        wrapper.style.display = 'block';
+        btn.innerHTML = '<i class="bi bi-chevron-up"></i> Hide Details';
+      } else {
+        wrapper.style.display = 'none';
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i> View Monthly Details';
+      }
+    }
+  </script>
+</body>
+</html>

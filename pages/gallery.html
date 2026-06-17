@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Gallery – MSS Matriculation School</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+.page-hero {
+  background: radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.2) 0%, transparent 60%),
+              radial-gradient(circle at 20% 80%, rgba(79, 70, 229, 0.15) 0%, transparent 60%),
+              linear-gradient(135deg, #0f1026 0%, #1e1b4b 100%);
+  padding: 8rem 2rem 5rem;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin-bottom: .75rem;
+  position: relative;
+  z-index: 2;
+}
+.page-hero p {
+  opacity: .85;
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Floating Glow spheres for Hero Background ── */
+.hero-bg-glows {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+.glow-sphere {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  mix-blend-mode: screen;
+  will-change: transform;
+  animation: float-sphere 12s ease-in-out infinite;
+}
+@keyframes float-sphere {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+.sphere-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+  top: -10%;
+  right: -5%;
+}
+.sphere-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+  bottom: -10%;
+  left: -5%;
+  animation-delay: -6s;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 3rem;
+  background: rgba(79, 70, 229, 0.04);
+  padding: 0.5rem;
+  border-radius: 50px;
+  border: 1px solid rgba(79, 70, 229, 0.08);
+  width: 100%;
+  max-width: 580px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.filter-btn {
+  padding: 0.5rem 1.4rem;
+  border-radius: 50px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.filter-btn:hover {
+  color: var(--primary);
+}
+.filter-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2);
+}
+.gallery-grid {
+  columns: 3 300px;
+  gap: 1.5rem;
+}
+.gallery-item {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  display: block;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+  border: 1px solid rgba(15, 23, 42, 0.04);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gallery-item img {
+  width: 100%;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gallery-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  border-color: rgba(79, 70, 229, 0.15);
+}
+.gallery-item:hover img {
+  transform: scale(1.04);
+}
+.gallery-item .overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.1) 60%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  display: flex;
+  align-items: flex-end;
+  padding: 1.25rem;
+}
+.gallery-item:hover .overlay {
+  opacity: 1;
+}
+.gallery-item .overlay span {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: 0.01em;
+}
+/* Lightbox */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 11, 28, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 3000;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.lightbox.open {
+  display: flex;
+}
+.lightbox-inner {
+  position: relative;
+  max-width: 90vw;
+  max-height: 85vh;
+  text-align: center;
+}
+.lightbox-inner img {
+  max-width: 100%;
+  max-height: 75vh;
+  border-radius: 16px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.lb-close {
+  position: fixed;
+  top: 1.5rem;
+  right: 2rem;
+  color: #fff;
+  font-size: 2.2rem;
+  cursor: pointer;
+  z-index: 3001;
+  line-height: 1;
+  opacity: .7;
+  transition: .2s;
+  background: none;
+  border: none;
+}
+.lb-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+.lb-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 2.5rem;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  opacity: .7;
+  transition: all 0.3s;
+}
+.lb-nav:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.05);
+}
+.lb-prev { left: 1.5rem; }
+.lb-next { right: 1.5rem; }
+.lb-caption {
+  color: #fff;
+  margin-top: 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  opacity: .95;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+@media(max-width: 768px) {
+  .page-hero {
+    padding: 6.5rem 1.25rem 3.5rem !important;
+  }
+  .filter-bar {
+    border-radius: 20px !important;
+    gap: 0.4rem !important;
+    padding: 0.4rem !important;
+    margin-bottom: 2rem !important;
+  }
+  .filter-btn {
+    padding: 0.45rem 1rem !important;
+    font-size: 0.82rem !important;
+  }
+  .gallery-grid {
+    columns: 2 140px !important;
+    gap: 0.75rem !important;
+  }
+  .gallery-item {
+    margin-bottom: 0.75rem !important;
+    border-radius: 12px !important;
+  }
+  .gallery-item .overlay {
+    padding: 0.75rem !important;
+  }
+  .gallery-item .overlay span {
+    font-size: 0.8rem !important;
+  }
+  .lb-nav {
+    font-size: 1.8rem !important;
+    padding: 0.4rem 0.8rem !important;
+    border-radius: 8px !important;
+  }
+  .lb-prev { left: 0.5rem !important; }
+  .lb-next { right: 0.5rem !important; }
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="mainNav">
+  <div class="nav-logo"><img src="../assets/logo.png" alt="MSS"/><div class="nav-logo-text">MSS Matriculation School<span>Uppatty, The Nilgiris</span></div></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="../index.html">Home</a></li><li><a href="about.html">About</a></li>
+    <li><a href="gallery.html" class="active">Gallery</a></li><li><a href="contact.html">Contact</a></li>
+    <li><a href="admission.html">Admission</a></li>
+    <li><a href="student-login.html" class="btn-nav">Student Login</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="page-hero">
+  <div class="hero-bg-glows">
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+  </div>
+  <h1>Photo Gallery</h1>
+  <p style="opacity:.85;">Capturing the vibrant life and beautiful moments at MSS Matriculation School</p>
+  <div style="margin-top:1rem;opacity:.65;font-size:.85rem;"><a href="../index.html" style="color:var(--accent-light);">Home</a> / Gallery</div>
+</div>
+
+<section class="section page-enter">
+  <div class="container">
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All Photos</button>
+      <button class="filter-btn" data-filter="campus">Campus</button>
+      <button class="filter-btn" data-filter="lab">Labs</button>
+      <button class="filter-btn" data-filter="events">Events</button>
+      <button class="filter-btn" data-filter="transport">Transport</button>
+    </div>
+    <div class="gallery-grid" id="galleryGrid">
+      <div class="gallery-item" data-cat="campus" onclick="openLightbox(0)">
+        <img src="../A/mss1.jpg" alt="MSS School Building"/><div class="overlay"><span>🏫 Main Building</span></div>
+      </div>
+      <div class="gallery-item" data-cat="campus" onclick="openLightbox(1)">
+        <img src="../A/mss2.jpg" alt="School Campus"/><div class="overlay"><span>🌿 School Campus</span></div>
+      </div>
+      <div class="gallery-item" data-cat="transport" onclick="openLightbox(2)">
+        <img src="../A/mss3bus.jpg" alt="School Bus"/><div class="overlay"><span>🚌 School Transport</span></div>
+      </div>
+      <div class="gallery-item" data-cat="lab" onclick="openLightbox(3)">
+        <img src="../A/lab.jpg" alt="Laboratory"/><div class="overlay"><span>🔬 Science Lab</span></div>
+      </div>
+      <div class="gallery-item" data-cat="lab" onclick="openLightbox(4)">
+        <img src="../A/msspclab.jpg" alt="Computer Lab"/><div class="overlay"><span>💻 Computer Lab</span></div>
+      </div>
+      <div class="gallery-item" data-cat="campus" onclick="openLightbox(5)">
+        <img src="../A/mss-matric-school-1-uppaty.jpg" alt="School"/><div class="overlay"><span>🏫 School View</span></div>
+      </div>
+      <div class="gallery-item" data-cat="campus" onclick="openLightbox(6)">
+        <img src="../A/mss-matric-school-2-uppaty.jpg" alt="School"/><div class="overlay"><span>🌳 Campus</span></div>
+      </div>
+      <div class="gallery-item" data-cat="events" onclick="openLightbox(7)">
+        <img src="../A/mss-matric-school-5-uppaty.jpg" alt="Event"/><div class="overlay"><span>🎉 School Event</span></div>
+      </div>
+      <div class="gallery-item" data-cat="campus" onclick="openLightbox(8)">
+        <img src="../A/mss-matric-school-12-uppaty.jpg" alt="Campus"/><div class="overlay"><span>📸 Campus Life</span></div>
+      </div>
+      <div class="gallery-item" data-cat="events" onclick="openLightbox(9)">
+        <img src="../A/mss-matric-school-13-uppaty.jpg" alt="Event"/><div class="overlay"><span>🎭 Activity</span></div>
+      </div>
+      <div class="gallery-item" data-cat="campus" onclick="openLightbox(10)">
+        <img src="../A/mss-matric-school-14-uppaty.jpg" alt="Campus"/><div class="overlay"><span>🏛️ Infrastructure</span></div>
+      </div>
+      <div class="gallery-item" data-cat="events" onclick="openLightbox(11)">
+        <img src="../A/mss-matric-school-15-uppaty.jpg" alt="Event"/><div class="overlay"><span>🎪 Annual Day</span></div>
+      </div>
+      <div class="gallery-item" data-cat="campus" onclick="openLightbox(12)">
+        <img src="../A/mss-matric-school-16-uppaty.jpg" alt="School"/><div class="overlay"><span>🌄 Morning View</span></div>
+      </div>
+      <div class="gallery-item" data-cat="events" onclick="openLightbox(13)">
+        <img src="../A/mss-matric-school-17-uppaty.jpg" alt="Event"/><div class="overlay"><span>🏅 Achievement</span></div>
+      </div>
+      <div class="gallery-item" data-cat="lab" onclick="openLightbox(14)">
+        <img src="../A/msspclab2.jpg" alt="Computer Lab"/><div class="overlay"><span>💻 Digital Learning</span></div>
+      </div>
+      <div class="gallery-item" data-cat="campus" onclick="openLightbox(15)">
+        <img src="../A/mss-matric-school-33-uppaty.jpg" alt="School"/><div class="overlay"><span>🏫 School Aerial</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <button class="lb-nav lb-prev" onclick="navLightbox(-1)">‹</button>
+  <div class="lightbox-inner">
+    <img id="lbImg" src="" alt=""/>
+    <div class="lb-caption" id="lbCaption"></div>
+  </div>
+  <button class="lb-nav lb-next" onclick="navLightbox(1)">›</button>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col"><img src="../assets/logo.png" alt="MSS" style="height:44px;margin-bottom:.75rem;"/><p>MSS Matriculation School, Uppatty, The Nilgiris, Tamil Nadu</p></div>
+      <div class="footer-col"><h4>Pages</h4><a href="../index.html">Home</a><a href="about.html">About</a><a href="gallery.html">Gallery</a><a href="contact.html">Contact</a></div>
+      <div class="footer-col"><h4>Contact</h4><p>📞 +91 9487020243</p><p>✉️ info@mssmatricschool.com</p></div>
+    </div>
+    <div class="footer-bottom">© 2024 MSS Matriculation School. All rights reserved.</div>
+  </div>
+</footer>
+<div id="toast-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/app.js"></script>
+<script>
+// Gallery data for lightbox
+const galleryItems = Array.from(document.querySelectorAll('.gallery-item'));
+const imgs = galleryItems.map(el => ({
+  src: el.querySelector('img').src,
+  caption: el.querySelector('.overlay span')?.textContent || ''
+}));
+let currentIdx = 0;
+
+function openLightbox(idx) {
+  currentIdx = idx;
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lbImg').src = imgs[idx].src;
+  document.getElementById('lbCaption').textContent = imgs[idx].caption;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function navLightbox(dir) {
+  currentIdx = (currentIdx + dir + imgs.length) % imgs.length;
+  document.getElementById('lbImg').src = imgs[currentIdx].src;
+  document.getElementById('lbCaption').textContent = imgs[currentIdx].caption;
+}
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox').classList.contains('open')) {
+    if (e.key === 'ArrowRight') navLightbox(1);
+    if (e.key === 'ArrowLeft') navLightbox(-1);
+    if (e.key === 'Escape') closeLightbox();
+  }
+});
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeLightbox();
+});
+
+// Filter
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      item.style.display = (filter === 'all' || item.dataset.cat === filter) ? 'block' : 'none';
+    });
+  });
+});
+</script>
+</body>
+</html>

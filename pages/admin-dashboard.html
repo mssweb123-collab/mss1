@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin Dashboard – MSS School</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    /* ── Floating Glow spheres for Dashboard Background ── */
+    .dashboard-bg-glows {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: -2;
+      pointer-events: none;
+      opacity: 0.15;
+    }
+    .glow-sphere {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      mix-blend-mode: multiply;
+      will-change: transform;
+    }
+    .sphere-1 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+      top: -5%;
+      right: -5%;
+    }
+    .sphere-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+      bottom: -10%;
+      left: -5%;
+    }
+    
+    /* ── Elegant Glassmorphic Header ── */
+    .dashboard-header {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      padding: 1rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 30px rgba(15, 23, 42, 0.02);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .dashboard-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 850;
+      font-size: 1.5rem;
+      color: var(--primary-dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      padding: 0.55rem 1.25rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    
+    .logout-btn:hover {
+      background: var(--danger);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+    
+    .dashboard-content {
+      padding: 2.5rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      gap: 2rem;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      padding-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+      background: transparent;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.92rem;
+      cursor: pointer;
+      font-weight: 750;
+      color: var(--text-secondary);
+      border-radius: var(--radius-full);
+      transition: var(--transition);
+    }
+    
+    .tab-btn:hover {
+      background: rgba(79, 70, 229, 0.05);
+      color: var(--primary);
+    }
+    
+    .tab-btn.active {
+      background: var(--primary);
+      color: var(--white);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    }
+    
+    .tab-content {
+      display: none;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 2.5rem;
+      border-radius: 28px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.03);
+      animation: pageFadeUp 0.6s var(--ease-smooth);
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .action-btn {
+      padding: 0.45rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Class Wise Layout */
+    .classes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    
+    .class-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      border-radius: 24px;
+      padding: 1.75rem;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.01);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 190px;
+    }
+    
+    .class-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 45px rgba(79, 70, 229, 0.07);
+      border-color: rgba(79, 70, 229, 0.18);
+    }
+    
+    .class-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    
+    .class-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(79, 70, 229, 0.08);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      transition: var(--transition);
+    }
+
+    .class-card:hover .class-icon {
+      background: var(--primary);
+      color: var(--white);
+    }
+    
+    .class-card-header h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin: 0;
+    }
+    
+    .class-card-body {
+      margin-top: 0.75rem;
+    }
+
+    .class-card-body p {
+      margin: 0.4rem 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .class-card-footer {
+      border-top: 1px dashed rgba(15, 23, 42, 0.06);
+      padding-top: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 750;
+      color: var(--primary);
+    }
+
+    /* Edit Modal overlay styling */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 28px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      max-height: 82vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.12);
+      transform: scale(0.92);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+    .modal-card::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal-card::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .modal-card::-webkit-scrollbar-thumb {
+      background: rgba(79, 70, 229, 0.15);
+      border-radius: var(--radius-full);
+    }
+    .modal-overlay.show .modal-card {
+      transform: scale(1);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      padding-bottom: 0.75rem;
+    }
+    .modal-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 850;
+      color: var(--primary-dark);
+      margin: 0;
+    }
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: var(--transition);
+    }
+    .modal-close-btn:hover {
+      color: var(--danger);
+    }
+    .optional-section {
+      background: rgba(79, 70, 229, 0.03);
+      border: 1px solid rgba(79, 70, 229, 0.08);
+      border-radius: 20px;
+      padding: 1.25rem;
+      margin: 1.25rem 0;
+    }
+    .form-group {
+      margin-bottom: 0.85rem;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Stats Widgets Layout */
+    .stats-widgets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .widget-card {
+      position: relative;
+      background: var(--white);
+      border: 1px solid rgba(79, 70, 229, 0.08);
+      border-radius: 28px;
+      padding: 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.02);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+    
+    .widget-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+      border-color: rgba(79, 70, 229, 0.2);
+    }
+    
+    .widget-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      transition: all 0.4s ease;
+    }
+    
+    /* Individual card icon styles */
+    .student-widget .widget-icon {
+      background: rgba(79, 70, 229, 0.08);
+      color: var(--primary);
+    }
+    .student-widget:hover .widget-icon {
+      background: var(--primary);
+      color: var(--white);
+      transform: rotate(-10deg) scale(1.1);
+    }
+    
+    .present-widget .widget-icon {
+      background: rgba(16, 185, 129, 0.08);
+      color: var(--success);
+    }
+    .present-widget:hover .widget-icon {
+      background: var(--success);
+      color: var(--white);
+      transform: rotate(10deg) scale(1.1);
+    }
+    
+    .teacher-widget .widget-icon {
+      background: rgba(245, 158, 11, 0.08);
+      color: #d97706;
+    }
+    .teacher-widget:hover .widget-icon {
+      background: #d97706;
+      color: var(--white);
+      transform: rotate(-10deg) scale(1.1);
+    }
+    
+    .class-widget .widget-icon {
+      background: rgba(147, 51, 234, 0.08);
+      color: #7c3aed;
+    }
+    .class-widget:hover .widget-icon {
+      background: #7c3aed;
+      color: var(--white);
+      transform: rotate(10deg) scale(1.1);
+    }
+    
+    .widget-info {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .widget-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .widget-value {
+      font-size: 1.4rem;
+      font-weight: 850;
+      color: var(--primary-dark);
+      margin: 0.2rem 0 0 0;
+    }
+
+    /* Global Search Styling */
+    .search-section {
+      position: relative;
+      max-width: 600px;
+      margin: 0 auto 2rem auto;
+    }
+    .search-bar-container {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1.5px solid rgba(79, 70, 229, 0.15);
+      border-radius: 50px;
+      padding: 0.6rem 1.5rem;
+      box-shadow: 0 10px 25px rgba(79, 70, 229, 0.04);
+      transition: var(--transition);
+    }
+    .search-bar-container:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 10px 30px rgba(79, 70, 229, 0.12);
+      background: #fff;
+    }
+    .search-icon {
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-right: 0.75rem;
+    }
+    #globalSearchInput {
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      font-size: 1rem;
+      color: var(--primary-dark);
+      font-weight: 500;
+    }
+    #globalSearchInput::placeholder {
+      color: var(--text-secondary);
+    }
+    .search-results-dropdown {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+      z-index: 100;
+      padding: 0.5rem;
+      backdrop-filter: blur(10px);
+    }
+    .search-results-dropdown::-webkit-scrollbar {
+      width: 6px;
+    }
+    .search-results-dropdown::-webkit-scrollbar-thumb {
+      background: rgba(79, 70, 229, 0.15);
+      border-radius: 4px;
+    }
+    .search-result-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .search-result-item:hover {
+      background: rgba(79, 70, 229, 0.05);
+    }
+    .search-result-info h4 {
+      margin: 0;
+      color: var(--primary-dark);
+      font-size: 0.95rem;
+      font-weight: 750;
+    }
+    .search-result-info p {
+      margin: 0.15rem 0 0 0;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/demo-data.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    const session = Auth.requireRole('admin', 'admin-login.html');
+  </script>
+
+  <div class="dashboard-bg-glows">
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+  </div>
+
+  <header class="dashboard-header">
+    <h1 style="display: flex; align-items: center; gap: 0.75rem;">
+      <img src="../assets/logo.png" alt="MSS Logo" style="width: 38px; height: 38px; object-fit: contain; border-radius: 50%; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15); background: #fff; padding: 2px;" />
+      <span>Admin Dashboard - <span id="adminName"></span></span>
+    </h1>
+    <button class="logout-btn" onclick="Auth.logout(); window.location.href='admin-login.html'">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </button>
+  </header>
+
+  <main class="dashboard-content">
+
+    <!-- Global Student Search -->
+    <div class="search-section">
+      <div class="search-bar-container">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" id="globalSearchInput" placeholder="Search students by name or roll number..." oninput="handleGlobalSearch(this.value)">
+      </div>
+      <div id="searchResultsDropdown" class="search-results-dropdown" style="display: none;"></div>
+    </div>
+
+    <!-- Beautiful Stats Widgets -->
+    <div class="stats-widgets">
+      <!-- Total Students -->
+      <div class="widget-card student-widget">
+        <div class="widget-icon">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="widget-info" style="flex: 1;">
+          <span class="widget-label">Total Students</span>
+          <h3 class="widget-value" id="widgetTotalStudents">0</h3>
+          <span class="widget-sub" id="widgetSubStudents" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">0 Scholars</span>
+        </div>
+      </div>
+      
+      <!-- Present Today -->
+      <div class="widget-card present-widget">
+        <div class="widget-icon">
+          <i class="bi bi-calendar-check-fill"></i>
+        </div>
+        <div class="widget-info" style="flex: 1;">
+          <span class="widget-label">Present Today</span>
+          <h3 class="widget-value" id="widgetPresentToday">0</h3>
+          <div style="background: rgba(15, 23, 42, 0.08); height: 6px; border-radius: 3px; overflow: hidden; margin-top: 0.4rem; margin-bottom: 0.2rem; width: 100%;">
+            <div id="widgetPresentProgress" style="background: linear-gradient(90deg, #10b981, #059669); width: 0%; height: 100%; border-radius: 3px; transition: width 0.6s ease;"></div>
+          </div>
+          <span class="widget-sub" id="widgetSubPresent" style="font-size: 0.75rem; color: var(--text-secondary);">0% Attendance Rate</span>
+        </div>
+      </div>
+      
+      <!-- Total Teachers -->
+      <div class="widget-card teacher-widget">
+        <div class="widget-icon">
+          <i class="bi bi-person-badge-fill"></i>
+        </div>
+        <div class="widget-info" style="flex: 1;">
+          <span class="widget-label">Total Teachers</span>
+          <h3 class="widget-value" id="widgetTotalTeachers">0</h3>
+          <span class="widget-sub" id="widgetSubTeachers" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">0 Managing classes</span>
+        </div>
+      </div>
+      
+      <!-- Active Classes -->
+      <div class="widget-card class-widget">
+        <div class="widget-icon">
+          <i class="bi bi-building-fill"></i>
+        </div>
+        <div class="widget-info" style="flex: 1;">
+          <span class="widget-label">Active Classes</span>
+          <h3 class="widget-value" id="widgetTotalClasses">0</h3>
+          <span class="widget-sub" id="widgetSubClasses" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">All managed ✓</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('classesWise', this)">Classes</button>
+      <button class="tab-btn" onclick="switchTab('students', this)">Students</button>
+      <button class="tab-btn" onclick="switchTab('teachers', this)">Teachers</button>
+      <button class="tab-btn" onclick="switchTab('buses', this)">Buses</button>
+      <button class="tab-btn" onclick="switchTab('systemSettings', this)"><i class="bi bi-gear-fill"></i> Settings & Promotion</button>
+    </div>
+
+    <!-- Classes Wise Tab -->
+    <div id="classesWise" class="tab-content active">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.6rem; color: var(--primary-dark); margin: 0;">Class Wise Administration</h2>
+          <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.92rem;">Select any class below to inspect details of its managing teacher and enrolled student list.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddClassModal()" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; font-weight: 750; border-radius: var(--radius-full); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);">
+          <i class="bi bi-plus-circle-fill"></i> Add New Class
+        </button>
+      </div>
+
+      
+      <div id="classesGridLayout" style="display: block;">
+        <div class="classes-grid" id="classesGrid"></div>
+      </div>
+
+      <!-- Comprehensive Redesigned Class Detail Dashboard Pane -->
+      <div id="classDetailsPane" class="card mt-4" style="display: none; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(79, 70, 229, 0.15); border-radius: 28px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.04); padding: 2.25rem;">
+        
+        <!-- Header with Back Button -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e1e8ed; padding-bottom: 1.25rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <button class="btn btn-outline btn-sm" onclick="closeClassDetails()" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: var(--radius-full); font-weight: 750; margin-bottom: 0.5rem;">
+              <i class="bi bi-arrow-left"></i> Back to Classes
+            </button>
+            <h3 id="paneClassTitle" style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 850; color: var(--primary-dark); margin: 0;">Class Details</h3>
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn btn-outline btn-sm" onclick="startEditClass(window.activeClassId)" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.2rem; border-radius: var(--radius-full); font-weight: 750; color: var(--primary); border-color: rgba(79, 70, 229, 0.25);">
+              <i class="bi bi-gear-fill"></i> Edit Class Settings
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteClass(window.activeClassId)" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.2rem; border-radius: var(--radius-full); font-weight: 750; background: var(--danger); border-color: var(--danger); color: var(--white); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);">
+              <i class="bi bi-trash-fill"></i> Delete Class
+            </button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: start;">
+          
+          <!-- Left side: Class Manager & Quick Student Enrollment -->
+          <div>
+            <!-- Teacher Card -->
+            <div style="background: rgba(79, 70, 229, 0.03); border: 1px solid rgba(79, 70, 229, 0.08); padding: 1.75rem; border-radius: 24px; margin-bottom: 1.5rem;">
+              <h4 style="font-size: 1rem; font-weight: 800; color: var(--primary-dark); margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.4rem;">
+                <i class="bi bi-person-badge" style="color: var(--primary);"></i> Class Manager
+              </h4>
+              <div id="paneTeacherCardContent" style="margin-bottom: 1.25rem; font-size: 0.95rem;">
+                <!-- Teacher Details go here -->
+              </div>
+              
+              <div style="padding-top: 1rem; border-top: 1px dashed rgba(79, 70, 229, 0.15);">
+                <label class="form-label">Assign Manager</label>
+                <select id="paneTeacherSelector" class="form-control" onchange="assignTeacherToClass(this.value)" style="margin-top: 0.4rem; font-weight: 600;"></select>
+              </div>
+            </div>
+            
+            <!-- Quick Enroll Student -->
+            <div style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.08); padding: 1.75rem; border-radius: 24px;">
+              <h4 style="font-size: 1rem; font-weight: 800; color: var(--success); margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.4rem;">
+                <i class="bi bi-person-plus" style="color: var(--success);"></i> Quick Enroll Student
+              </h4>
+              <form id="paneQuickEnrollForm">
+                <div class="form-group">
+                  <input type="text" id="peName" placeholder="Student Name" class="form-control" required style="background: #fff;">
+                </div>
+                <div class="form-group">
+                  <input type="text" id="peRollNo" placeholder="Roll Number" class="form-control" required style="background: #fff;">
+                </div>
+                <div class="form-group">
+                  <input type="date" id="peDob" class="form-control" required style="background: #fff;" title="DOB">
+                </div>
+                <div class="form-group">
+                  <select id="peType" class="form-control" onchange="togglePeBus(this.value)" required style="background: #fff; font-weight: 600;">
+                    <option value="dayscholar">🚶‍♂️ Day Scholar</option>
+                    <option value="bus">🚌 School Bus</option>
+                  </select>
+                </div>
+                <div class="form-group" id="peBusGroup" style="display: none;">
+                  <select id="peBus" class="form-control" style="background: #fff; font-weight: 600;"></select>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" style="background: var(--success); border-color: var(--success); font-weight: 700; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); margin-top: 0.5rem;">
+                  Enroll Student
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Right side: Student List -->
+          <div>
+            <div style="background: #ffffff; border: 1px solid rgba(15, 23, 42, 0.06); padding: 1.75rem; border-radius: 24px; box-shadow: 0 5px 15px rgba(0,0,0,0.01);">
+              <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--primary-dark); margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.4rem;">
+                <i class="bi bi-people-fill" style="color: var(--primary);"></i> Enrolled Students (<span id="paneStudentsCount">0</span>)
+              </h4>
+              
+              <div class="table-wrapper" style="margin: 0; max-height: 450px; overflow-y: auto;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="text-align: left;">Roll</th>
+                      <th style="text-align: left;">Name</th>
+                      <th style="text-align: left;">DOB</th>
+                      <th style="text-align: left;">Type</th>
+                      <th style="text-align: left;">Bus Route</th>
+                      <th style="text-align: left;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="paneStudentsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Students Tab -->
+    <div id="students" class="tab-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
+        <h2 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.6rem; color: var(--primary-dark); margin: 0;">Manage Students</h2>
+        <button class="btn btn-primary btn-sm" onclick="openAddStudentModal()" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; font-weight: 750; border-radius: var(--radius-full); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);">
+          <i class="bi bi-plus-circle-fill"></i> Add New Student
+        </button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Roll No</th><th>Name</th><th>DOB</th><th>Class</th><th>Type</th><th>Bus</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="studentsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Teachers Tab -->
+    <div id="teachers" class="tab-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
+        <h2 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.6rem; color: var(--primary-dark); margin: 0;">Manage Teachers</h2>
+        <button class="btn btn-primary btn-sm" onclick="openAddTeacherModal()" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; font-weight: 750; border-radius: var(--radius-full); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);">
+          <i class="bi bi-plus-circle-fill"></i> Add New Teacher
+        </button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Username</th><th>Class</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="teachersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Buses Tab -->
+    <div id="buses" class="tab-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
+        <h2 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.6rem; color: var(--primary-dark); margin: 0;">Manage Buses</h2>
+        <button class="btn btn-primary btn-sm" onclick="openAddBusModal()" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; font-weight: 750; border-radius: var(--radius-full); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);">
+          <i class="bi bi-plus-circle-fill"></i> Add New Bus
+        </button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Number</th><th>Route</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="busesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- System Settings & Promotion Tab -->
+    <div id="systemSettings" class="tab-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.6rem; color: var(--primary-dark); margin: 0;">System Settings & Year Promotion</h2>
+          <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.92rem;">Manage active academic years, system backups, and school roll promotions.</p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; align-items: start;">
+        
+        <!-- Year Promotion Panel -->
+        <div class="card" style="padding: 2rem; border-radius: 20px; border: 1px solid rgba(15, 23, 42, 0.06); background: #fff;">
+          <h3 style="font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.25rem; color: var(--primary-dark); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-calendar3" style="color: var(--accent);"></i> Academic Year Control
+          </h3>
+          
+          <div style="background: rgba(79, 70, 229, 0.04); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);">Active Session</span>
+              <h4 id="activeSessionDisplay" style="font-size: 1.4rem; font-weight: 850; color: var(--primary); margin: 0.15rem 0 0 0;">-</h4>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="downloadBackup()" style="padding: 0.5rem 1rem; font-size: 0.82rem; font-weight: 750; border-radius: var(--radius-full);">
+              <i class="bi bi-download"></i> Backup Data
+            </button>
+          </div>
+
+          <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
+            <p style="margin-bottom: 0.75rem;"><strong>Promoting to the next year will:</strong></p>
+            <ul style="padding-left: 1.25rem; margin: 0; display: flex; flex-direction: column; gap: 0.4rem;">
+              <li>Automatically save and download a copy of current year data.</li>
+              <li>Increment every student's class grade (e.g. Class I to Class II).</li>
+              <li>Graduate/archive students who are currently in Class X.</li>
+              <li>Reset gradebook marks and daily attendance registers for the new session.</li>
+              <li>Update the system-wide active academic year.</li>
+            </ul>
+          </div>
+
+          <button class="btn btn-primary" onclick="promoteAcademicYear()" style="width: 100%; justify-content: center; padding: 0.8rem; border-radius: 14px; font-weight: 800; background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 14px rgba(244, 160, 32, 0.25);">
+            <i class="bi bi-arrow-right-circle-fill"></i> Promote to Next Year
+          </button>
+        </div>
+
+        <!-- JSON Backup Inspector Panel -->
+        <div class="card" style="padding: 2rem; border-radius: 20px; border: 1px solid rgba(15, 23, 42, 0.06); background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.015);">
+          <h3 style="font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.25rem; color: var(--primary-dark); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-file-earmark-code-fill" style="color: var(--primary);"></i> Backup Inspector
+          </h3>
+          <p style="color: var(--text-secondary); margin: 0 0 1.25rem 0; font-size: 0.88rem; line-height: 1.5;">
+            Upload or drop any MSS backup JSON file to inspect its content in real-time, view stats, or restore database tables. <strong>Runs client-side.</strong>
+          </p>
+
+          <!-- Upload Drop Zone -->
+          <div id="backupDropZone" style="border: 2px dashed rgba(79, 70, 229, 0.25); border-radius: 16px; padding: 2rem; text-align: center; background: rgba(79, 70, 229, 0.02); transition: var(--transition); cursor: pointer;">
+            <input type="file" id="backupInspectorInput" accept=".json" style="display: none;">
+            <i class="bi bi-cloud-arrow-up" style="font-size: 2.2rem; color: var(--primary); display: block; margin-bottom: 0.5rem;"></i>
+            <span style="font-weight: 750; color: var(--primary-dark); display: block; margin-bottom: 0.25rem; font-size: 0.9rem;">Choose backup JSON or drag it here</span>
+            <span style="font-size: 0.78rem; color: var(--text-secondary);">Accepts .json exported files</span>
+          </div>
+
+          <!-- Inspector Results Pane (hidden by default) -->
+          <div id="inspectorResults" style="display: none; margin-top: 1.5rem; animation: pageFadeUp 0.5s var(--ease-smooth);">
+            <div style="border-top: 1px solid rgba(15, 23, 42, 0.06); padding-top: 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <span id="inspectFileName" style="font-weight: 800; color: var(--primary-dark); font-size: 0.95rem; display: block;">File: backup.json</span>
+                <span id="inspectFileSize" style="font-size: 0.8rem; color: var(--text-secondary);">Size: 0 KB</span>
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-outline" onclick="clearInspector()" style="padding: 0.45rem 1rem; border-radius: var(--radius-full); font-weight: 750; font-size: 0.78rem; border-color: rgba(239, 68, 68, 0.2); color: var(--danger); background: rgba(239, 68, 68, 0.04);">
+                  <i class="bi bi-x-circle"></i> Clear
+                </button>
+                <button class="btn btn-primary" onclick="restoreFromInspectedBackup()" style="padding: 0.45rem 1rem; border-radius: var(--radius-full); font-weight: 750; font-size: 0.78rem; background: var(--success); border-color: var(--success); color: #fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">
+                  <i class="bi bi-arrow-counterclockwise"></i> Restore
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Stats Row -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
+              <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(0,0,0,0.04); border-radius: 10px; padding: 0.75rem; text-align: center;">
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Classes</span>
+                <h4 id="inspectCountClasses" style="font-size: 1.15rem; font-weight: 850; color: var(--primary-dark); margin: 0.15rem 0 0 0;">0</h4>
+              </div>
+              <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(0,0,0,0.04); border-radius: 10px; padding: 0.75rem; text-align: center;">
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Students</span>
+                <h4 id="inspectCountStudents" style="font-size: 1.15rem; font-weight: 850; color: var(--primary-dark); margin: 0.15rem 0 0 0;">0</h4>
+              </div>
+              <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(0,0,0,0.04); border-radius: 10px; padding: 0.75rem; text-align: center;">
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Teachers</span>
+                <h4 id="inspectCountTeachers" style="font-size: 1.15rem; font-weight: 850; color: var(--primary-dark); margin: 0.15rem 0 0 0;">0</h4>
+              </div>
+              <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(0,0,0,0.04); border-radius: 10px; padding: 0.75rem; text-align: center;">
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Buses</span>
+                <h4 id="inspectCountBuses" style="font-size: 1.15rem; font-weight: 850; color: var(--primary-dark); margin: 0.15rem 0 0 0;">0</h4>
+              </div>
+            </div>
+
+            <!-- Inspector Tabs -->
+            <div class="tabs" style="border-bottom: 1px solid rgba(0,0,0,0.06); padding-bottom: 0.5rem; margin-bottom: 0.75rem; display: flex; gap: 0.3rem; flex-wrap: wrap;">
+              <button class="tab-btn active" id="btnInspectStudents" onclick="switchInspectorTab('students')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;">Students</button>
+              <button class="tab-btn" id="btnInspectClasses" onclick="switchInspectorTab('classes')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;">Classes</button>
+              <button class="tab-btn" id="btnInspectTeachers" onclick="switchInspectorTab('teachers')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;">Teachers</button>
+              <button class="tab-btn" id="btnInspectBuses" onclick="switchInspectorTab('buses')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;">Buses</button>
+              <button class="tab-btn" id="btnInspectGrades" onclick="switchInspectorTab('grades')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;">Grades</button>
+              <button class="tab-btn" id="btnInspectRaw" onclick="switchInspectorTab('raw')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;"><i class="bi bi-code-slash"></i> JSON</button>
+            </div>
+
+            <!-- Inspector Viewport Container -->
+            <div id="inspectorViewport" style="max-height: 300px; overflow-y: auto; background: rgba(15, 23, 42, 0.01); border: 1px solid rgba(15, 23, 42, 0.05); border-radius: 12px; padding: 1rem;">
+              <!-- Content will be rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- Premium Add Class Modal -->
+  <div id="addClassModal" class="modal-overlay" onclick="if(event.target === this) closeAddClassModal();">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add New Class</h3>
+        <button class="modal-close-btn" onclick="closeAddClassModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="addClassModalForm">
+          <div class="form-group">
+            <label class="form-label">Class Name</label>
+            <input type="text" id="addCName" placeholder="e.g. Class 7 - A" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Section</label>
+            <input type="text" id="addCSection" placeholder="e.g. A" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Grade Level</label>
+            <input type="number" id="addCGrade" placeholder="e.g. 7" class="form-control" required>
+          </div>
+          
+          <div class="optional-section">
+            <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.75rem;">
+              Assign Teacher (Optional)
+            </h4>
+            <div class="form-group">
+              <label class="form-label">Teacher Name</label>
+              <input type="text" id="addCTeacherName" placeholder="e.g. Jane Smith" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Username (Login)</label>
+              <input type="text" id="addCTeacherUsername" placeholder="e.g. janesmith" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" id="addCTeacherPassword" placeholder="Enter password" class="form-control">
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem; font-weight: 700;">Create Class</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+    <!-- Student Details Viewer Modal -->
+  <div id="studentDetailsModal" class="modal-overlay" onclick="if(event.target === this) closeStudentDetailsModal();">
+    <div class="modal-card" style="max-width: 600px; padding: 2.25rem;">
+      <div class="modal-header">
+        <h3 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.3rem;">Student Profile Info</h3>
+        <button class="modal-close-btn" onclick="closeStudentDetailsModal()">✕</button>
+      </div>
+      <div id="studentProfileContent" class="modal-body">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
+
+    <!-- Add Student Modal -->
+  <div id="addStudentModal" class="modal-overlay" onclick="if(event.target === this) closeAddStudentModal();">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add New Student</h3>
+        <button class="modal-close-btn" onclick="closeAddStudentModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="addStudentForm">
+          <div class="form-group">
+            <label class="form-label">Student Name</label>
+            <input type="text" id="sName" placeholder="Name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Roll Number</label>
+            <input type="text" id="sRollNo" placeholder="Roll No" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date of Birth</label>
+            <input type="date" id="sDob" class="form-control" required title="Date of Birth">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Class</label>
+            <select id="sClass" class="form-control" required></select>
+          </div>
+          <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem; font-weight: 700;">Create Student</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+    <!-- Add Teacher Modal -->
+  <div id="addTeacherModal" class="modal-overlay" onclick="if(event.target === this) closeAddTeacherModal();">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add New Teacher</h3>
+        <button class="modal-close-btn" onclick="closeAddTeacherModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="addTeacherForm">
+          <div class="form-group">
+            <label class="form-label">Teacher Name</label>
+            <input type="text" id="tName" placeholder="Name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="tUsername" placeholder="Username" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="tPassword" placeholder="Password" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Assign Class</label>
+            <div id="tClassesContainer" style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.85rem; max-height: 150px; overflow-y: auto;"></div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem; font-weight: 700;">Create Teacher</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Bus Modal -->
+  <div id="addBusModal" class="modal-overlay" onclick="if(event.target === this) closeAddBusModal();">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add New Bus</h3>
+        <button class="modal-close-btn" onclick="closeAddBusModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="addBusForm">
+          <div class="form-group">
+            <label class="form-label">Bus Number</label>
+            <input type="text" id="bNumber" placeholder="Bus Number" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Route</label>
+            <input type="text" id="bRoute" placeholder="Route" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem; font-weight: 700;">Create Bus</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+    <!-- Premium Glassmorphic Edit Modal -->
+  <div id="editModal" class="modal-overlay" onclick="if(event.target === this) closeEditModal();">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">Edit Item</h3>
+        <button class="modal-close-btn" onclick="closeEditModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          <div id="editFormFields"></div>
+          <button type="submit" class="btn btn-primary w-100" style="margin-top: 1.5rem; font-weight: 700;">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+    <div id="toast-container"></div>
+  <script>
+    if (session) {
+      document.getElementById('adminName').textContent = session.name;
+      loadData();
+      renderClassesWise();
+    }
+
+    // Listen to background synchronization updates
+    window.addEventListener('mss-db-sync', () => {
+      loadData();
+      renderClassesWise();
+    });
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+      
+      if (tabId === 'classesWise') {
+        renderClassesWise();
+      }
+    }
+
+    function renderClassesWise() {
+      const classes = DB.get('classes') || [];
+      const teachers = DB.get('teachers') || [];
+      const students = DB.get('students') || [];
+      const buses = DB.get('buses') || [];
+      
+      const grid = document.getElementById('classesGrid');
+      if (classes.length === 0) {
+        grid.innerHTML = "<p class='text-muted' style='grid-column: 1/-1; text-align: center; padding: 2rem;'>No classes defined in the system.</p>";
+        return;
+      }
+
+      grid.innerHTML = classes.map(c => {
+        const manager = teachers.find(t => Array.isArray(t.classId) ? t.classId.includes(c.id) : t.classId === c.id);
+        const classStudents = students.filter(s => s.classId === c.id);
+        const managerName = manager ? manager.name : '<span style="color:var(--danger); font-weight:700;">Not Assigned ⚠️</span>';
+        
+        return `
+          <div class="class-card" onclick="showClassDetails('${c.id}')">
+            <div class="class-card-header" style="position: relative; width: 100%;">
+              <div class="class-icon"><i class="bi bi-mortarboard-fill"></i></div>
+              <h3 style="margin-left: 0.5rem; flex: 1;">${c.name}</h3>
+            </div>
+            <div class="class-card-body">
+              <p><strong>Teacher:</strong> ${managerName}</p>
+              <p><strong>Students:</strong> ${classStudents.length} enrolled</p>
+            </div>
+            <div class="class-card-footer">
+              <span>View Details</span> <i class="bi bi-chevron-right"></i>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.handleGlobalSearch = function(query) {
+      const dropdown = document.getElementById('searchResultsDropdown');
+      query = query.toLowerCase().trim();
+      if (!query) {
+        dropdown.style.display = 'none';
+        return;
+      }
+      
+      const students = DB.get('students') || [];
+      const classes = DB.get('classes') || [];
+      const filtered = students.filter(s => {
+        if (!s) return false;
+        const nameVal = s.name ? String(s.name).toLowerCase() : '';
+        const rollVal = s.rollNo ? String(s.rollNo).toLowerCase() : '';
+        return nameVal.includes(query) || rollVal.includes(query);
+      });
+      
+      if (filtered.length === 0) {
+        dropdown.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">No students found matching query.</div>';
+        dropdown.style.display = 'block';
+        return;
+      }
+      
+      dropdown.innerHTML = filtered.map(s => {
+        const cls = classes.find(c => c.id === s.classId)?.name || 'Unassigned';
+        return `
+          <div class="search-result-item" onclick="viewStudentFullDetails('${s.id}')">
+            <div class="search-result-info">
+              <h4>${s.name || 'Unnamed Student'}</h4>
+              <p>Roll No: ${s.rollNo || 'N/A'} • Class: ${cls}</p>
+            </div>
+            <i class="bi bi-chevron-right" style="color: var(--primary);"></i>
+          </div>
+        `;
+      }).join('');
+      dropdown.style.display = 'block';
+    };
+
+    window.viewStudentFullDetails = function(studentId) {
+      const students = DB.get('students') || [];
+      const s = students.find(item => item.id === studentId);
+      if (!s) return;
+
+      const classes = DB.get('classes') || [];
+      const cls = s.classId ? classes.find(c => c.id === s.classId) : null;
+      const className = cls ? cls.name : 'Unassigned';
+
+      const teachers = DB.get('teachers') || [];
+      const teacher = s.classId ? teachers.find(t => Array.isArray(t.classId) ? t.classId.includes(s.classId) : t.classId === s.classId) : null;
+      const teacherName = teacher ? teacher.name : 'No Teacher Assigned';
+
+      const buses = DB.get('buses') || [];
+      const isBus = s.type === 'bus';
+      const bus = (isBus && s.busId) ? buses.find(b => b.id === s.busId) : null;
+      const busInfo = isBus ? (bus ? `Bus #${bus.number} - ${bus.route}` : 'School Bus (No Route Assigned)') : 'Day Scholar (N/A)';
+
+      // Attendance calculation
+      const logs = DB.get('attendanceLogs') || [];
+      const studentLogs = logs.filter(l => l.studentId === studentId && l.type === 'class');
+      const totalDays = studentLogs.length;
+      const presentDays = studentLogs.filter(l => l.present).length;
+      const attendancePct = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 100;
+
+      // Marks calculation
+      const allMarks = DB.get('marks') || {};
+      const smarks = allMarks[s.id] || {};
+      const subjectsObj = DB.get('subjects') || {};
+      const classSubjects = subjectsObj[s.classId] || ['English', 'Maths', 'Science'];
+      
+      const marksRows = classSubjects.map(sub => {
+        const marks = smarks[sub] || {};
+        const qMark = marks.exam1 !== undefined ? marks.exam1 : '-';
+        const hMark = marks.exam2 !== undefined ? marks.exam2 : '-';
+        const aMark = marks.exam3 !== undefined ? marks.exam3 : '-';
+        return `
+          <tr>
+            <td style="font-weight: 700; color: var(--primary-dark);">${sub}</td>
+            <td style="text-align: center;">${qMark}</td>
+            <td style="text-align: center;">${hMark}</td>
+            <td style="text-align: center;">${aMark}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const html = `
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <div style="width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; font-size: 2rem; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem auto; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);">
+            ${s.name.charAt(0).toUpperCase()}
+          </div>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 850; color: var(--primary-dark); margin: 0;">${s.name}</h3>
+          <p style="color: var(--text-secondary); margin: 0.2rem 0 0 0; font-size: 0.88rem;">Roll Number: ${s.rollNo}</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(15, 23, 42, 0.04); padding: 0.85rem; border-radius: 16px;">
+            <strong style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.2rem;">Academic info</strong>
+            <span style="font-weight: 700; color: var(--primary-dark); display: block; font-size: 0.9rem; margin-bottom: 0.15rem;">Class: ${className}</span>
+            <span style="color: var(--text-secondary); font-size: 0.8rem;">Teacher: ${teacherName}</span>
+          </div>
+          
+          <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(15, 23, 42, 0.04); padding: 0.85rem; border-radius: 16px;">
+            <strong style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">Personal & Transport</strong>
+            <span style="font-weight: 700; color: var(--primary-dark); display: block; font-size: 0.9rem; margin-bottom: 0.15rem;">DOB: ${formatDate(s.dob)}</span>
+            <span style="color: var(--text-secondary); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;">Bus: ${busInfo}</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem; background: rgba(16, 185, 129, 0.02); border: 1px solid rgba(16, 185, 129, 0.08); padding: 1rem; border-radius: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <span style="font-weight: 750; color: var(--success); font-size: 0.85rem;">Attendance Rate</span>
+            <span style="font-weight: 850; color: var(--success); font-size: 0.95rem;">${attendancePct}%</span>
+          </div>
+          <div style="width: 100%; height: 6px; background: rgba(16, 185, 129, 0.1); border-radius: var(--radius-full); overflow: hidden;">
+            <div style="width: ${attendancePct}%; height: 100%; background: var(--success); border-radius: var(--radius-full);"></div>
+          </div>
+          <span style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-top: 0.35rem;">Attended ${presentDays} of ${totalDays} total instruction days.</span>
+        </div>
+
+        <div>
+          <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 800; color: var(--primary-dark); margin: 0 0 0.5rem 0;">Academic Report Card</h4>
+          <div class="table-wrapper" style="margin: 0; max-height: 180px; overflow-y: auto;">
+            <table style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Subject</th>
+                  <th style="text-align: center;">Exam 1</th>
+                  <th style="text-align: center;">Exam 2</th>
+                  <th style="text-align: center;">Exam 3</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${marksRows}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('studentProfileContent').innerHTML = html;
+      document.getElementById('searchResultsDropdown').style.display = 'none';
+      document.getElementById('globalSearchInput').value = '';
+      document.getElementById('studentDetailsModal').classList.add('show');
+    };
+
+    window.closeStudentDetailsModal = function() {
+      document.getElementById('studentDetailsModal').classList.remove('show');
+    };
+
+    // Close search dropdown on click outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-section')) {
+        const dropdown = document.getElementById('searchResultsDropdown');
+        if (dropdown) dropdown.style.display = 'none';
+      }
+    });
+
+    function showClassDetails(classId) {
+      window.activeClassId = classId;
+      const classes = DB.get('classes') || [];
+      const teachers = DB.get('teachers') || [];
+      const students = DB.get('students') || [];
+      const buses = DB.get('buses') || [];
+
+      // Populate peBus dropdown options
+      const peBusSelect = document.getElementById('peBus');
+      if (peBusSelect) {
+        peBusSelect.innerHTML = '<option value="">Select Bus Route</option>' + buses.map(b => `<option value="${b.id}">Bus #${b.number}</option>`).join('');
+      }
+
+      const cls = classes.find(c => c.id === classId);
+      if (!cls) return;
+
+      document.getElementById('paneClassTitle').textContent = `Class Details: ${cls.name}`;
+      
+      // Load Teacher Manager details
+      const manager = teachers.find(t => Array.isArray(t.classId) ? t.classId.includes(classId) : t.classId === classId);
+      const teacherCard = document.getElementById('paneTeacherCardContent');
+      if (manager) {
+        teacherCard.innerHTML = `
+          <div style="font-weight: 750; color: var(--primary-dark); font-size: 1.1rem; margin-bottom: 0.25rem;">${manager.name}</div>
+          <div style="color: var(--text-secondary); font-size: 0.85rem;">Username: <strong>${manager.username}</strong></div>
+        `;
+      } else {
+        teacherCard.innerHTML = `
+          <div style="color: var(--danger); font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">
+            <i class="bi bi-exclamation-triangle-fill"></i> Unmanaged Class
+          </div>
+          <div style="color: var(--text-secondary); font-size: 0.82rem; margin-top: 0.2rem;">No teacher assigned yet.</div>
+        `;
+      }
+
+      // Populate pane Teacher selector options
+      const selector = document.getElementById('paneTeacherSelector');
+      selector.innerHTML = '<option value="">-- Assign Manager --</option>' + teachers.map(t => {
+        // Mark if they are assigned to this class or another
+        const isCurrent = Array.isArray(t.classId) ? t.classId.includes(classId) : t.classId === classId;
+        const managesCount = Array.isArray(t.classId) ? t.classId.length : (t.classId ? 1 : 0);
+        let currentClassText = ' (Free Teacher)';
+        if (managesCount > 0) {
+          if (isCurrent) {
+            currentClassText = managesCount > 1 ? ` (Current Manager + ${managesCount - 1} other)` : ' (Current Manager)';
+          } else {
+            const firstAssigned = Array.isArray(t.classId) ? t.classId[0] : t.classId;
+            const className = classes.find(c=>c.id===firstAssigned)?.name || 'Other';
+            currentClassText = managesCount > 1 ? ` (Manages ${className} + ${managesCount - 1} other)` : ` (Manages ${className})`;
+          }
+        }
+        return `<option value="${t.id}" ${isCurrent ? 'selected' : ''}>${t.name}${currentClassText}</option>`;
+      }).join('');
+
+      // Render Students table inside details pane
+      const classStudents = students.filter(s => s.classId === classId);
+      document.getElementById('paneStudentsCount').textContent = classStudents.length;
+      
+      const paneTableBody = document.getElementById('paneStudentsTableBody');
+      if (classStudents.length === 0) {
+        paneTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No students enrolled in this class.</td></tr>';
+      } else {
+        paneTableBody.innerHTML = classStudents.map(s => {
+          const isBus = s.type === 'bus';
+          const bus = buses.find(b => b.id === s.busId);
+          const busInfo = isBus ? (bus ? `Bus #${bus.number}` : 'Bus (No route)') : 'Day Scholar';
+          return `<tr>
+            <td style="font-weight: 700; color: var(--primary);">${s.rollNo}</td>
+            <td style="font-weight: 600;">${s.name}</td>
+            <td style="font-size: 0.85rem;">${formatDate(s.dob)}</td>
+            <td>
+              <span class="badge ${isBus ? 'badge-warning' : 'badge-success'}" style="font-size: 0.72rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-full);">
+                ${isBus ? 'Bus' : 'Scholar'}
+              </span>
+            </td>
+            <td style="font-size: 0.82rem; color: var(--text-secondary); max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${busInfo}</td>
+            <td>
+              <div style="display: flex; gap: 0.3rem;">
+                <button class="action-btn btn-primary btn-sm" style="padding: 0.25rem 0.4rem; font-size: 0.75rem;" onclick="startEditStudent('${s.id}')"><i class="bi bi-pencil"></i></button>
+                <button class="action-btn btn-danger btn-sm" style="padding: 0.25rem 0.4rem; font-size: 0.75rem;" onclick="deleteStudent('${s.id}')"><i class="bi bi-trash"></i></button>
+              </div>
+            </td>
+          </tr>`;
+        }).join('');
+      }
+
+      document.getElementById('classesGridLayout').style.display = 'none';
+      document.getElementById('classDetailsPane').style.display = 'block';
+      document.getElementById('classDetailsPane').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    window.assignTeacherToClass = function(teacherId) {
+      if (!window.activeClassId) return;
+      const teachers = DB.get('teachers') || [];
+      
+      // 1. Unassign whoever is managing activeClassId currently
+      teachers.forEach(t => {
+        if (Array.isArray(t.classId)) {
+          t.classId = t.classId.filter(id => id !== window.activeClassId);
+        } else if (t.classId === window.activeClassId) {
+          t.classId = null;
+        }
+      });
+      
+      // 2. Assign the chosen teacher to this class
+      if (teacherId) {
+        const chosen = teachers.find(t => t.id === teacherId);
+        if (chosen) {
+          if (!Array.isArray(chosen.classId)) {
+            chosen.classId = chosen.classId ? [chosen.classId] : [];
+          }
+          if (!chosen.classId.includes(window.activeClassId)) {
+            chosen.classId.push(window.activeClassId);
+          }
+        }
+      }
+      
+      DB.set('teachers', teachers);
+      loadData();
+      renderClassesWise();
+      showClassDetails(window.activeClassId);
+      showToast('Class teacher manager updated successfully!', 'success');
+    };
+
+    function closeClassDetails() {
+      window.activeClassId = null;
+      document.getElementById('classDetailsPane').style.display = 'none';
+      document.getElementById('classesGridLayout').style.display = 'block';
+    }
+
+    // Modal Helpers
+    function openEditModal() {
+      document.getElementById('editModal').classList.add('show');
+    }
+    
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('show');
+    }
+
+    function toggleEditSBus(val) {
+      document.getElementById('editSBusGroup').style.display = val === 'bus' ? 'block' : 'none';
+    }
+
+    window.togglePeBus = function(val) {
+      document.getElementById('peBusGroup').style.display = val === 'bus' ? 'block' : 'none';
+    };
+
+    // Start Edit Handlers
+    window.startEditStudent = function(id) {
+      const students = DB.get('students') || [];
+      const s = students.find(item => item.id === id);
+      if (!s) return;
+
+      const classes = DB.get('classes') || [];
+      const classOpts = classes.map(c => `<option value="${c.id}" ${c.id === s.classId ? 'selected' : ''}>${c.name}</option>`).join('');
+
+      const buses = DB.get('buses') || [];
+      const busOpts = '<option value="">None (Day Scholar)</option>' + buses.map(b => `<option value="${b.id}" ${b.id === s.busId ? 'selected' : ''}>Bus #${b.number}</option>`).join('');
+
+      const html = `
+        <input type="hidden" id="editId" value="${s.id}">
+        <input type="hidden" id="editType" value="student">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" id="editSName" value="${s.name}" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Roll Number</label>
+          <input type="text" id="editSRollNo" value="${s.rollNo}" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <input type="date" id="editSDob" value="${s.dob}" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Class</label>
+          <select id="editSClass" class="form-control" required>${classOpts}</select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Transport Type</label>
+          <select id="editSType" class="form-control" onchange="toggleEditSBus(this.value)" required>
+            <option value="dayscholar" ${s.type === 'dayscholar' ? 'selected' : ''}>Day Scholar</option>
+            <option value="bus" ${s.type === 'bus' ? 'selected' : ''}>School Bus</option>
+          </select>
+        </div>
+        <div class="form-group" id="editSBusGroup" style="display: ${s.type === 'bus' ? 'block' : 'none'};">
+          <label class="form-label">Bus Route</label>
+          <select id="editSBus" class="form-control">${busOpts}</select>
+        </div>
+      `;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Student Details';
+      document.getElementById('editFormFields').innerHTML = html;
+      openEditModal();
+    };
+
+    window.startEditTeacher = function(id) {
+      const teachers = DB.get('teachers') || [];
+      const t = teachers.find(item => item.id === id);
+      if (!t) return;
+
+      const classes = DB.get('classes') || [];
+      const classOpts = classes.map(c => `<option value="${c.id}" ${c.id === t.classId ? 'selected' : ''}>${c.name}</option>`).join('');
+
+      const html = `
+        <input type="hidden" id="editId" value="${t.id}">
+        <input type="hidden" id="editType" value="teacher">
+        <div class="form-group">
+          <label class="form-label">Teacher Name</label>
+          <input type="text" id="editTName" value="${t.name}" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="editTUsername" value="${t.username}" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="editTPassword" value="${t.password || ''}" placeholder="Enter new password or keep existing" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assigned Class</label>
+          <select id="editTClass" class="form-control" required>${classOpts}</select>
+        </div>
+      `;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Teacher Details';
+      document.getElementById('editFormFields').innerHTML = html;
+      openEditModal();
+    };
+
+    window.startEditBus = function(id) {
+      const buses = DB.get('buses') || [];
+      const b = buses.find(item => item.id === id);
+      if (!b) return;
+
+      const html = `
+        <input type="hidden" id="editId" value="${b.id}">
+        <input type="hidden" id="editType" value="bus">
+        <div class="form-group">
+          <label class="form-label">Bus Number</label>
+          <input type="text" id="editBNumber" value="${b.number}" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Route</label>
+          <input type="text" id="editBRoute" value="${b.route}" class="form-control" required>
+        </div>
+      `;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Bus Details';
+      document.getElementById('editFormFields').innerHTML = html;
+      openEditModal();
+    };
+
+    window.startEditClass = function(id) {
+      const classes = DB.get('classes') || [];
+      const c = classes.find(item => item.id === id);
+      if (!c) return;
+
+      const html = `
+        <input type="hidden" id="editId" value="${c.id}">
+        <input type="hidden" id="editType" value="class">
+        <div class="form-group">
+          <label class="form-label">Class Name</label>
+          <input type="text" id="editCName" value="${c.name}" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Section</label>
+          <input type="text" id="editCSection" value="${c.section || ''}" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Grade Level</label>
+          <input type="number" id="editCGrade" value="${c.grade || ''}" class="form-control" required>
+        </div>
+      `;
+      
+      document.getElementById('modalTitle').textContent = 'Edit Class Details';
+      document.getElementById('editFormFields').innerHTML = html;
+      openEditModal();
+    };
+
+    window.deleteClass = (id) => {
+      if (confirm('Are you sure you want to delete this class? This will not delete students or teachers assigned to it, but they will be unassigned.')) {
+        const classes = DB.get('classes') || [];
+        DB.set('classes', classes.filter(c => c.id !== id));
+        loadData();
+        renderClassesWise();
+        closeClassDetails();
+        showToast('Class deleted successfully!', 'info');
+      }
+    };
+
+
+    window.activeClassId = null;
+
+    function updateSchoolStats() {
+      const students = DB.get('students') || [];
+      const teachers = DB.get('teachers') || [];
+      const classes = DB.get('classes') || [];
+      const logs = DB.get('attendanceLogs') || [];
+      const dateToday = today();
+      
+      const totalStudents = students.length;
+      const totalTeachers = teachers.length;
+      const totalClasses = classes.length;
+      
+      let presentToday = 0;
+      students.forEach(s => {
+        const att = logs.find(l => l.studentId === s.id && l.date === dateToday && l.type === 'class');
+        if (att && att.present) {
+          presentToday++;
+        }
+      });
+      
+      // Calculate attendance percentage
+      const attPct = totalStudents > 0 ? Math.round((presentToday / totalStudents) * 100) : 0;
+      
+      // Scholars vs Bus count
+      const busStudentsCount = students.filter(s => s.type === 'bus').length;
+      const scholarStudentsCount = totalStudents - busStudentsCount;
+      
+      // Unassigned Classes
+      const unassignedClasses = classes.filter(c => {
+        return !teachers.some(t => Array.isArray(t.classId) ? t.classId.includes(c.id) : t.classId === c.id);
+      }).length;
+
+      // Update Text values
+      document.getElementById('widgetTotalStudents').textContent = totalStudents;
+      document.getElementById('widgetPresentToday').textContent = `${presentToday} / ${totalStudents}`;
+      document.getElementById('widgetTotalTeachers').textContent = totalTeachers;
+      document.getElementById('widgetTotalClasses').textContent = totalClasses;
+      
+      // Update Subtitle widgets
+      document.getElementById('widgetSubStudents').textContent = `${scholarStudentsCount} Scholars · ${busStudentsCount} Bus`;
+      document.getElementById('widgetSubPresent').textContent = `${attPct}% Attendance Rate`;
+      document.getElementById('widgetPresentProgress').style.width = `${attPct}%`;
+      
+      const unassignedText = unassignedClasses > 0 ? `${unassignedClasses} unmanaged ⚠️` : 'All managed ✓';
+      document.getElementById('widgetSubClasses').textContent = unassignedText;
+      
+      // Average classes managed per teacher
+      const activeManagers = teachers.filter(t => t.classId && (Array.isArray(t.classId) ? t.classId.length > 0 : true)).length;
+      document.getElementById('widgetSubTeachers').textContent = `${activeManagers} Managing classes`;
+    }
+
+    window.openAddStudentModal = function() {
+      document.getElementById('addStudentModal').classList.add('show');
+    };
+    window.closeAddStudentModal = function() {
+      document.getElementById('addStudentModal').classList.remove('show');
+      document.getElementById('addStudentForm').reset();
+    };
+
+
+    window.openAddTeacherModal = function() {
+      document.getElementById('addTeacherModal').classList.add('show');
+    };
+    window.closeAddTeacherModal = function() {
+      document.getElementById('addTeacherModal').classList.remove('show');
+      document.getElementById('addTeacherForm').reset();
+    };
+
+    window.openAddBusModal = function() {
+      document.getElementById('addBusModal').classList.add('show');
+    };
+    window.closeAddBusModal = function() {
+      document.getElementById('addBusModal').classList.remove('show');
+      document.getElementById('addBusForm').reset();
+    };
+
+
+    function loadData() {
+      updateSchoolStats();
+      const classes = DB.get('classes') || [];
+      const buses = DB.get('buses') || [];
+      const students = DB.get('students') || [];
+      const teachers = DB.get('teachers') || [];
+
+      // Populate active academic year
+      const activeYear = currentAcademicYear();
+      const activeSessionDisplay = document.getElementById('activeSessionDisplay');
+      if (activeSessionDisplay) {
+        activeSessionDisplay.textContent = activeYear;
+      }
+      
+      // Populate selects
+      const sClassSelect = document.getElementById('sClass');
+      sClassSelect.innerHTML = '<option value="">Select Class</option>' + classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      
+      const tClassesContainer = document.getElementById('tClassesContainer');
+      if (tClassesContainer) {
+        tClassesContainer.innerHTML = classes.map(c => `
+          <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+            <input type="checkbox" name="addTClasses" value="${c.id}" style="width: 18px; height: 18px; accent-color: var(--primary);">
+            ${c.name}
+          </label>
+        `).join('') || '<p style="color: var(--text-secondary); margin: 0; font-size: 0.85rem;">No classes defined.</p>';
+      }
+
+      // Populate Students Table
+      const sBody = document.getElementById('studentsTableBody');
+      sBody.innerHTML = students.map(s => {
+        const cls = classes.find(c => c.id === s.classId)?.name || 'Unknown';
+        const bus = buses.find(b => b.id === s.busId)?.number || 'N/A';
+        return `<tr>
+          <td>${s.rollNo}</td><td>${s.name}</td><td>${formatDate(s.dob)}</td><td>${cls}</td>
+          <td>${s.type}</td><td>${bus}</td>
+          <td>
+            <div style="display: flex; gap: 0.4rem;">
+              <button class="action-btn btn-primary btn-sm" onclick="startEditStudent('${s.id}')"><i class="bi bi-pencil"></i> Edit</button>
+              <button class="action-btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')"><i class="bi bi-trash"></i> Delete</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+      // Populate Teachers Table
+      const tBody = document.getElementById('teachersTableBody');
+      tBody.innerHTML = teachers.map(t => {
+        const assignedClassIds = Array.isArray(t.classId) ? t.classId : (t.classId ? [t.classId] : []);
+        const cls = classes.filter(c => assignedClassIds.includes(c.id)).map(c => c.name).join(', ') || 'None';
+        return `<tr>
+          <td>${t.name}</td><td>${t.username}</td><td>${cls}</td>
+          <td>
+            <div style="display: flex; gap: 0.4rem;">
+              <button class="action-btn btn-primary btn-sm" onclick="startEditTeacher('${t.id}')"><i class="bi bi-pencil"></i> Edit</button>
+              <button class="action-btn btn-danger btn-sm" onclick="deleteTeacher('${t.id}')"><i class="bi bi-trash"></i> Delete</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+      // Populate Buses Table
+      const bBody = document.getElementById('busesTableBody');
+      bBody.innerHTML = buses.map(b => `<tr>
+        <td>${b.number}</td><td>${b.route}</td>
+        <td>
+          <div style="display: flex; gap: 0.4rem;">
+            <button class="action-btn btn-primary btn-sm" onclick="startEditBus('${b.id}')"><i class="bi bi-pencil"></i> Edit</button>
+            <button class="action-btn btn-danger btn-sm" onclick="deleteBus('${b.id}')"><i class="bi bi-trash"></i> Delete</button>
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+
+    // Forms
+    document.getElementById('editForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      const type = document.getElementById('editType').value;
+
+      if (type === 'student') {
+        const list = DB.get('students') || [];
+        const idx = list.findIndex(item => item.id === id);
+        if (idx !== -1) {
+          const transportVal = document.getElementById('editSType').value;
+          list[idx].name = document.getElementById('editSName').value;
+          list[idx].rollNo = document.getElementById('editSRollNo').value;
+          list[idx].dob = document.getElementById('editSDob').value;
+          list[idx].classId = document.getElementById('editSClass').value;
+          list[idx].type = transportVal;
+          list[idx].busId = transportVal === 'bus' ? document.getElementById('editSBus').value : null;
+          DB.set('students', list);
+          showToast('Student updated successfully!', 'success');
+        }
+      } else if (type === 'teacher') {
+        const list = DB.get('teachers') || [];
+        const idx = list.findIndex(item => item.id === id);
+        if (idx !== -1) {
+          list[idx].name = document.getElementById('editTName').value;
+          list[idx].username = document.getElementById('editTUsername').value;
+          const newPass = document.getElementById('editTPassword').value;
+          if (newPass) {
+            list[idx].password = newPass;
+          }
+          const checkedBoxes = document.querySelectorAll('input[name="editTClasses"]:checked');
+          list[idx].classId = Array.from(checkedBoxes).map(cb => cb.value);
+          DB.set('teachers', list);
+          showToast('Teacher updated successfully!', 'success');
+        }
+      } else if (type === 'bus') {
+        const list = DB.get('buses') || [];
+        const idx = list.findIndex(item => item.id === id);
+        if (idx !== -1) {
+          list[idx].number = document.getElementById('editBNumber').value;
+          list[idx].route = document.getElementById('editBRoute').value;
+          DB.set('buses', list);
+          showToast('Bus details updated successfully!', 'success');
+        }
+      } else if (type === 'class') {
+        const list = DB.get('classes') || [];
+        const idx = list.findIndex(item => item.id === id);
+        if (idx !== -1) {
+          list[idx].name = document.getElementById('editCName').value;
+          list[idx].section = document.getElementById('editCSection').value;
+          list[idx].grade = Number(document.getElementById('editCGrade').value);
+          DB.set('classes', list);
+          showToast('Class details updated successfully!', 'success');
+        }
+      }
+
+      closeEditModal();
+      loadData();
+      renderClassesWise();
+      if (window.activeClassId) {
+        showClassDetails(window.activeClassId);
+      }
+    });
+
+    window.openAddClassModal = function() {
+      document.getElementById('addClassModal').classList.add('show');
+    };
+    
+    window.closeAddClassModal = function() {
+      document.getElementById('addClassModal').classList.remove('show');
+      document.getElementById('addClassModalForm').reset();
+    };
+
+    document.getElementById('addClassModalForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const className = document.getElementById('addCName').value;
+      const classSection = document.getElementById('addCSection').value;
+      const classGrade = Number(document.getElementById('addCGrade').value);
+      
+      const teacherName = document.getElementById('addCTeacherName').value.trim();
+      const teacherUsername = document.getElementById('addCTeacherUsername').value.trim();
+      const teacherPassword = document.getElementById('addCTeacherPassword').value.trim();
+
+      const classId = genId('c');
+      
+      // Save Class
+      const classes = DB.get('classes') || [];
+      classes.push({
+        id: classId,
+        name: className,
+        section: classSection,
+        grade: classGrade
+      });
+      DB.set('classes', classes);
+
+      // Save Teacher if details are provided
+      if (teacherName) {
+        const teachers = DB.get('teachers') || [];
+        teachers.push({
+          id: genId('t'),
+          name: teacherName,
+          username: teacherUsername || teacherName.toLowerCase().replace(/\s+/g, ''),
+          password: teacherPassword || '123456', // Default password if empty
+          classId: classId
+        });
+        DB.set('teachers', teachers);
+        showToast(`Class and Teacher '${teacherName}' created successfully!`, 'success');
+      } else {
+        showToast('Class created successfully!', 'success');
+      }
+
+      closeAddClassModal();
+      loadData();
+      renderClassesWise();
+    });
+
+    document.getElementById('paneQuickEnrollForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!window.activeClassId) return;
+
+      const students = DB.get('students') || [];
+      const transportType = document.getElementById('peType').value;
+      const busId = transportType === 'bus' ? document.getElementById('peBus').value : null;
+
+      students.push({
+        id: genId('s'),
+        name: document.getElementById('peName').value,
+        rollNo: document.getElementById('peRollNo').value,
+        dob: document.getElementById('peDob').value,
+        classId: window.activeClassId,
+        type: transportType,
+        busId: busId,
+        academicYear: currentAcademicYear()
+      });
+
+      DB.set('students', students);
+      e.target.reset();
+      document.getElementById('peBusGroup').style.display = 'none'; // Reset bus route visibility
+      loadData();
+      renderClassesWise();
+      showClassDetails(window.activeClassId);
+      showToast('Student enrolled successfully!', 'success');
+    });
+
+    document.getElementById('addStudentForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const students = DB.get('students') || [];
+      students.push({
+        id: genId('s'), rollNo: document.getElementById('sRollNo').value,
+        name: document.getElementById('sName').value, dob: document.getElementById('sDob').value,
+        classId: document.getElementById('sClass').value, type: 'dayscholar', busId: null, academicYear: currentAcademicYear()
+      });
+      DB.set('students', students);
+      e.target.reset();
+      closeAddStudentModal();
+      loadData();
+      showToast('Student added successfully', 'success');
+    });
+
+    document.getElementById('addTeacherForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const teachers = DB.get('teachers') || [];
+      teachers.push({
+        id: genId('t'), name: document.getElementById('tName').value,
+        username: document.getElementById('tUsername').value, password: document.getElementById('tPassword').value,
+        classId: Array.from(document.querySelectorAll('input[name="addTClasses"]:checked')).map(cb => cb.value)
+      });
+      DB.set('teachers', teachers);
+      e.target.reset();
+      closeAddTeacherModal();
+      loadData();
+      showToast('Teacher added successfully', 'success');
+    });
+
+    document.getElementById('addBusForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const buses = DB.get('buses') || [];
+      buses.push({
+        id: genId('b'), number: document.getElementById('bNumber').value, route: document.getElementById('bRoute').value
+      });
+      DB.set('buses', buses);
+      e.target.reset();
+      closeAddBusModal();
+      loadData();
+      showToast('Bus added successfully', 'success');
+    });
+
+    // Deletions
+    window.deleteStudent = (id) => { 
+      if(confirm('Delete student?')) { 
+        DB.set('students', DB.get('students').filter(s=>s.id!==id)); 
+        loadData(); 
+        if (window.activeClassId) {
+          showClassDetails(window.activeClassId);
+        }
+      } 
+    };
+    window.deleteTeacher = (id) => { if(confirm('Delete teacher?')) { DB.set('teachers', DB.get('teachers').filter(t=>t.id!==id)); loadData(); } };
+    window.deleteBus = (id) => { if(confirm('Delete bus?')) { DB.set('buses', DB.get('buses').filter(b=>b.id!==id)); loadData(); } };
+
+    // ── SYSTEM SETTINGS & YEAR PROMOTION HANDLERS ───────────────────────
+    
+    window.downloadBackup = () => {
+      const data = {
+        classes: DB.get('classes') || [],
+        students: DB.get('students') || [],
+        teachers: DB.get('teachers') || [],
+        buses: DB.get('buses') || [],
+        subjects: DB.get('subjects') || {},
+        attendanceLogs: DB.get('attendanceLogs') || [],
+        marks: DB.get('marks') || {},
+        admissions: DB.get('admissions') || [],
+        classAttendance: DB.get('classAttendance') || {},
+        busAttendance: DB.get('busAttendance') || {},
+        admin: DB.get('admin') || null
+      };
+      
+      const jsonStr = JSON.stringify(data, null, 2);
+      const activeYear = currentAcademicYear();
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `mss_school_backup_${activeYear}_${timestamp}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast('Database backup downloaded successfully!', 'success');
+    };
+
+    window.promoteAcademicYear = async () => {
+      const students = DB.get('students') || [];
+      const classes = DB.get('classes') || [];
+      
+      if (students.length === 0) {
+        alert('No students found to promote.');
+        return;
+      }
+      
+      const currentYear = currentAcademicYear();
+      const parts = currentYear.split('-');
+      if (parts.length !== 2) {
+        alert('Invalid current academic year format. Expected YYYY-YY.');
+        return;
+      }
+      
+      const startYear = parseInt(parts[0]);
+      const endYear = parseInt(parts[1]);
+      const nextYear = `${startYear + 1}-${String(endYear + 1).padStart(2, '0')}`;
+      
+      if (!confirm(`Are you sure you want to promote the school to academic year ${nextYear}?\n\nThis will:\n1. Automatically download a JSON backup.\n2. Increment student classes (Class I -> II, etc.).\n3. Clear class & bus attendance registers.\n4. Reset marks records.\n5. Replicate changes to Supabase (if configured).`)) {
+        return;
+      }
+      
+      // 1. Force a backup download first
+      downloadBackup();
+      
+      // 2. Perform promotion
+      const updatedStudents = students.map(student => {
+        const sClass = classes.find(c => c.id === student.classId);
+        let nextClassId = student.classId;
+        
+        if (sClass) {
+          const currentGrade = sClass.grade;
+          if (currentGrade >= 10) {
+            // Graduate Class X students (clear classId or set to graduated)
+            nextClassId = 'graduated';
+          } else {
+            // Find next class with grade + 1
+            const nextClass = classes.find(c => c.grade === currentGrade + 1);
+            if (nextClass) {
+              nextClassId = nextClass.id;
+            } else {
+              // No higher grade defined
+              nextClassId = null;
+            }
+          }
+        }
+        
+        return {
+          ...student,
+          classId: nextClassId,
+          academicYear: nextYear
+        };
+      });
+      
+      // 3. Clear logs locally
+      DB.set('students', updatedStudents);
+      DB.set('attendanceLogs', []);
+      DB.set('marks', {});
+      DB.set('classAttendance', {});
+      DB.set('busAttendance', {});
+      localStorage.setItem('mss_activeAcademicYear', nextYear);
+      
+      // 4. Save to Supabase (if configured)
+      const configured = localStorage.getItem('supabase_url') && localStorage.getItem('supabase_url') !== 'https://YOUR_PROJECT_REF.supabase.co';
+      if (configured && typeof getSupabase === 'function') {
+        try {
+          showToast('Syncing promotion to Supabase, please wait...', 'info');
+          const client = getSupabase();
+          
+          // Delete live attendance logs and marks on remote database
+          await client.from('attendance_logs').delete().neq('id', 0);
+          await client.from('marks').delete().neq('id', 0);
+          
+          // Update student classes and academic year on remote database
+          for (const s of updatedStudents) {
+            await client.from('students').update({
+              class_id: s.classId,
+              academic_year: s.academicYear
+            }).eq('id', s.id);
+          }
+          
+          showToast('Supabase database sync complete!', 'success');
+        } catch (e) {
+          console.error('Supabase promotion sync failed:', e);
+          alert('Promoted locally, but remote Supabase sync failed. Please review console errors.');
+        }
+      }
+      
+      showToast(`Successfully promoted to academic year ${nextYear}!`, 'success');
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    };
+
+
+
+    // ── CLIENT-SIDE BACKUP INSPECTOR HANDLERS ──────────────────────────
+    
+    let inspectedData = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dropZone = document.getElementById('backupDropZone');
+      const fileInput = document.getElementById('backupInspectorInput');
+      
+      if (dropZone && fileInput) {
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropZone.style.borderColor = 'var(--primary)';
+          dropZone.style.background = 'rgba(79, 70, 229, 0.06)';
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+          dropZone.style.borderColor = 'rgba(79, 70, 229, 0.25)';
+          dropZone.style.background = 'rgba(79, 70, 229, 0.02)';
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropZone.style.borderColor = 'rgba(79, 70, 229, 0.25)';
+          dropZone.style.background = 'rgba(79, 70, 229, 0.02)';
+          
+          if (e.dataTransfer.files.length > 0) {
+            handleBackupFile(e.dataTransfer.files[0]);
+          }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+          if (e.target.files.length > 0) {
+            handleBackupFile(e.target.files[0]);
+          }
+        });
+      }
+    });
+
+    function handleBackupFile(file) {
+      if (!file.name.endsWith('.json')) {
+        showToast('Please upload a valid JSON backup file.', 'danger');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const json = JSON.parse(event.target.result);
+          
+          if (!json.students || !json.classes || !json.teachers) {
+            showToast('JSON does not match school database structure.', 'danger');
+            return;
+          }
+          
+          inspectedData = json;
+          
+          document.getElementById('inspectorResults').style.display = 'block';
+          document.getElementById('inspectFileName').textContent = `File: ${file.name}`;
+          document.getElementById('inspectFileSize').textContent = `Size: ${(file.size / 1024).toFixed(2)} KB`;
+          
+          document.getElementById('inspectCountClasses').textContent = json.classes.length;
+          document.getElementById('inspectCountStudents').textContent = json.students.length;
+          document.getElementById('inspectCountTeachers').textContent = json.teachers.length;
+          document.getElementById('inspectCountBuses').textContent = json.buses ? json.buses.length : 0;
+          
+          switchInspectorTab('students');
+          showToast('Backup file loaded & parsed successfully!', 'success');
+        } catch (e) {
+          console.error(e);
+          showToast('Failed to parse JSON backup file.', 'danger');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    window.clearInspector = () => {
+      inspectedData = null;
+      document.getElementById('inspectorResults').style.display = 'none';
+      document.getElementById('backupInspectorInput').value = '';
+    };
+
+    window.switchInspectorTab = (tab) => {
+      const btns = ['students', 'classes', 'teachers', 'buses', 'grades', 'raw'];
+      btns.forEach(b => {
+        const el = document.getElementById(`btnInspect${b.charAt(0).toUpperCase() + b.slice(1)}`);
+        if (el) el.classList.remove('active');
+      });
+      
+      const activeBtn = document.getElementById(`btnInspect${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
+      if (activeBtn) activeBtn.classList.add('active');
+      
+      const viewport = document.getElementById('inspectorViewport');
+      if (!viewport || !inspectedData) return;
+      
+      let html = '';
+      if (tab === 'students') {
+        const list = inspectedData.students || [];
+        if (list.length === 0) {
+          html = '<p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">No student records found.</p>';
+        } else {
+          html = `
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid rgba(0,0,0,0.06);"><th style="padding: 0.5rem; color: var(--primary-dark);">Roll No</th><th style="padding: 0.5rem; color: var(--primary-dark);">Name</th><th style="padding: 0.5rem; color: var(--primary-dark);">Academic Year</th><th style="padding: 0.5rem; color: var(--primary-dark);">Class ID</th></tr>
+              </thead>
+              <tbody>
+                ${list.map(s => `
+                  <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+                    <td style="padding: 0.5rem; font-weight: 750; color: var(--primary-dark);">${s.rollNo || '-'}</td>
+                    <td style="padding: 0.5rem; font-weight: 600; color: #475569;">${s.name || '-'}</td>
+                    <td style="padding: 0.5rem;"><span style="background: rgba(79,70,229,0.08); color: var(--primary); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 750;">${s.academicYear || s.academic_year || '-'}</span></td>
+                    <td style="padding: 0.5rem; color: var(--text-secondary); font-family: monospace;">${s.classId || s.class_id || 'Unassigned'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>`;
+        }
+      } else if (tab === 'classes') {
+        const list = inspectedData.classes || [];
+        if (list.length === 0) {
+          html = '<p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">No class divisions found.</p>';
+        } else {
+          html = `
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid rgba(0,0,0,0.06);"><th style="padding: 0.5rem; color: var(--primary-dark);">Class Name</th><th style="padding: 0.5rem; color: var(--primary-dark);">Section</th><th style="padding: 0.5rem; color: var(--primary-dark);">Grade</th><th style="padding: 0.5rem; color: var(--primary-dark);">ID</th></tr>
+              </thead>
+              <tbody>
+                ${list.map(c => `
+                  <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+                    <td style="padding: 0.5rem; font-weight: 750; color: var(--primary-dark);">${c.name || '-'}</td>
+                    <td style="padding: 0.5rem; font-weight: 600; color: #475569;">${c.section || '-'}</td>
+                    <td style="padding: 0.5rem; font-weight: 600; color: #475569;">${c.grade || '-'}</td>
+                    <td style="padding: 0.5rem; font-family: monospace; color: var(--text-secondary);">${c.id || '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>`;
+        }
+      } else if (tab === 'teachers') {
+        const list = inspectedData.teachers || [];
+        if (list.length === 0) {
+          html = '<p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">No teacher records found.</p>';
+        } else {
+          html = `
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid rgba(0,0,0,0.06);"><th style="padding: 0.5rem; color: var(--primary-dark);">Name</th><th style="padding: 0.5rem; color: var(--primary-dark);">Username</th><th style="padding: 0.5rem; color: var(--primary-dark);">Email</th><th style="padding: 0.5rem; color: var(--primary-dark);">Assigned Class</th></tr>
+              </thead>
+              <tbody>
+                ${list.map(t => `
+                  <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+                    <td style="padding: 0.5rem; font-weight: 750; color: var(--primary-dark);">${t.name || '-'}</td>
+                    <td style="padding: 0.5rem; font-family: monospace; color: var(--accent); font-weight: 600;">${t.username || '-'}</td>
+                    <td style="padding: 0.5rem; color: #475569;">${t.email || '-'}</td>
+                    <td style="padding: 0.5rem; font-size: 0.8rem; color: var(--text-secondary);">${Array.isArray(t.classId) ? t.classId.join(', ') : (t.classId || 'None')}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>`;
+        }
+      } else if (tab === 'buses') {
+        const list = inspectedData.buses || [];
+        if (list.length === 0) {
+          html = '<p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">No bus routes or driver sheets found.</p>';
+        } else {
+          html = `
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid rgba(0,0,0,0.06);"><th style="padding: 0.5rem; color: var(--primary-dark);">Bus Number</th><th style="padding: 0.5rem; color: var(--primary-dark);">Route</th><th style="padding: 0.5rem; color: var(--primary-dark);">Driver</th><th style="padding: 0.5rem; color: var(--primary-dark);">Driver Phone</th></tr>
+              </thead>
+              <tbody>
+                ${list.map(b => `
+                  <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+                    <td style="padding: 0.5rem; font-weight: 750; color: var(--primary-dark);">${b.number || '-'}</td>
+                    <td style="padding: 0.5rem; font-weight: 600; color: #475569;">${b.route || '-'}</td>
+                    <td style="padding: 0.5rem; font-weight: 600; color: #475569;">${b.driver || '-'}</td>
+                    <td style="padding: 0.5rem; color: var(--text-secondary);">${b.phone || '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>`;
+        }
+      } else if (tab === 'grades') {
+        const marks = inspectedData.marks || {};
+        const classAtt = inspectedData.classAttendance || {};
+        const students = inspectedData.students || [];
+        
+        if (students.length === 0) {
+          html = '<p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">No student data available to correlate grades.</p>';
+        } else {
+          html = `
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid rgba(0,0,0,0.06);">
+                  <th style="padding: 0.5rem; color: var(--primary-dark);">Student Name</th>
+                  <th style="padding: 0.5rem; color: var(--primary-dark);">Class Attendance</th>
+                  <th style="padding: 0.5rem; color: var(--primary-dark);">Recorded Grades & Subjects</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${students.map(s => {
+                  const att = classAtt[s.id] ? `${classAtt[s.id].presentCount} Days Present` : 'No logs';
+                  const studentMarks = marks[s.id] || {};
+                  
+                  let marksSummary = [];
+                  for (const subject in studentMarks) {
+                    const exams = studentMarks[subject];
+                    const examScores = [];
+                    for (const examName in exams) {
+                      examScores.push(`${examName}: ${exams[examName]}`);
+                    }
+                    if (examScores.length > 0) {
+                      marksSummary.push(`<strong>${subject}</strong> &rarr; ${examScores.join(', ')}`);
+                    }
+                  }
+                  
+                  const marksStr = marksSummary.length > 0 ? marksSummary.join('<br>') : '<span style="color: var(--text-secondary); font-style: italic;">No grades recorded</span>';
+                  
+                  return `
+                    <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+                      <td style="padding: 0.5rem; font-weight: 750; color: var(--primary-dark);">${s.name}</td>
+                      <td style="padding: 0.5rem; color: var(--success); font-weight: 600;">${att}</td>
+                      <td style="padding: 0.5rem; font-size: 0.8rem; line-height: 1.4; color: #475569;">${marksStr}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>`;
+        }
+      } else if (tab === 'raw') {
+        html = `
+          <pre style="margin: 0; font-family: monospace; font-size: 0.82rem; color: #334155; white-space: pre-wrap; word-break: break-all; background: #f8fafc; border-radius: 8px; padding: 1rem; border: 1px solid rgba(0,0,0,0.05);">${JSON.stringify(inspectedData, null, 2)}</pre>`;
+      }
+      
+      viewport.innerHTML = html;
+    };
+
+    window.restoreFromInspectedBackup = async () => {
+      if (!inspectedData) return;
+      
+      if (!confirm('WARNING: Restoring this backup will COMPLETELY overwrite all active data in local storage with the contents of this backup file. Any unsaved active changes will be lost.\n\nAre you sure you want to proceed?')) {
+        return;
+      }
+      
+      try {
+        downloadBackup();
+        
+        DB.set('classes', inspectedData.classes || []);
+        DB.set('students', inspectedData.students || []);
+        DB.set('teachers', inspectedData.teachers || []);
+        DB.set('buses', inspectedData.buses || []);
+        DB.set('subjects', inspectedData.subjects || {});
+        DB.set('attendanceLogs', inspectedData.attendanceLogs || []);
+        DB.set('marks', inspectedData.marks || {});
+        DB.set('admissions', inspectedData.admissions || []);
+        DB.set('classAttendance', inspectedData.classAttendance || {});
+        DB.set('busAttendance', inspectedData.busAttendance || {});
+        if (inspectedData.admin) {
+          DB.set('admin', inspectedData.admin);
+        }
+        
+        const restoreYear = inspectedData.students?.[0]?.academicYear || inspectedData.students?.[0]?.academic_year || currentAcademicYear();
+        localStorage.setItem('mss_activeAcademicYear', restoreYear);
+        
+        const configured = localStorage.getItem('supabase_url') && localStorage.getItem('supabase_url') !== 'https://YOUR_PROJECT_REF.supabase.co';
+        if (configured && typeof getSupabase === 'function') {
+          showToast('Syncing restored data to Supabase...', 'info');
+          const client = getSupabase();
+          
+          for (const c of (inspectedData.classes || [])) await client.from('classes').upsert(c);
+          for (const b of (inspectedData.buses || [])) await client.from('buses').upsert(b);
+          for (const s of (inspectedData.students || [])) {
+            await client.from('students').upsert({
+              id: s.id, roll_no: s.rollNo, name: s.name, dob: s.dob, class_id: s.classId, type: s.type, bus_id: s.busId, phone: s.phone, parent_name: s.parentName, academic_year: s.academicYear
+            });
+          }
+          for (const t of (inspectedData.teachers || [])) {
+            await client.from('teachers').upsert({
+              id: t.id, name: t.name, username: t.username, password: t.password, class_id: Array.isArray(t.classId) ? JSON.stringify(t.classId) : t.classId, phone: t.phone, email: t.email
+            });
+          }
+        }
+        
+        showToast('Database successfully restored from backup!', 'success');
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
+      } catch (e) {
+        console.error(e);
+        showToast('Failed to restore backup.', 'danger');
+      }
+    };
+
+  </script>
+</body>
+</html>

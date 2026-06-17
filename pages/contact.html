@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Contact – MSS Matriculation School</title>
+<link rel="stylesheet" href="../css/style.css"/>
+<style>
+.page-hero {
+  background: radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.2) 0%, transparent 60%),
+              radial-gradient(circle at 20% 80%, rgba(79, 70, 229, 0.15) 0%, transparent 60%),
+              linear-gradient(135deg, #0f1026 0%, #1e1b4b 100%);
+  padding: 8rem 2rem 5rem;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.page-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin-bottom: .75rem;
+  position: relative;
+  z-index: 2;
+}
+.page-hero p {
+  opacity: .85;
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Floating Glow spheres for Hero Background ── */
+.hero-bg-glows {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+.glow-sphere {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  mix-blend-mode: screen;
+  will-change: transform;
+  animation: float-sphere 12s ease-in-out infinite;
+}
+@keyframes float-sphere {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+.sphere-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+  top: -10%;
+  right: -5%;
+}
+.sphere-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+  bottom: -10%;
+  left: -5%;
+  animation-delay: -6s;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+.contact-info-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+}
+.contact-info-card h3 {
+  color: var(--primary-dark);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  padding-bottom: .75rem;
+  border-bottom: 2px solid var(--border-color);
+}
+.cinfo-item {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 1.8rem;
+  align-items: flex-start;
+}
+.cinfo-item:last-child {
+  margin-bottom: 0;
+}
+.cinfo-icon {
+  width: 46px;
+  height: 46px;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.15);
+}
+.cinfo-body h4 {
+  font-size: .98rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin-bottom: .25rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.cinfo-body p, .cinfo-body a {
+  font-size: .95rem;
+  color: var(--text-secondary);
+  display: block;
+  line-height: 1.6;
+  transition: var(--transition);
+}
+.cinfo-body a:hover {
+  color: var(--primary);
+  transform: translateX(2px);
+}
+.gform-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+}
+.gform-card h3 {
+  color: var(--primary-dark);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin-bottom: .5rem;
+}
+.gform-card p {
+  color: var(--text-secondary);
+  font-size: .95rem;
+  margin-bottom: 1.75rem;
+}
+.map-section {
+  background: linear-gradient(180deg, var(--white), #eff6ff);
+  padding: 4rem 2rem;
+}
+.map-wrapper {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
+}
+.map-wrapper iframe {
+  display: block;
+  border: none;
+}
+.mgmt-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+.mc-card {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  transition: var(--transition);
+}
+.mc-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.mc-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(26, 79, 138, 0.15);
+}
+.mc-info h4 {
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.mc-info p {
+  font-size: .82rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin: 1px 0;
+}
+.mc-info span {
+  font-size: .82rem;
+  color: var(--text-secondary);
+}
+@media(max-width: 768px) {
+  .page-hero {
+    padding: 6.5rem 1.25rem 3.5rem !important;
+  }
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  .contact-info-card, .gform-card {
+    padding: 1.5rem !important;
+    border-radius: 20px !important;
+  }
+  .contact-info-card h3 {
+    margin-bottom: 1.25rem !important;
+    font-size: 1.2rem !important;
+  }
+  .cinfo-item {
+    gap: 1rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+  .cinfo-icon {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1.1rem !important;
+    border-radius: 10px !important;
+  }
+  .cinfo-body h4 {
+    font-size: 0.92rem !important;
+  }
+  .cinfo-body p, .cinfo-body a {
+    font-size: 0.88rem !important;
+  }
+  .mgmt-contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+  .mc-card {
+    padding: 1rem !important;
+    gap: 0.85rem !important;
+    border-radius: 12px !important;
+  }
+  .mc-avatar {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 1.1rem !important;
+  }
+  .mc-info h4 {
+    font-size: 0.88rem !important;
+  }
+  .mc-info p {
+    font-size: 0.78rem !important;
+  }
+  .mc-info span {
+    font-size: 0.78rem !important;
+  }
+  .map-section {
+    padding: 2.5rem 1rem !important;
+  }
+  .map-wrapper iframe {
+    height: 300px !important;
+  }
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="mainNav">
+  <div class="nav-logo"><img src="../assets/logo.png" alt="MSS"/><div class="nav-logo-text">MSS Matriculation School<span>Uppatty, The Nilgiris</span></div></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="../index.html">Home</a></li><li><a href="about.html">About</a></li>
+    <li><a href="gallery.html">Gallery</a></li><li><a href="contact.html" class="active">Contact</a></li>
+    <li><a href="admission.html">Admission</a></li>
+    <li><a href="student-login.html" class="btn-nav">Student Login</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="page-hero">
+  <div class="hero-bg-glows">
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+  </div>
+  <h1>Contact Us</h1>
+  <p style="opacity:.85;">We'd love to hear from you. Reach out for admissions, enquiries, or any information.</p>
+  <div style="margin-top:1rem;opacity:.65;font-size:.85rem;"><a href="../index.html" style="color:var(--accent-light);">Home</a> / Contact</div>
+</div>
+
+<section class="section page-enter">
+  <div class="container">
+    <div class="contact-grid">
+      <!-- Info -->
+      <div>
+        <div class="contact-info-card mb-3">
+          <h3>📍 School Information</h3>
+          <div class="cinfo-item">
+            <div class="cinfo-icon">📍</div>
+            <div class="cinfo-body"><h4>Location</h4><p>Uppatti, Pandalur Taluk,<br/>The Nilgiris, Tamil Nadu 643241</p></div>
+          </div>
+          <div class="cinfo-item">
+            <div class="cinfo-icon">📞</div>
+            <div class="cinfo-body"><h4>Phone</h4><a href="tel:+919487020243">+91 9487020243</a></div>
+          </div>
+          <div class="cinfo-item">
+            <div class="cinfo-icon">✉️</div>
+            <div class="cinfo-body"><h4>Email</h4><a href="mailto:info@mssmatricschool.com">info@mssmatricschool.com</a><a href="mailto:mssmatriculationschool@gmail.com">mssmatriculationschool@gmail.com</a></div>
+          </div>
+          <div class="cinfo-item">
+            <div class="cinfo-icon">🕐</div>
+            <div class="cinfo-body"><h4>School Hours</h4><p>Mon–Fri: 9:00 AM – 4:00 PM<br/>Sat: 9:00 AM – 1:00 PM (Special Classes)</p></div>
+          </div>
+        </div>
+
+        <div class="contact-info-card">
+          <h3>👥 Management Contacts</h3>
+          <div class="mgmt-contact-grid">
+            <div class="mc-card"><div class="mc-avatar">👩</div><div class="mc-info"><h4>Ms. Kavitha</h4><p>Principal</p><span>📞 9442791922</span></div></div>
+            <div class="mc-card"><div class="mc-avatar">👨</div><div class="mc-info"><h4>Dr. Anwar Hamzath</h4><p>Correspondent</p><span>📞 9443523706</span></div></div>
+            <div class="mc-card"><div class="mc-avatar">👨</div><div class="mc-info"><h4>Mr. K. Ali</h4><p>Chairman</p><span>📞 9585929200</span></div></div>
+            <div class="mc-card"><div class="mc-avatar">👨</div><div class="mc-info"><h4>Mr. Shajith A P</h4><p>Secretary</p><span>📞 9443902085</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Google Form (DOM Integration) -->
+      <div class="gform-card">
+        <h3>📨 Send us a Message</h3>
+        <p>Fill out the form below and we'll get back to you shortly.</p>
+        <!-- Google Form DOM Integration -->
+        <form action="https://docs.google.com/forms/d/e/1FAIpQLSeuCTskiC_8AylYt-YM2IjqoHcaHFzXHuUBOlxDEZPeFcsOEg/formResponse" method="POST" target="hidden_iframe" onsubmit="formSubmitted()" id="contactForm">
+          <input type="hidden" name="entry.2005620554" id="gName"/>
+          <input type="hidden" name="entry.1045781291" id="gEmail"/>
+          <input type="hidden" name="entry.1065046570" id="gPhone"/>
+          <input type="hidden" name="entry.1166974658" id="gSubject"/>
+          <input type="hidden" name="entry.839337160" id="gMessage"/>
+
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input type="text" class="form-control" id="inpName" placeholder="Your full name" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address *</label>
+            <input type="email" class="form-control" id="inpEmail" placeholder="your@email.com" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="inpPhone" placeholder="+91 XXXXXXXXXX"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <input type="text" class="form-control" id="inpSubject" placeholder="Admission / General Enquiry / etc."/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Your Message</label>
+            <textarea class="form-control" id="inpMessage" rows="4" placeholder="Type your message here..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary w-full" style="justify-content:center;">Send Message 📤</button>
+        </form>
+        <div id="formSuccess" style="display:none;background:#d4edda;border-radius:10px;padding:1.5rem;text-align:center;margin-top:1rem;">
+          <div style="font-size:2rem;margin-bottom:.5rem;">✅</div>
+          <h4 style="color:#155724;margin-bottom:.25rem;">Message Sent!</h4>
+          <p style="color:#155724;font-size:.9rem;">Thank you for contacting us. We'll respond within 1–2 business days.</p>
+        </div>
+        <iframe name="hidden_iframe" style="display:none;"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Map -->
+<div class="map-section">
+  <div class="container">
+    <h2 class="section-title text-center mb-3">📍 Find Us</h2>
+    <div class="map-wrapper">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3913.23!2d76.354853!3d11.512554!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x272d1d1c!2sMSS+Matriculation+School!5e0!3m2!1sen!2sin!4v1" width="100%" height="400" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+    <div style="text-align:center;margin-top:1rem;">
+      <a href="https://www.google.com/maps?ll=11.512554,76.354853&z=15" target="_blank" class="btn btn-primary">Open in Google Maps 🗺️</a>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col"><img src="../assets/logo.png" alt="MSS" style="height:44px;margin-bottom:.75rem;"/><p>MSS Matriculation School, Uppatty, The Nilgiris, Tamil Nadu</p></div>
+      <div class="footer-col"><h4>Pages</h4><a href="../index.html">Home</a><a href="about.html">About</a><a href="gallery.html">Gallery</a><a href="contact.html">Contact</a></div>
+      <div class="footer-col"><h4>Contact</h4><p>📞 +91 9487020243</p><p>✉️ info@mssmatricschool.com</p></div>
+    </div>
+    <div class="footer-bottom">© 2024 MSS Matriculation School. All rights reserved.</div>
+  </div>
+</footer>
+<div id="toast-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/app.js"></script>
+<script>
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+  // Sync hidden fields before submit
+  document.getElementById('gName').value = document.getElementById('inpName').value;
+  document.getElementById('gEmail').value = document.getElementById('inpEmail').value;
+  document.getElementById('gPhone').value = document.getElementById('inpPhone').value;
+  document.getElementById('gSubject').value = document.getElementById('inpSubject').value;
+  document.getElementById('gMessage').value = document.getElementById('inpMessage').value;
+});
+function formSubmitted() {
+  setTimeout(() => {
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+    showToast('Message sent successfully!', 'success');
+  }, 600);
+}
+</script>
+</body>
+</html>
