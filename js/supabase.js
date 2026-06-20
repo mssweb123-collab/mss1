@@ -5,9 +5,16 @@
 'use strict';
 
 // ─── SUPABASE CONFIG ───────────────────────────────────────────────────────
-// Replace these with your actual Supabase project credentials
-let SUPABASE_URL = localStorage.getItem('supabase_url') || 'https://YOUR_PROJECT_REF.supabase.co';
-let SUPABASE_ANON_KEY = localStorage.getItem('supabase_key') || 'YOUR_ANON_KEY_HERE';
+let SUPABASE_URL = localStorage.getItem('supabase_url') || 'https://pgnslzcznvtddsgmvipk.supabase.co';
+let SUPABASE_ANON_KEY = localStorage.getItem('supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnbnNsemN6bnZ0ZGRzZ212aXBrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDEyOTcsImV4cCI6MjA5NzUxNzI5N30.nZ09amYSJbH_lHEbDU5r7rnebTbzy0sFUoS1Oc7ERkE';
+
+// Ensure localStorage is populated so the UI detects the configuration
+if (!localStorage.getItem('supabase_url')) {
+  localStorage.setItem('supabase_url', SUPABASE_URL);
+}
+if (!localStorage.getItem('supabase_key')) {
+  localStorage.setItem('supabase_key', SUPABASE_ANON_KEY);
+}
 
 // Detect if Supabase is configured
 function isSupabaseConfigured() {
