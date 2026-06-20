@@ -1146,7 +1146,6 @@
 <body>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase.js"></script>
-  <script src="../js/demo-data.js"></script>
   <script src="../js/app.js"></script>
   <script>
     const session = Auth.requireRole('student', 'student-login.html');
@@ -1336,8 +1335,11 @@
 
     <!-- Performance Card -->
     <div class="panel-card">
-      <div class="panel-title">
-        <i class="bi bi-bar-chart-line icon-accent"></i> Academic Performance
+      <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;"><i class="bi bi-bar-chart-line icon-accent"></i> Academic Performance</div>
+        <div id="classRankBadge" style="background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: var(--primary-dark); font-weight: 850; padding: 0.35rem 0.85rem; border-radius: var(--radius-full); font-size: 0.82rem; box-shadow: 0 4px 10px rgba(244,160,32,0.25); display: none; align-items: center; gap: 0.25rem;">
+          🏆 Rank: <span id="classRankVal">-</span>
+        </div>
       </div>
 
       <!-- Exam Selector Pills -->
@@ -1360,7 +1362,6 @@
               <th>Subject</th>
               <th>Marks Obtained</th>
               <th>Max Marks</th>
-              <th>Grade</th>
             </tr>
           </thead>
           <tbody id="marksBody">
@@ -1391,16 +1392,6 @@
       btn.classList.add('active');
       selectedExam = btn.dataset.exam;
       renderMarks();
-    }
-
-    function getGrade(mark) {
-      if(mark >= 90) return '<span class="badge badge-success">A1</span>';
-      if(mark >= 80) return '<span class="badge badge-success">A2</span>';
-      if(mark >= 70) return '<span class="badge badge-info">B1</span>';
-      if(mark >= 60) return '<span class="badge badge-info">B2</span>';
-      if(mark >= 50) return '<span class="badge badge-warning">C1</span>';
-      if(mark >= 40) return '<span class="badge badge-warning">C2</span>';
-      return '<span class="badge badge-danger">D</span>';
     }
 
     function updateProgressRing(circleId, count, target) {
@@ -1752,11 +1743,13 @@
       const allMarks = DB.get('marks') || {};
       const subjects = (DB.get('subjects') || {})[window.classId] || [];
       const sMarks = allMarks[window.studentId] || {};
+      const maxMarksObj = DB.get('subjectMaxMarks') || {};
+      const classMaxMarks = maxMarksObj[window.classId] || {};
       
       const tbody = document.getElementById('marksBody');
       
       if(subjects.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">No subjects defined.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">No subjects defined.</td></tr>';
         return;
       }
 
@@ -1765,15 +1758,17 @@
 
       const rows = subjects.map(sub => {
         const mark = (sMarks[sub] && sMarks[sub][exam] !== undefined) ? sMarks[sub][exam] : '-';
+        const maxMark = classMaxMarks[sub] !== undefined ? classMaxMarks[sub] : 100;
+        
         if(mark !== '-') {
           totalObtained += mark;
-          totalMax += 100;
+          totalMax += maxMark;
         }
 
-        const progressWidth = mark !== '-' ? `${mark}%` : '0%';
+        const progressWidth = (mark !== '-' && maxMark > 0) ? `${(mark / maxMark * 100).toFixed(1)}%` : '0%';
         const progressDisplay = mark !== '-' 
           ? `<div class="marks-metric-container">
-               <span class="marks-val">${mark} <span class="marks-max">/ 100</span></span>
+               <span class="marks-val">${mark} <span class="marks-max">/ ${maxMark}</span></span>
                <div class="marks-progress-track">
                  <div class="marks-progress-bar" style="width: ${progressWidth};"></div>
                </div>
@@ -1784,8 +1779,7 @@
           <tr>
             <td><span class="subject-tag">${sub}</span></td>
             <td>${progressDisplay}</td>
-            <td>100</td>
-            <td>${mark !== '-' ? getGrade(mark) : '-'}</td>
+            <td>${maxMark}</td>
           </tr>
         `;
       });
@@ -1797,19 +1791,65 @@
             <td><span class="subject-tag" style="background: var(--primary); color: var(--white); border: none;">Total</span></td>
             <td>
               <div class="marks-metric-container">
-                <span class="marks-val">${totalObtained} <span class="marks-max">/ ${totalMax}</span></span>
+                <span class="marks-val">${totalObtained} <span class="marks-max">/ ${totalMax} (${pct}%)</span></span>
                 <div class="marks-progress-track">
                   <div class="marks-progress-bar" style="width: ${pct}%; background: linear-gradient(90deg, var(--accent), var(--primary-light));"></div>
                 </div>
               </div>
             </td>
             <td>${totalMax}</td>
-            <td><span class="badge badge-accent">${pct}%</span></td>
           </tr>
         `);
       }
 
       tbody.innerHTML = rows.join('');
+
+      // Class Rank system calculation
+      const studentsList = DB.get('students') || [];
+      const classStudents = studentsList.filter(std => std.classId === window.classId);
+      const studentScores = classStudents.map(std => {
+        const stdMarks = allMarks[std.id] || {};
+        let scoreSum = 0;
+        let hasAny = false;
+        subjects.forEach(sub => {
+          const markVal = (stdMarks[sub] && stdMarks[sub][exam] !== undefined) ? stdMarks[sub][exam] : null;
+          if (markVal !== null) {
+            scoreSum += Number(markVal);
+            hasAny = true;
+          }
+        });
+        return { id: std.id, total: hasAny ? scoreSum : -1, hasAny };
+      });
+
+      const ranked = studentScores
+        .filter(item => item.hasAny)
+        .sort((a, b) => b.total - a.total);
+
+      let studentRank = null;
+      if (ranked.length > 0) {
+        let currentRank = 0;
+        let lastTotal = -1;
+        ranked.forEach((item, idx) => {
+          if (item.total !== lastTotal) {
+            currentRank = idx + 1;
+            lastTotal = item.total;
+          }
+          if (item.id === window.studentId) {
+            studentRank = currentRank;
+          }
+        });
+      }
+
+      const rankBadge = document.getElementById('classRankBadge');
+      const rankVal = document.getElementById('classRankVal');
+      if (rankBadge && rankVal) {
+        if (studentRank !== null) {
+          rankVal.textContent = `${studentRank} / ${ranked.length}`;
+          rankBadge.style.display = 'inline-flex';
+        } else {
+          rankBadge.style.display = 'none';
+        }
+      }
     }
 
     function toggleBusDetails() {

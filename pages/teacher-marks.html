@@ -252,7 +252,6 @@
 <body>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase.js"></script>
-  <script src="../js/demo-data.js"></script>
   <script src="../js/app.js"></script>
   <script>
     const session = Auth.requireRole('teacher', 'teacher-login.html');
@@ -361,16 +360,20 @@
         return;
       }
 
+      const maxMarksObj = DB.get('subjectMaxMarks') || {};
+
       list.innerHTML = filtered.map(s => {
         const smarks = allMarks[s.id] || {};
+        const classMaxMarks = maxMarksObj[s.classId] || {};
         
         const classSubjects = (DB.get('subjects') || {})[s.classId] || ['English', 'Maths', 'Science'];
         const inputs = classSubjects.map(sub => {
           const val = smarks[sub] && smarks[sub][selectedExam] !== undefined ? smarks[sub][selectedExam] : '';
+          const maxMark = classMaxMarks[sub] !== undefined ? classMaxMarks[sub] : 100;
           return `
             <div class="subject-input-box">
-              <span class="subject-label">${sub}</span>
-              <input type="number" min="0" max="100" class="mark-input" data-student="${s.id}" data-subject="${sub}" value="${val}" placeholder="-">
+              <span class="subject-label">${sub} <span style="font-size:0.75rem; color:var(--text-secondary); text-transform:none;">(Max: ${maxMark})</span></span>
+              <input type="number" min="0" max="${maxMark}" class="mark-input" data-student="${s.id}" data-subject="${sub}" data-max="${maxMark}" value="${val}" placeholder="-">
             </div>
           `;
         }).join('');
@@ -396,11 +399,12 @@
       document.querySelectorAll('.mark-input').forEach(inp => {
         const sid = inp.dataset.student;
         const sub = inp.dataset.subject;
+        const maxMark = parseInt(inp.dataset.max || '100', 10);
         const val = inp.value.trim();
         
         if (val !== '') {
           const markInt = parseInt(val, 10);
-          if (isNaN(markInt) || markInt < 0 || markInt > 100) {
+          if (isNaN(markInt) || markInt < 0 || markInt > maxMark) {
             hasUnsavedValidations = true;
             inp.style.borderColor = 'var(--danger)';
           } else {
@@ -418,7 +422,7 @@
       });
       
       if (hasUnsavedValidations) {
-        showToast('Please correct the marks (must be between 0 and 100)', 'error');
+        showToast("Please correct the marks (must be between 0 and the subject's max mark)", 'error');
         return;
       }
 

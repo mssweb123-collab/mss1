@@ -337,14 +337,14 @@
         <label class="form-label" for="tUser">Username</label>
         <div class="input-with-icon">
           <input type="text" class="form-control" id="tUser" placeholder="Teacher username" required autocomplete="username"/>
-          <i class="bi bi-person-badge-fill"></i>
+          <i class="input-icon bi bi-person-badge-fill"></i>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label" for="tPass">Password</label>
         <div class="input-with-icon">
           <input type="password" class="form-control tpass-control" id="tPass" placeholder="Your password" required autocomplete="current-password"/>
-          <i class="bi bi-key-fill"></i>
+          <i class="input-icon bi bi-key-fill"></i>
           <button type="button" class="pw-toggle" onclick="togglePw()">
             <i class="bi bi-eye" id="toggleIcon"></i>
           </button>
@@ -371,7 +371,6 @@
 <div id="toast-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase.js"></script>
-<script src="../js/demo-data.js"></script>
 <script src="../js/app.js"></script>
 <script>
 let attempts = 0;

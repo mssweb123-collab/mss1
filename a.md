@@ -48,4 +48,3 @@ Here is the complete list of default usernames and passwords for all roles in th
   - **Roll No:** `202`
   - **Password (DOB):** `2012-01-14`
 
-Let me know if you need any other information from the database or code!

@@ -375,12 +375,82 @@
         padding: 1.5rem 1rem;
       }
     }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 28px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      max-height: 82vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.12);
+      transform: scale(0.92);
+      transition: transform 0.3s ease;
+      position: relative;
+      text-align: left;
+    }
+    .modal-overlay.show .modal-card {
+      transform: scale(1);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      padding-bottom: 0.75rem;
+    }
+    .modal-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 850;
+      color: var(--primary-dark);
+      margin: 0;
+    }
+    .modal-close-btn {
+      background: rgba(15, 23, 42, 0.05);
+      border: none;
+      color: var(--text-secondary);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+      transition: var(--transition);
+    }
+    .modal-close-btn:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
   </style>
 </head>
 <body>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase.js"></script>
-  <script src="../js/demo-data.js"></script>
   <script src="../js/app.js"></script>
   <script>
     const session = Auth.requireRole('teacher', 'teacher-login.html');
@@ -435,29 +505,25 @@
       <div class="menu-card" onclick="window.location.href='teacher-attendance.html'">
         <div class="menu-icon"><i class="bi bi-calendar-check"></i></div>
         <div class="menu-details">
-          <h2>Daily Attendance</h2>
-          <p>Mark, edit and track daily attendance records for class students.</p>
+          <h2 style="margin-bottom: 0;">Daily Attendance</h2>
         </div>
       </div>
       <div class="menu-card" onclick="window.location.href='teacher-marks.html'">
         <div class="menu-icon"><i class="bi bi-journal-check"></i></div>
         <div class="menu-details">
-          <h2>Enter & Edit Marks</h2>
-          <p>Add exam scores (Quarterly, Half Yearly, Annual) and manage performance.</p>
+          <h2 style="margin-bottom: 0;">Enter & Edit Marks</h2>
         </div>
       </div>
       <div class="menu-card" onclick="window.location.href='teacher-transport.html'">
         <div class="menu-icon"><i class="bi bi-bus-front"></i></div>
         <div class="menu-details">
-          <h2>Manage Transport</h2>
-          <p>Update commute modes and assign bus routes for class students.</p>
+          <h2 style="margin-bottom: 0;">Manage Transport</h2>
         </div>
       </div>
       <div class="menu-card" onclick="window.location.href='teacher-subjects.html'">
         <div class="menu-icon"><i class="bi bi-book-half"></i></div>
         <div class="menu-details">
-          <h2>Manage Subjects</h2>
-          <p>Add, edit or remove the curriculum subjects taught in your class.</p>
+          <h2 style="margin-bottom: 0;">Manage Subjects</h2>
         </div>
       </div>
     </div>
@@ -468,9 +534,14 @@
     <div class="directory-panel">
       <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; width: 100%;">
         <span><i class="bi bi-person-lines-fill icon-accent"></i> My Class Directory</span>
-        <button class="btn btn-primary btn-sm" onclick="downloadAllProgressCards()" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: var(--radius-full);">
-          <i class="bi bi-file-earmark-pdf-fill"></i> Download Bulk Progress Cards
-        </button>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn btn-primary btn-sm" onclick="openAddStudentModal()" style="background: linear-gradient(135deg, var(--accent), var(--accent-light)); border: none; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: var(--radius-full); color: var(--primary-dark);">
+            <i class="bi bi-person-plus-fill"></i> Add Student
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="downloadAllProgressCards()" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: var(--radius-full);">
+            <i class="bi bi-file-earmark-pdf-fill"></i> Download Bulk Progress Cards
+          </button>
+        </div>
       </div>
       <div class="form-group">
         <input type="text" id="searchBar" class="form-control" placeholder="Search student name or roll no..." oninput="filterDirectory()"/>
@@ -481,6 +552,37 @@
   </main>
 
   <div id="toast-container"></div>
+
+  <!-- Add Student Modal -->
+  <div id="addStudentModal" class="modal-overlay" onclick="if(event.target === this) closeAddStudentModal();">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add New Student</h3>
+        <button class="modal-close-btn" onclick="closeAddStudentModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="addStudentForm">
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Student Name</label>
+            <input type="text" id="sName" placeholder="Enter student name" class="form-control" required style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;">
+          </div>
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Roll Number</label>
+            <input type="text" id="sRollNo" placeholder="Enter roll number" class="form-control" required style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;">
+          </div>
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Date of Birth</label>
+            <input type="date" id="sDob" class="form-control" required style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;">
+          </div>
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Class</label>
+            <select id="sClass" class="form-control" required style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;"></select>
+          </div>
+          <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem; font-weight: 700; padding: 0.75rem; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border: none; border-radius: var(--radius-full); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">Create Student</button>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <script>
     let myClassId = null;
@@ -509,6 +611,8 @@
         loadDashboardData();
       });
     }
+
+
 
     function getMyStudents() {
       const allStudents = DB.get('students') || [];
@@ -552,12 +656,53 @@
       }
 
       const subjectsObj = DB.get('subjects') || {};
-      const classSubjects = subjectsObj[s.classId] || ['English', 'Maths', 'Science'];
+      const classSubjects = subjectsObj[myClassId] || ['English', 'Maths', 'Science'];
       const allMarks = DB.get('marks') || {};
+
+      // Compute ranks map for Qtr, Half, and Annual
+      const getRanksMap = (examKey) => {
+        const studentsList = DB.get('students') || [];
+        const classStudents = studentsList.filter(std => std.classId === myClassId);
+        const scores = classStudents.map(std => {
+          const stdMarks = allMarks[std.id] || {};
+          let scoreSum = 0;
+          let hasAny = false;
+          classSubjects.forEach(sub => {
+            const markVal = (stdMarks[sub] && stdMarks[sub][examKey] !== undefined) ? stdMarks[sub][examKey] : null;
+            if (markVal !== null) {
+              scoreSum += Number(markVal);
+              hasAny = true;
+            }
+          });
+          return { id: std.id, total: hasAny ? scoreSum : -1, hasAny };
+        });
+
+        const ranked = scores.filter(x => x.hasAny).sort((a, b) => b.total - a.total);
+        const rankMap = {};
+        if (ranked.length > 0) {
+          let currentRank = 0;
+          let lastTotal = -1;
+          ranked.forEach((item, idx) => {
+            if (item.total !== lastTotal) {
+              currentRank = idx + 1;
+              lastTotal = item.total;
+            }
+            rankMap[item.id] = `${currentRank} / ${ranked.length}`;
+          });
+        }
+        return rankMap;
+      };
+
+      const rankMapQ = getRanksMap('exam1');
+      const rankMapH = getRanksMap('exam2');
+      const rankMapA = getRanksMap('exam3');
 
       grid.innerHTML = studentList.map(s => {
         const isBus = s.type === 'bus';
         const smarks = allMarks[s.id] || {};
+        const rankQ = rankMapQ[s.id] || '-';
+        const rankH = rankMapH[s.id] || '-';
+        const rankA = rankMapA[s.id] || '-';
         
         // Build Marks table rows
         const marksRows = classSubjects.map(sub => {
@@ -617,6 +762,12 @@
                   </thead>
                   <tbody>
                     ${marksRows.length > 0 ? marksRows : '<tr><td colspan="4" style="text-align:center; padding: 0.5rem; color: var(--text-muted);">No subjects defined.</td></tr>'}
+                    <tr style="background: rgba(245, 158, 11, 0.05); font-weight: bold; border-top: 1px solid var(--border-color);">
+                      <td style="padding: 0.5rem; color: var(--warning); font-weight: 800;">Class Rank</td>
+                      <td style="padding: 0.5rem; text-align:center; color: var(--warning); font-weight: 800;">${rankQ}</td>
+                      <td style="padding: 0.5rem; text-align:center; color: var(--warning); font-weight: 800;">${rankH}</td>
+                      <td style="padding: 0.5rem; text-align:center; color: var(--warning); font-weight: 800;">${rankA}</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -664,10 +815,10 @@
 
         return `
           <tr>
-            <td style="border: 1px solid #cbd5e1; padding: 0.75rem; font-weight: 700; color: #1e293b;">${sub}</td>
-            <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 700; font-size: 1.05rem;">${qMark}</td>
-            <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 700; font-size: 1.05rem;">${hMark}</td>
-            <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 700; font-size: 1.05rem;">${aMark}</td>
+            <td style="font-weight: 700; color: #1e293b;">${sub}</td>
+            <td style="text-align: center; font-weight: 700;">${qMark}</td>
+            <td style="text-align: center; font-weight: 700;">${hMark}</td>
+            <td style="text-align: center; font-weight: 700;">${aMark}</td>
           </tr>
         `;
       }).join('');
@@ -681,18 +832,64 @@
       const pctH = countH > 0 ? ((totalH / maxTotalH) * 100).toFixed(1) + '%' : '-';
       const pctA = countA > 0 ? ((totalA / maxTotalA) * 100).toFixed(1) + '%' : '-';
 
+      // Compute progress card ranks for this student
+      const getProgressCardRank = (examKey) => {
+        const studentsList = DB.get('students') || [];
+        const classStudents = studentsList.filter(std => std.classId === s.classId);
+        const scores = classStudents.map(std => {
+          const stdMarks = allMarks[std.id] || {};
+          let scoreSum = 0;
+          let hasAny = false;
+          classSubjects.forEach(sub => {
+            const markVal = (stdMarks[sub] && stdMarks[sub][examKey] !== undefined) ? stdMarks[sub][examKey] : null;
+            if (markVal !== null) {
+              scoreSum += Number(markVal);
+              hasAny = true;
+            }
+          });
+          return { id: std.id, total: hasAny ? scoreSum : -1, hasAny };
+        });
+
+        const ranked = scores.filter(x => x.hasAny).sort((a, b) => b.total - a.total);
+        let studentRank = null;
+        if (ranked.length > 0) {
+          let currentRank = 0;
+          let lastTotal = -1;
+          ranked.forEach((item, idx) => {
+            if (item.total !== lastTotal) {
+              currentRank = idx + 1;
+              lastTotal = item.total;
+            }
+            if (item.id === s.id) {
+              studentRank = currentRank;
+            }
+          });
+        }
+        return studentRank !== null ? `${studentRank} / ${ranked.length}` : '-';
+      };
+
+      const rankQ = getProgressCardRank('exam1');
+      const rankH = getProgressCardRank('exam2');
+      const rankA = getProgressCardRank('exam3');
+
       const totalRow = `
         <tr style="background-color: #f8fafc; font-weight: bold; border-top: 2px solid #cbd5e1;">
-          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; color: #3730a3; font-weight: 800;">Total Obtained</td>
-          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 800; color: #3730a3;">${countQ > 0 ? `${totalQ} / ${maxTotalQ}` : '-'}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 800; color: #3730a3;">${countH > 0 ? `${totalH} / ${maxTotalH}` : '-'}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; font-weight: 800; color: #3730a3;">${countA > 0 ? `${totalA} / ${maxTotalA}` : '-'}</td>
+          <td style="color: #3730a3; font-weight: 800;">Total Obtained</td>
+          <td style="text-align: center; font-weight: 800; color: #3730a3;">${countQ > 0 ? `${totalQ} / ${maxTotalQ}` : '-'}</td>
+          <td style="text-align: center; font-weight: 800; color: #3730a3;">${countH > 0 ? `${totalH} / ${maxTotalH}` : '-'}</td>
+          <td style="text-align: center; font-weight: 800; color: #3730a3;">${countA > 0 ? `${totalA} / ${maxTotalA}` : '-'}</td>
         </tr>
         <tr style="background-color: #f8fafc; font-weight: bold;">
-          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; color: #0f172a;">Percentage</td>
-          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; color: #0f172a;">${pctQ}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; color: #0f172a;">${pctH}</td>
-          <td style="border: 1px solid #cbd5e1; padding: 0.75rem; text-align: center; color: #0f172a;">${pctA}</td>
+          <td style="color: #0f172a;">Percentage</td>
+          <td style="text-align: center; color: #0f172a;">${pctQ}</td>
+          <td style="text-align: center; color: #0f172a;">${pctH}</td>
+          <td style="text-align: center; color: #0f172a;">${pctA}</td>
+        </tr>
+        <tr style="background-color: #f8fafc; font-weight: bold;">
+          <td style="color: #b45309; font-weight: 800;">Class Rank</td>
+          <td style="text-align: center; color: #b45309; font-weight: 800;">${rankQ}</td>
+          <td style="text-align: center; color: #b45309; font-weight: 800;">${rankH}</td>
+          <td style="text-align: center; color: #b45309; font-weight: 800;">${rankA}</td>
         </tr>
       `;
 
@@ -878,7 +1075,7 @@
             letter-spacing: 0.06em;
           }
           td {
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #cbd5e1;
             border-right: 1px solid #cbd5e1;
             padding: 0.85rem 1.25rem;
             font-size: 0.95rem;
@@ -909,28 +1106,90 @@
             margin-bottom: 0.6rem;
           }
           @media print {
+            @page {
+              size: portrait;
+              margin: 10mm 15mm;
+            }
             body {
               padding: 0;
+              margin: 0;
               background: none;
             }
             .card-container {
               border: none;
               box-shadow: none;
-              padding: 2.5rem;
+              padding: 2.2rem 2.5rem;
               margin: 0;
               page-break-after: always;
               break-after: page;
+              page-break-inside: avoid;
+              break-inside: avoid;
+              box-sizing: border-box;
+              height: 250mm;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
             }
             .card-container::before {
-              border-color: rgba(79, 70, 229, 0.3);
+              border-color: rgba(79, 70, 229, 0.25);
+              inset: 0.6rem;
             }
             .card-container::after {
               content: '';
               position: absolute;
-              inset: 1.5rem;
-              border: 2px solid rgba(79, 70, 229, 0.4);
+              inset: 0.8rem;
+              border: 2px solid rgba(79, 70, 229, 0.35);
               border-radius: 14px;
               pointer-events: none;
+            }
+            .school-header {
+              margin-bottom: 0;
+              padding-bottom: 1.2rem;
+              gap: 1.5rem;
+            }
+            .school-logo-print {
+              width: 80px;
+              height: 80px;
+            }
+            .header-text-block {
+              padding-left: 1.2rem;
+            }
+            .school-title {
+              font-size: 1.6rem;
+            }
+            .school-subtitle {
+              font-size: 0.85rem;
+              margin-bottom: 0.3rem;
+            }
+            .report-title {
+              font-size: 1.05rem;
+            }
+            .student-info-grid {
+              margin-bottom: 0;
+              padding: 1rem 1.75rem;
+              gap: 1rem;
+              font-size: 0.92rem;
+            }
+            .info-item {
+              margin-bottom: 0.4rem;
+            }
+            table {
+              margin-bottom: 0;
+            }
+            th {
+              padding: 0.65rem 1rem;
+              font-size: 0.82rem;
+            }
+            td {
+              padding: 0.65rem 1rem;
+              font-size: 0.9rem;
+            }
+            .signatures-row {
+              margin-top: 0;
+              padding-top: 2rem;
+            }
+            .sig-box {
+              width: 170px;
             }
             .card-container:last-child {
               page-break-after: avoid;
@@ -987,6 +1246,40 @@
       );
       renderDirectory(filtered);
     }
+
+    window.openAddStudentModal = function() {
+      const classes = DB.get('classes') || [];
+      const assignedClasses = classes.filter(c => window.myClassIds.includes(c.id));
+      const sClassSelect = document.getElementById('sClass');
+      sClassSelect.innerHTML = assignedClasses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      document.getElementById('addStudentModal').classList.add('show');
+    };
+
+    window.closeAddStudentModal = function() {
+      document.getElementById('addStudentModal').classList.remove('show');
+      document.getElementById('addStudentForm').reset();
+    };
+
+    document.getElementById('addStudentForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const students = DB.get('students') || [];
+      const newStudent = {
+        id: genId('s'),
+        rollNo: document.getElementById('sRollNo').value,
+        name: document.getElementById('sName').value,
+        dob: document.getElementById('sDob').value,
+        classId: document.getElementById('sClass').value,
+        type: 'dayscholar',
+        busId: null,
+        academicYear: currentAcademicYear()
+      };
+      students.push(newStudent);
+      DB.set('students', students);
+      
+      closeAddStudentModal();
+      loadDashboardData();
+      showToast('Student added successfully', 'success');
+    });
   </script>
 </body>
 </html>

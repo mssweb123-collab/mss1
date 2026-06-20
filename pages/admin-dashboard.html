@@ -533,7 +533,6 @@
 <body>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase.js"></script>
-  <script src="../js/demo-data.js"></script>
   <script src="../js/app.js"></script>
   <script>
     const session = Auth.requireRole('admin', 'admin-login.html');
@@ -825,6 +824,13 @@
             </button>
           </div>
 
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label" style="font-weight: 750; color: var(--primary-dark); font-size: 0.85rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.3rem;">
+              <i class="bi bi-database-fill-gear" style="color: var(--accent);"></i> Switch Year Database View
+            </label>
+            <select id="dbYearSelect" class="form-control" style="font-weight: 700; color: var(--primary-dark); border-radius: 12px; padding: 0.65rem;" onchange="switchAcademicYear(this.value)"></select>
+          </div>
+
           <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
             <p style="margin-bottom: 0.75rem;"><strong>Promoting to the next year will:</strong></p>
             <ul style="padding-left: 1.25rem; margin: 0; display: flex; flex-direction: column; gap: 0.4rem;">
@@ -1097,6 +1103,8 @@
       renderClassesWise();
     });
 
+
+
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -1227,6 +1235,55 @@
         `;
       }).join('');
 
+      // Rank calculation
+      const getAdminRankForExam = (examKey) => {
+        const studentsList = DB.get('students') || [];
+        const classStudents = studentsList.filter(std => std.classId === s.classId);
+        const scores = classStudents.map(std => {
+          const stdMarks = allMarks[std.id] || {};
+          let scoreSum = 0;
+          let hasAny = false;
+          classSubjects.forEach(sub => {
+            const markVal = (stdMarks[sub] && stdMarks[sub][examKey] !== undefined) ? stdMarks[sub][examKey] : null;
+            if (markVal !== null) {
+              scoreSum += Number(markVal);
+              hasAny = true;
+            }
+          });
+          return { id: std.id, total: hasAny ? scoreSum : -1, hasAny };
+        });
+
+        const ranked = scores.filter(x => x.hasAny).sort((a, b) => b.total - a.total);
+        let studentRank = null;
+        if (ranked.length > 0) {
+          let currentRank = 0;
+          let lastTotal = -1;
+          ranked.forEach((item, idx) => {
+            if (item.total !== lastTotal) {
+              currentRank = idx + 1;
+              lastTotal = item.total;
+            }
+            if (item.id === s.id) {
+              studentRank = currentRank;
+            }
+          });
+        }
+        return studentRank !== null ? `${studentRank} / ${ranked.length}` : '-';
+      };
+
+      const rankQ = getAdminRankForExam('exam1');
+      const rankH = getAdminRankForExam('exam2');
+      const rankA = getAdminRankForExam('exam3');
+
+      const rankRow = `
+        <tr style="background: rgba(245, 158, 11, 0.05); font-weight: bold; border-top: 1.5px solid var(--border-color);">
+          <td style="font-weight: 800; color: var(--accent); font-size: 0.85rem;">Class Rank</td>
+          <td style="text-align: center; color: var(--accent); font-weight: 800;">${rankQ}</td>
+          <td style="text-align: center; color: var(--accent); font-weight: 800;">${rankH}</td>
+          <td style="text-align: center; color: var(--accent); font-weight: 800;">${rankA}</td>
+        </tr>
+      `;
+
       const html = `
         <div style="text-align: center; margin-bottom: 2rem;">
           <div style="width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; font-size: 2rem; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem auto; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);">
@@ -1239,13 +1296,13 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
           <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(15, 23, 42, 0.04); padding: 0.85rem; border-radius: 16px;">
             <strong style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.2rem;">Academic info</strong>
-            <span style="font-weight: 700; color: var(--primary-dark); display: block; font-size: 0.9rem; margin-bottom: 0.15rem;">Class: ${className}</span>
+            <span style="font-weight: 750; color: var(--primary-dark); display: block; font-size: 0.9rem; margin-bottom: 0.15rem;">Class: ${className}</span>
             <span style="color: var(--text-secondary); font-size: 0.8rem;">Teacher: ${teacherName}</span>
           </div>
           
           <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(15, 23, 42, 0.04); padding: 0.85rem; border-radius: 16px;">
             <strong style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">Personal & Transport</strong>
-            <span style="font-weight: 700; color: var(--primary-dark); display: block; font-size: 0.9rem; margin-bottom: 0.15rem;">DOB: ${formatDate(s.dob)}</span>
+            <span style="font-weight: 750; color: var(--primary-dark); display: block; font-size: 0.9rem; margin-bottom: 0.15rem;">DOB: ${formatDate(s.dob)}</span>
             <span style="color: var(--text-secondary); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;">Bus: ${busInfo}</span>
           </div>
         </div>
@@ -1275,6 +1332,7 @@
               </thead>
               <tbody>
                 ${marksRows}
+                ${rankRow}
               </tbody>
             </table>
           </div>
@@ -1516,7 +1574,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Password</label>
-          <input type="password" id="editTPassword" value="${t.password || ''}" placeholder="Enter new password or keep existing" class="form-control">
+          <input type="password" id="editTPassword" value="" placeholder="Enter new password or keep existing" class="form-control">
         </div>
         <div class="form-group">
           <label class="form-label">Assigned Class</label>
@@ -1682,6 +1740,12 @@
       if (activeSessionDisplay) {
         activeSessionDisplay.textContent = activeYear;
       }
+
+      const dbSelect = document.getElementById('dbYearSelect');
+      if (dbSelect) {
+        const availableYears = getAvailableAcademicYears();
+        dbSelect.innerHTML = availableYears.map(yr => `<option value="${yr}" ${yr === activeYear ? 'selected' : ''}>${yr}</option>`).join('');
+      }
       
       // Populate selects
       const sClassSelect = document.getElementById('sClass');
@@ -1771,7 +1835,7 @@
           list[idx].username = document.getElementById('editTUsername').value;
           const newPass = document.getElementById('editTPassword').value;
           if (newPass) {
-            list[idx].password = newPass;
+            list[idx].password = sha256(newPass);
           }
           const checkedBoxes = document.querySelectorAll('input[name="editTClasses"]:checked');
           list[idx].classId = Array.from(checkedBoxes).map(cb => cb.value);
@@ -1845,7 +1909,7 @@
           id: genId('t'),
           name: teacherName,
           username: teacherUsername || teacherName.toLowerCase().replace(/\s+/g, ''),
-          password: teacherPassword || '123456', // Default password if empty
+          password: sha256(teacherPassword || '123456'), // Default password if empty
           classId: classId
         });
         DB.set('teachers', teachers);
@@ -1907,7 +1971,7 @@
       const teachers = DB.get('teachers') || [];
       teachers.push({
         id: genId('t'), name: document.getElementById('tName').value,
-        username: document.getElementById('tUsername').value, password: document.getElementById('tPassword').value,
+        username: document.getElementById('tUsername').value, password: sha256(document.getElementById('tPassword').value),
         classId: Array.from(document.querySelectorAll('input[name="addTClasses"]:checked')).map(cb => cb.value)
       });
       DB.set('teachers', teachers);
@@ -2003,6 +2067,13 @@
       // 1. Force a backup download first
       downloadBackup();
       
+      // Archive current year data under the currentYear suffix
+      localStorage.setItem('mss_students_' + currentYear, JSON.stringify(students));
+      localStorage.setItem('mss_attendanceLogs_' + currentYear, localStorage.getItem('mss_attendanceLogs') || '[]');
+      localStorage.setItem('mss_marks_' + currentYear, localStorage.getItem('mss_marks') || '{}');
+      localStorage.setItem('mss_classAttendance_' + currentYear, localStorage.getItem('mss_classAttendance') || '{}');
+      localStorage.setItem('mss_busAttendance_' + currentYear, localStorage.getItem('mss_busAttendance') || '{}');
+      
       // 2. Perform promotion
       const updatedStudents = students.map(student => {
         const sClass = classes.find(c => c.id === student.classId);
@@ -2033,12 +2104,12 @@
       });
       
       // 3. Clear logs locally
+      localStorage.setItem('mss_activeAcademicYear', nextYear);
       DB.set('students', updatedStudents);
       DB.set('attendanceLogs', []);
       DB.set('marks', {});
       DB.set('classAttendance', {});
       DB.set('busAttendance', {});
-      localStorage.setItem('mss_activeAcademicYear', nextYear);
       
       // 4. Save to Supabase (if configured)
       const configured = localStorage.getItem('supabase_url') && localStorage.getItem('supabase_url') !== 'https://YOUR_PROJECT_REF.supabase.co';
@@ -2071,6 +2142,14 @@
       setTimeout(() => {
         window.location.reload();
       }, 1500);
+    };
+
+    window.switchAcademicYear = function(year) {
+      localStorage.setItem('mss_activeAcademicYear', year);
+      showToast(`Switched view to academic year ${year}`, 'success');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     };
 
 

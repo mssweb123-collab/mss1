@@ -41,7 +41,8 @@ Email: info@mssmatricschool.com
 mssmatriculationschool@gmail.com
 
 
-map https://www.google.com/maps?ll=11.512554,76.354853&z=15&t=m&hl=en-US&gl=US&mapclient=embed&cid=2827702401676284865 
+map
+https://www.google.com/maps?ll=11.512554,76.354853&z=15&t=m&hl=en-US&gl=US&mapclient=embed&cid=2827702401676284865 
 
 Contact
 Call us

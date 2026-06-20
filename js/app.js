@@ -6,27 +6,175 @@
 'use strict';
 
 // ============================================
+// CRYPTOGRAPHY / SHA-256
+// ============================================
+function sha256(ascii) {
+  function rightRotate(value, amount) {
+    return (value >>> amount) | (value << (32 - amount));
+  }
+  
+  var mathPow = Math.pow;
+  var maxWord = mathPow(2, 32);
+  var lengthProperty = 'length';
+  var i, j;
+
+  var result = '';
+
+  var words = [];
+  var asciiLength = ascii[lengthProperty];
+  var hash = sha256.h = sha256.h || [];
+  var k = sha256.k = sha256.k || [];
+  var primeCounter = k[lengthProperty];
+
+  var isComposite = {};
+  for (var candidate = 2; primeCounter < 64; candidate++) {
+    if (!isComposite[candidate]) {
+      for (i = 0; i < 313; i += candidate) {
+        isComposite[i] = 1;
+      }
+      hash[primeCounter] = (mathPow(candidate, .5)*maxWord)|0;
+      k[primeCounter++] = (mathPow(candidate, 1/3)*maxWord)|0;
+    }
+  }
+  
+  ascii += '\x80';
+  while (ascii[lengthProperty] % 64 - 56) ascii += '\x00';
+  for (i = 0; i < ascii[lengthProperty]; i++) {
+    j = ascii.charCodeAt(i);
+    if (j >> 8) return; // UTF-8 check
+    words[i >> 2] |= j << ((3 - i % 4) * 8);
+  }
+  words[words[lengthProperty]] = ((asciiLength * 8) / maxWord) | 0;
+  words[words[lengthProperty]] = (asciiLength * 8);
+  
+  for (j = 0; j < words[lengthProperty];) {
+    var w = words.slice(j, j += 16);
+    var oldHash = hash.slice(0);
+    
+    hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++) {
+      var w15 = w[i - 15], w2 = w[i - 2];
+      
+      var s0 = rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3);
+      var s1 = rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10);
+      
+      var ch = (hash[4] & hash[5]) ^ (~hash[4] & hash[6]);
+      var maj = (hash[0] & hash[1]) ^ (hash[0] & hash[2]) ^ (hash[1] & hash[2]);
+      
+      var temp1 = hash[7] + (rightRotate(hash[4], 6) ^ rightRotate(hash[4], 11) ^ rightRotate(hash[4], 25)) + ch + k[i] + (w[i] = (i < 16 ? w[i] : (w[i - 16] + s0 + w[i - 7] + s1) | 0));
+      var temp2 = (rightRotate(hash[0], 2) ^ rightRotate(hash[0], 13) ^ rightRotate(hash[0], 22)) + maj;
+      
+      hash = [(temp1 + temp2) | 0].concat(hash);
+      hash[4] = (hash[4] + temp1) | 0;
+    }
+    
+    for (i = 0; i < 8; i++) {
+      hash[i] = (hash[i] + oldHash[i]) | 0;
+    }
+  }
+  
+  for (i = 0; i < 8; i++) {
+    var word = hash[i];
+    result += ((word >>> 24) & 255).toString(16).padStart(2, '0') +
+              ((word >>> 16) & 255).toString(16).padStart(2, '0') +
+              ((word >>> 8) & 255).toString(16).padStart(2, '0') +
+              (word & 255).toString(16).padStart(2, '0');
+  }
+  
+  return result;
+}
+
+// ============================================
 // DATA LAYER
 // ============================================
 var DB = window.DB || {
   get(key) {
-    try { return JSON.parse(localStorage.getItem('mss_' + key)) || null; }
+    try {
+      if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
+        const activeYear = localStorage.getItem('mss_activeAcademicYear');
+        if (activeYear) {
+          const val = localStorage.getItem('mss_' + key + '_' + activeYear);
+          if (val !== null) {
+            return JSON.parse(val);
+          }
+        }
+      }
+      return JSON.parse(localStorage.getItem('mss_' + key)) || null;
+    }
     catch { return null; }
   },
   set(key, value) {
+    if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
+      const activeYear = localStorage.getItem('mss_activeAcademicYear');
+      if (activeYear) {
+        localStorage.setItem('mss_' + key + '_' + activeYear, JSON.stringify(value));
+        localStorage.setItem('mss_' + key, JSON.stringify(value));
+        return;
+      }
+    }
     localStorage.setItem('mss_' + key, JSON.stringify(value));
   },
-  remove(key) { localStorage.removeItem('mss_' + key); }
+  remove(key) {
+    if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
+      const activeYear = localStorage.getItem('mss_activeAcademicYear');
+      if (activeYear) {
+        localStorage.removeItem('mss_' + key + '_' + activeYear);
+      }
+    }
+    localStorage.removeItem('mss_' + key);
+  }
 };
+
+function getAvailableAcademicYears() {
+  const years = new Set();
+  const activeYear = localStorage.getItem('mss_activeAcademicYear');
+  if (activeYear) {
+    years.add(activeYear);
+  }
+  
+  const y = new Date().getFullYear();
+  const m = new Date().getMonth() + 1;
+  const currentDefault = (m >= 6) ? `${y}-${(y + 1).toString().substr(2)}` : `${y - 1}-${y.toString().substr(2)}`;
+  years.add(currentDefault);
+  years.add('2024-25');
+  
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('mss_students_')) {
+      const year = key.replace('mss_students_', '');
+      if (year && year !== 'null' && year !== 'undefined') {
+        years.add(year);
+      }
+    }
+  }
+  return Array.from(years).sort();
+}
 
 // ============================================
 // SEED INITIAL DATA (if not already seeded)
 // ============================================
 function seedData() {
-  if (DB.get('seeded') && DB.get('demoSeeded') && DB.get('marks') && DB.get('subjects') && DB.get('students')) return;
+  if (DB.get('seeded_clean_v2')) return;
+
+  // Clear legacy localStorage data
+  localStorage.removeItem('mss_students');
+  localStorage.removeItem('mss_classAttendance');
+  localStorage.removeItem('mss_busAttendance');
+  localStorage.removeItem('mss_marks');
+  localStorage.removeItem('mss_attendanceLogs');
+  localStorage.removeItem('mss_teachers');
+  localStorage.removeItem('mss_buses');
+  localStorage.removeItem('mss_classes');
+  
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('mss_') && key !== 'mss_seeded_clean_v2') {
+      localStorage.removeItem(key);
+    }
+  }
 
   // Admin credentials
-  DB.set('admin', { username: 'admin', password: 'mss@admin2024', name: 'Principal Admin' });
+  DB.set('admin', { username: 'admin', password: sha256('mss@admin2024'), name: 'Principal Admin' });
 
   // Classes
   DB.set('classes', [
@@ -42,52 +190,42 @@ function seedData() {
     { id: 'c10', name: 'Class 10 - A', section: 'A', grade: 10 },
   ]);
 
-  // Teachers
-  DB.set('teachers', [
-    { id: 't1', name: 'Mrs. Kavitha', username: 'kavitha', password: 'teacher@123', classId: 'c5', phone: '9442791922', email: 'kavitha@mss.edu' },
-    { id: 't2', name: 'Mr. Rajan', username: 'rajan', password: 'teacher@123', classId: 'c8', phone: '9876543210', email: 'rajan@mss.edu' },
-  ]);
+  // Teachers (Principal) - Empty for production, to be added by admin
+  DB.set('teachers', []);
 
-  // Buses
-  DB.set('buses', [
-    { id: 'b1', number: 'TN 43 A 1234', route: 'Uppatty - School Route 1', driver: 'Mr. Kumar', phone: '9876512345', capacity: 40 },
-    { id: 'b2', number: 'TN 43 B 5678', route: 'Pandalur - School Route 2', driver: 'Mr. Siva', phone: '9765432100', capacity: 40 },
-  ]);
+  // Buses - Empty for production, to be added by admin
+  DB.set('buses', []);
 
-  // Students (sample)
-  DB.set('students', [
-    { id: 's1', rollNo: '001', name: 'Arjun Kumar', dob: '2015-06-15', classId: 'c5', type: 'bus', busId: 'b1', phone: '9876543210', parentName: 'Mr. Kumar', academicYear: '2024-25' },
-    { id: 's2', rollNo: '002', name: 'Priya Sharma', dob: '2015-03-22', classId: 'c5', type: 'dayscholar', busId: null, phone: '9765432109', parentName: 'Mr. Sharma', academicYear: '2024-25' },
-    { id: 's3', rollNo: '003', name: 'Mohammed Iqbal', dob: '2015-09-10', classId: 'c5', type: 'bus', busId: 'b1', phone: '9654321098', parentName: 'Mr. Iqbal', academicYear: '2024-25' },
-    { id: 's4', rollNo: '004', name: 'Ananya Devi', dob: '2015-11-30', classId: 'c5', type: 'dayscholar', busId: null, phone: '9543210987', parentName: 'Mrs. Devi', academicYear: '2024-25' },
-    { id: 's5', rollNo: '005', name: 'Ravi Shankar', dob: '2015-04-18', classId: 'c5', type: 'bus', busId: 'b2', phone: '9432109876', parentName: 'Mr. Shankar', academicYear: '2024-25' },
-    { id: 's6', rollNo: '201', name: 'Suresh Raj', dob: '2012-07-25', classId: 'c8', type: 'bus', busId: 'b1', phone: '9321098765', parentName: 'Mr. Raj', academicYear: '2024-25' },
-    { id: 's7', rollNo: '202', name: 'Kavya Lakshmi', dob: '2012-01-14', classId: 'c8', type: 'dayscholar', busId: null, phone: '9210987654', parentName: 'Mrs. Lakshmi', academicYear: '2024-25' },
-  ]);
+  // Students (empty for production)
+  DB.set('students', []);
 
-  // Subjects per class
+  // Subjects per class (pre-defined for c1 to c10)
   DB.set('subjects', {
+    'c1': ['Tamil', 'English', 'Mathematics', 'Environmental Studies', 'Computer Science'],
+    'c2': ['Tamil', 'English', 'Mathematics', 'Environmental Studies', 'Computer Science'],
+    'c3': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
+    'c4': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
     'c5': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
+    'c6': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
+    'c7': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
     'c8': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
+    'c9': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
+    'c10': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
   });
 
   // Attendance: classAttendance[studentId] = { year: '2024-25', presentCount: 0 }
-  const hasDemo = typeof DemoData !== 'undefined';
-  DB.set('classAttendance', hasDemo ? DemoData.classAttendance : {});
+  DB.set('classAttendance', {});
 
   // Bus Attendance: busAttendance[studentId][YYYY-MM] = count
-  const month = currentMonth();
-  DB.set('busAttendance', hasDemo ? DemoData.getBusAttendance(month) : {});
+  DB.set('busAttendance', {});
 
   // Marks: marks[studentId][subject] = { exam1, exam2, ... }
-  DB.set('marks', hasDemo ? DemoData.marks : {});
+  DB.set('marks', {});
 
   // Daily attendance records for admin visibility
-  const dToday = today();
-  DB.set('attendanceLogs', hasDemo ? DemoData.getAttendanceLogs(dToday) : []);
+  DB.set('attendanceLogs', []);
 
-  DB.set('seeded', true);
-  DB.set('demoSeeded', true);
+  DB.set('seeded_clean_v2', true);
 }
 
 // ============================================
@@ -121,18 +259,34 @@ const Auth = {
   },
 
   loginAdmin(username, password) {
-    const admin = DB.get('admin') || { username: 'admin', password: 'mss@admin2024', name: 'Principal Admin' };
-    if (admin && admin.username.toLowerCase() === username.trim().toLowerCase() && admin.password === password) {
-      return this.login('admin', 'admin', admin.name);
+    const admin = DB.get('admin') || { username: 'admin', password: sha256('mss@admin2024'), name: 'Principal Admin' };
+    if (admin && admin.username.toLowerCase() === username.trim().toLowerCase()) {
+      const inputHash = sha256(password);
+      if (admin.password === inputHash) {
+        return this.login('admin', 'admin', admin.name);
+      }
+      if (admin.password === password) {
+        admin.password = inputHash;
+        DB.set('admin', admin);
+        return this.login('admin', 'admin', admin.name);
+      }
     }
     return null;
   },
 
   loginTeacher(username, password) {
     const teachers = DB.get('teachers') || [];
-    const t = teachers.find(t => t.username.toLowerCase() === username.trim().toLowerCase() && t.password === password);
+    const t = teachers.find(t => t.username.toLowerCase() === username.trim().toLowerCase());
     if (t) {
-      return this.login('teacher', t.id, t.name);
+      const inputHash = sha256(password);
+      if (t.password === inputHash) {
+        return this.login('teacher', t.id, t.name);
+      }
+      if (t.password === password) {
+        t.password = inputHash;
+        DB.set('teachers', teachers);
+        return this.login('teacher', t.id, t.name);
+      }
     }
     return null;
   },
@@ -311,20 +465,7 @@ function currentAcademicYear() {
   return `${y - 1}-${y.toString().substr(2)}`;
 }
 
-// ============================================
-// INIT ON LOAD
-// ============================================
 document.addEventListener('DOMContentLoaded', () => {
   seedData();
-  
-  // Ensure demo attendanceLogs are always updated to today's date
-  const logs = DB.get('attendanceLogs') || [];
-  const currentToday = today();
-  if (logs.length === 0 || logs[0].date !== currentToday) {
-    if (typeof DemoData !== 'undefined') {
-      DB.set('attendanceLogs', DemoData.getAttendanceLogs(currentToday));
-    }
-  }
-
   initNavbar();
 });

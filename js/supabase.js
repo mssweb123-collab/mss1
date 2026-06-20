@@ -36,12 +36,291 @@ function getSupabase() {
 // If Supabase is not configured yet, fall back to localStorage gracefully
 const LOCAL = {
   get(key) {
-    try { return JSON.parse(localStorage.getItem('mss_' + key)) || null; }
+    try {
+      if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
+        const activeYear = localStorage.getItem('mss_activeAcademicYear');
+        if (activeYear) {
+          const val = localStorage.getItem('mss_' + key + '_' + activeYear);
+          if (val !== null) {
+            return JSON.parse(val);
+          }
+        }
+      }
+      return JSON.parse(localStorage.getItem('mss_' + key)) || null;
+    }
     catch { return null; }
   },
-  set(key, value) { localStorage.setItem('mss_' + key, JSON.stringify(value)); },
-  remove(key) { localStorage.removeItem('mss_' + key); }
+  set(key, value) {
+    if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
+      const activeYear = localStorage.getItem('mss_activeAcademicYear');
+      if (activeYear) {
+        localStorage.setItem('mss_' + key + '_' + activeYear, JSON.stringify(value));
+        localStorage.setItem('mss_' + key, JSON.stringify(value));
+        return;
+      }
+    }
+    localStorage.setItem('mss_' + key, JSON.stringify(value));
+  },
+  remove(key) {
+    if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
+      const activeYear = localStorage.getItem('mss_activeAcademicYear');
+      if (activeYear) {
+        localStorage.removeItem('mss_' + key + '_' + activeYear);
+      }
+    }
+    localStorage.removeItem('mss_' + key);
+  }
 };
+
+function getActiveAcademicYear() {
+  const customYear = localStorage.getItem('mss_activeAcademicYear');
+  if (customYear) return customYear;
+  
+  const y = new Date().getFullYear();
+  const m = new Date().getMonth() + 1;
+  if (m >= 6) return `${y}-${(y + 1).toString().substr(2)}`;
+  return `${y - 1}-${y.toString().substr(2)}`;
+}
+
+// Background sync helper to push local state modifications to remote Supabase DB asynchronously
+function triggerBackgroundSync(key, value) {
+  if (!SUPABASE_CONFIGURED) return;
+  
+  let client;
+  try {
+    client = getSupabase();
+  } catch (e) {
+    console.warn("Supabase not fully loaded/configured for background sync:", e);
+    return;
+  }
+
+  const activeYear = getActiveAcademicYear();
+
+  if (key === 'students') {
+    (async () => {
+      try {
+        const { data: remoteStudents, error: fetchErr } = await client.from('students').select('id');
+        if (fetchErr) throw fetchErr;
+        const remoteIds = (remoteStudents || []).map(r => r.id);
+        const localIds = value.map(s => s.id);
+        
+        // Deletions
+        const toDelete = remoteIds.filter(id => !localIds.includes(id));
+        if (toDelete.length > 0) {
+          await client.from('students').delete().in('id', toDelete);
+        }
+        
+        // Bulk Upsertions
+        const rows = value.map(s => ({
+          id: s.id,
+          roll_no: s.rollNo || '',
+          name: s.name || '',
+          dob: s.dob || null,
+          class_id: s.classId === 'graduated' ? null : (s.classId || null),
+          type: s.type || 'dayscholar',
+          bus_id: s.busId || null,
+          phone: s.phone || null,
+          parent_name: s.parentName || null,
+          academic_year: s.academicYear || activeYear
+        }));
+        if (rows.length > 0) {
+          const { error: upsertErr } = await client.from('students').upsert(rows);
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        console.error('Background sync students failed:', err);
+      }
+    })();
+  }
+  
+  else if (key === 'teachers') {
+    (async () => {
+      try {
+        const { data: remoteTeachers, error: fetchErr } = await client.from('teachers').select('id');
+        if (fetchErr) throw fetchErr;
+        const remoteIds = (remoteTeachers || []).map(r => r.id);
+        const localIds = value.map(t => t.id);
+        
+        // Deletions
+        const toDelete = remoteIds.filter(id => !localIds.includes(id));
+        if (toDelete.length > 0) {
+          await client.from('teachers').delete().in('id', toDelete);
+        }
+        
+        // Bulk Upsertions
+        const rows = value.map(t => ({
+          id: t.id,
+          name: t.name || '',
+          username: t.username || '',
+          password: t.password || '',
+          class_id: Array.isArray(t.classId) ? JSON.stringify(t.classId) : (t.classId || null),
+          phone: t.phone || null,
+          email: t.email || null
+        }));
+        if (rows.length > 0) {
+          const { error: upsertErr } = await client.from('teachers').upsert(rows);
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        console.error('Background sync teachers failed:', err);
+      }
+    })();
+  }
+  
+  else if (key === 'buses') {
+    (async () => {
+      try {
+        const { data: remoteBuses, error: fetchErr } = await client.from('buses').select('id');
+        if (fetchErr) throw fetchErr;
+        const remoteIds = (remoteBuses || []).map(r => r.id);
+        const localIds = value.map(b => b.id);
+        
+        // Deletions
+        const toDelete = remoteIds.filter(id => !localIds.includes(id));
+        if (toDelete.length > 0) {
+          await client.from('buses').delete().in('id', toDelete);
+        }
+        
+        // Bulk Upsertions
+        const rows = value.map(b => ({
+          id: b.id,
+          number: b.number || '',
+          route: b.route || '',
+          driver: b.driver || null,
+          phone: b.phone || null,
+          capacity: Number(b.capacity) || 40
+        }));
+        if (rows.length > 0) {
+          const { error: upsertErr } = await client.from('buses').upsert(rows);
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        console.error('Background sync buses failed:', err);
+      }
+    })();
+  }
+  
+  else if (key === 'classes') {
+    (async () => {
+      try {
+        const { data: remoteClasses, error: fetchErr } = await client.from('classes').select('id');
+        if (fetchErr) throw fetchErr;
+        const remoteIds = (remoteClasses || []).map(r => r.id);
+        const localIds = value.map(c => c.id);
+        
+        // Deletions
+        const toDelete = remoteIds.filter(id => !localIds.includes(id));
+        if (toDelete.length > 0) {
+          await client.from('classes').delete().in('id', toDelete);
+        }
+        
+        // Bulk Upsertions
+        const rows = value.map(c => ({
+          id: c.id,
+          name: c.name || '',
+          section: c.section || '',
+          grade: Number(c.grade) || 0
+        }));
+        if (rows.length > 0) {
+          const { error: upsertErr } = await client.from('classes').upsert(rows);
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        console.error('Background sync classes failed:', err);
+      }
+    })();
+  }
+  
+  else if (key === 'attendanceLogs') {
+    (async () => {
+      try {
+        const rows = value.map(l => ({
+          student_id: l.studentId,
+          date: l.date,
+          type: l.type,
+          present: l.present
+        }));
+        if (rows.length > 0) {
+          const { error: upsertErr } = await client.from('attendance_logs').upsert(rows, { onConflict: 'student_id,date,type' });
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        console.error('Background sync attendance logs failed:', err);
+      }
+    })();
+  }
+  
+  else if (key === 'marks') {
+    (async () => {
+      try {
+        const records = [];
+        for (const studentId in value) {
+          for (const subject in value[studentId]) {
+            for (const exam in value[studentId][subject]) {
+              records.push({
+                student_id: studentId,
+                subject: subject,
+                exam: exam,
+                marks_obtained: Number(value[studentId][subject][exam]) || 0
+              });
+            }
+          }
+        }
+        if (records.length > 0) {
+          const { error: upsertErr } = await client.from('marks').upsert(records, { onConflict: 'student_id,subject,exam' });
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        console.error('Background sync marks failed:', err);
+      }
+    })();
+  }
+  
+  else if (key === 'admissions') {
+    (async () => {
+      try {
+        for (const a of value) {
+          const { data: existing } = await client.from('admission_applications')
+            .select('id')
+            .eq('student_name', a.admName || a.student_name || '')
+            .eq('dob', a.admDob || a.dob || null)
+            .eq('phone', a.phone || '')
+            .limit(1);
+            
+          const mapped = {
+            student_name: a.admName || a.student_name || '',
+            dob: a.admDob || a.dob || null,
+            gender: a.admGender || a.gender || '',
+            applying_class: a.admClass || a.applying_class || '',
+            nationality: a.nationality || 'Indian',
+            religion: a.religion || '',
+            father_name: a.admFather || a.father_name || '',
+            mother_name: a.admMother || a.mother_name || '',
+            phone: a.phone || '',
+            email: a.email || '',
+            address: a.address || '',
+            father_occupation: a.occFather || a.father_occupation || '',
+            annual_income: a.income || a.annual_income || '',
+            prev_school: a.prevSchool || a.prev_school || '',
+            last_class: a.lastClass || a.last_class || '',
+            transport: a.transport || 'dayscholar',
+            notes: a.notes || '',
+            status: a.status || 'pending',
+            submitted_at: a.submittedAt || a.submitted_at || new Date().toISOString()
+          };
+          
+          if (existing && existing.length > 0) {
+            await client.from('admission_applications').update(mapped).eq('id', existing[0].id);
+          } else {
+            await client.from('admission_applications').insert([mapped]);
+          }
+        }
+      } catch (err) {
+        console.error('Background sync admissions failed:', err);
+      }
+    })();
+  }
+}
 
 // ─── UNIFIED DB LAYER ────────────────────────────────────────────────────
 /**
@@ -51,13 +330,34 @@ const LOCAL = {
 var DB = {
   // ── Unified Storage API for compatibility with app.js ───────────────
   get(key) { return LOCAL.get(key); },
-  set(key, value) { LOCAL.set(key, value); },
-  remove(key) { LOCAL.remove(key); },
+  set(key, value) {
+    LOCAL.set(key, value);
+    if (SUPABASE_CONFIGURED) {
+      triggerBackgroundSync(key, value);
+    }
+  },
+  remove(key) {
+    LOCAL.remove(key);
+    if (SUPABASE_CONFIGURED) {
+      // Deletions are handled by sync handlers (e.g. syncing classes/students list will delete the missing elements)
+      triggerBackgroundSync(key, []);
+    }
+  },
 
   // ── Local fallback (sync) ─────────────────────────────────────────────
   getLocal: (key) => LOCAL.get(key),
-  setLocal: (key, value) => LOCAL.set(key, value),
-  removeLocal: (key) => LOCAL.remove(key),
+  setLocal: (key, value) => {
+    LOCAL.set(key, value);
+    if (SUPABASE_CONFIGURED) {
+      triggerBackgroundSync(key, value);
+    }
+  },
+  removeLocal: (key) => {
+    LOCAL.remove(key);
+    if (SUPABASE_CONFIGURED) {
+      triggerBackgroundSync(key, []);
+    }
+  },
 
   // ── Async Supabase methods ────────────────────────────────────────────
   async getStudents() {
@@ -299,9 +599,17 @@ var DB = {
       const { data: teachers, error: errTeachers } = await client.from('teachers').select('*');
       if (errTeachers) throw errTeachers;
       if (teachers) {
-        const mappedTeachers = teachers.map(t => mapKeys(t, {
-          class_id: 'classId'
-        }));
+        const mappedTeachers = teachers.map(t => {
+          let mapped = mapKeys(t, { class_id: 'classId' });
+          if (typeof mapped.classId === 'string' && mapped.classId.startsWith('[')) {
+            try {
+              mapped.classId = JSON.parse(mapped.classId);
+            } catch (e) {
+              console.warn("Failed to parse teacher classId JSON string:", mapped.classId);
+            }
+          }
+          return mapped;
+        });
         LOCAL.set('teachers', mappedTeachers);
       }
 
@@ -336,6 +644,37 @@ var DB = {
         LOCAL.set('marks', marksObj);
       }
 
+      // 7. Admissions
+      const { data: admissions, error: errAdmissions } = await client.from('admission_applications').select('*').order('submitted_at', { ascending: false });
+      if (errAdmissions) {
+        console.error('Supabase pull admissions failed:', errAdmissions);
+      } else if (admissions) {
+        const mappedAdmissions = admissions.map(a => ({
+          id: 'app_' + a.id,
+          admName: a.student_name,
+          admDob: a.dob,
+          admGender: a.gender,
+          admClass: a.applying_class,
+          nationality: a.nationality,
+          religion: a.religion,
+          admFather: a.father_name,
+          admMother: a.mother_name,
+          phone: a.phone,
+          email: a.email,
+          address: a.address,
+          occFather: a.father_occupation,
+          income: a.annual_income,
+          prevSchool: a.prev_school,
+          lastClass: a.last_class,
+          transport: a.transport,
+          notes: a.notes,
+          status: a.status,
+          submittedAt: a.submitted_at
+        }));
+        LOCAL.set('admissions', mappedAdmissions);
+      }
+
+      localStorage.setItem('mss_last_supabase_pull', Date.now().toString());
       window.dispatchEvent(new Event('mss-db-sync'));
     } catch (error) {
       console.error('Supabase pullAllFromSupabase failed:', error);
@@ -345,6 +684,20 @@ var DB = {
 };
 
 window.DB = DB;
+
+// Automatically pull latest data from Supabase in the background on page load if configured and cache has expired (15-min TTL)
+if (isSupabaseConfigured()) {
+  const cacheTTL = 15 * 60 * 1000; // 15 minutes
+  const lastPull = localStorage.getItem('mss_last_supabase_pull');
+  const now = Date.now();
+  if (!lastPull || (now - parseInt(lastPull, 10)) > cacheTTL) {
+    setTimeout(() => {
+      DB.pullAllFromSupabase().catch(err => {
+        console.warn("Initial Supabase background pull failed (using local cache fallback):", err);
+      });
+    }, 200);
+  }
+}
 
 // ─── SQL SCHEMA (for reference / migration) ──────────────────────────────
 /*

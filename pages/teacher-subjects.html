@@ -131,7 +131,6 @@
 <body>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase.js"></script>
-  <script src="../js/demo-data.js"></script>
   <script src="../js/app.js"></script>
   <script>
     const session = Auth.requireRole('teacher', 'teacher-login.html');
@@ -154,8 +153,9 @@
     </div>
     <div class="control-card">
       <label class="form-label" style="font-size: 0.85rem;"><i class="bi bi-plus-circle"></i> Add New Subject</label>
-      <div style="display: flex; gap: 0.5rem; flex-wrap: nowrap;">
-        <input type="text" id="newSubjectName" class="form-control" placeholder="e.g. History, Geography..." style="margin-bottom:0;"/>
+      <div style="display: flex; gap: 0.5rem; flex-wrap: nowrap; align-items: center;">
+        <input type="text" id="newSubjectName" class="form-control" placeholder="e.g. History, Geography..." style="margin-bottom:0; flex-grow: 2;"/>
+        <input type="number" id="newSubjectMaxMark" class="form-control" placeholder="Max Marks" value="100" min="1" style="margin-bottom:0; width: 110px; font-weight:700; text-align:center;"/>
         <button class="btn btn-primary btn-sm" onclick="addSubject()" style="white-space: nowrap; padding: 0.6rem 1.25rem;">Add</button>
       </div>
     </div>
@@ -199,6 +199,8 @@
     function loadSubjectsList() {
       const subjectsObj = DB.get('subjects') || {};
       const classSubjects = subjectsObj[myClassId] || ['English', 'Maths', 'Science'];
+      const maxMarksObj = DB.get('subjectMaxMarks') || {};
+      const classMaxMarks = maxMarksObj[myClassId] || {};
       const list = document.getElementById('subjectsList');
 
       if (classSubjects.length === 0) {
@@ -206,21 +208,52 @@
         return;
       }
 
-      list.innerHTML = classSubjects.map(sub => `
-        <div class="subject-item-row">
-          <div class="subject-title">${sub}</div>
-          <button class="delete-subject-btn" onclick="removeSubject('${sub}')" title="Delete Subject">
-            <i class="bi bi-trash3-fill"></i>
-          </button>
-        </div>
-      `).join('');
+      list.innerHTML = classSubjects.map(sub => {
+        const maxMark = classMaxMarks[sub] !== undefined ? classMaxMarks[sub] : 100;
+        return `
+          <div class="subject-item-row">
+            <div>
+              <div class="subject-title">${sub}</div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
+                Max Marks: 
+                <input type="number" min="1" value="${maxMark}" onchange="updateMaxMark('${sub}', this.value)" style="width: 70px; display: inline-block; padding: 0.2rem 0.4rem; font-size: 0.82rem; font-weight: 700; text-align: center; border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--primary-dark);"/>
+              </div>
+            </div>
+            <button class="delete-subject-btn" onclick="removeSubject('${sub}')" title="Delete Subject">
+              <i class="bi bi-trash3-fill"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateMaxMark(subName, val) {
+      const maxMarkInt = parseInt(val, 10);
+      if (isNaN(maxMarkInt) || maxMarkInt <= 0) {
+        showToast('Please enter a valid max mark greater than 0', 'error');
+        loadSubjectsList();
+        return;
+      }
+      const maxMarksObj = DB.get('subjectMaxMarks') || {};
+      if (!maxMarksObj[myClassId]) maxMarksObj[myClassId] = {};
+      maxMarksObj[myClassId][subName] = maxMarkInt;
+      DB.set('subjectMaxMarks', maxMarksObj);
+      showToast(`Max marks for "${subName}" updated to ${maxMarkInt}`, 'success');
+      loadSubjectsList();
     }
 
     function addSubject() {
       const input = document.getElementById('newSubjectName');
+      const maxMarkInput = document.getElementById('newSubjectMaxMark');
       const name = input.value.trim();
+      const maxMarkVal = parseInt(maxMarkInput.value.trim(), 10);
+
       if (!name) {
         showToast('Please type a subject name', 'error');
+        return;
+      }
+      if (isNaN(maxMarkVal) || maxMarkVal <= 0) {
+        showToast('Please enter a valid max mark greater than 0', 'error');
         return;
       }
       
@@ -235,9 +268,16 @@
       classSubjects.push(name);
       subjectsObj[myClassId] = classSubjects;
       DB.set('subjects', subjectsObj);
+
+      // Save max mark
+      const maxMarksObj = DB.get('subjectMaxMarks') || {};
+      if (!maxMarksObj[myClassId]) maxMarksObj[myClassId] = {};
+      maxMarksObj[myClassId][name] = maxMarkVal;
+      DB.set('subjectMaxMarks', maxMarksObj);
       
       input.value = '';
-      showToast(`Subject "${name}" added`, 'success');
+      maxMarkInput.value = '100';
+      showToast(`Subject "${name}" added with max marks ${maxMarkVal}`, 'success');
       loadSubjectsList();
     }
 
@@ -251,6 +291,13 @@
       classSubjects = classSubjects.filter(s => s !== subName);
       subjectsObj[myClassId] = classSubjects;
       DB.set('subjects', subjectsObj);
+
+      // Clean up max marks
+      const maxMarksObj = DB.get('subjectMaxMarks') || {};
+      if (maxMarksObj[myClassId]) {
+        delete maxMarksObj[myClassId][subName];
+        DB.set('subjectMaxMarks', maxMarksObj);
+      }
       
       showToast(`Subject "${subName}" removed`, 'success');
       loadSubjectsList();
