@@ -4,3 +4,8 @@ node_modules/
 .vscode/
 .idea/
 *.log
+
+# Environment variables – credentials, never commit
+.env
+.env.local
+.env.production

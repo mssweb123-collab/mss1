@@ -4,70 +4,41 @@
 
 'use strict';
 
-// ─── SUPABASE CONFIG ───────────────────────────────────────────────────────
-let SUPABASE_URL = localStorage.getItem('supabase_url') || 'https://YOUR_PROJECT_REF.supabase.co';
-let SUPABASE_ANON_KEY = localStorage.getItem('supabase_key') || 'YOUR_ANON_KEY_HERE';
+// ─── SUPABASE CONFIG ─────────────────────────────────────────────────────────
+// The anon/public key is safe to embed in frontend code by design.
+// Secret keys are stored in Vercel Dashboard → Environment Variables (never here).
+const SUPABASE_URL = 'https://pgnslzcznvtddsgmvipk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnbnNsemN6bnZ0ZGRzZ212aXBrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDEyOTcsImV4cCI6MjA5NzUxNzI5N30.nZ09amYSJbH_lHEbDU5r7rnebTbzy0sFUoS1Oc7ERkE';
 
-// Detect if Supabase is configured
-function isSupabaseConfigured() {
-  return SUPABASE_URL && SUPABASE_URL !== 'https://YOUR_PROJECT_REF.supabase.co' &&
-    SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== 'YOUR_ANON_KEY_HERE';
-}
-
-let SUPABASE_CONFIGURED = isSupabaseConfigured();
-
-// ─── LOAD SUPABASE SDK ────────────────────────────────────────────────────
-// Using CDN – already imported via <script> in HTML, exposed as window.supabase
+// ─── SUPABASE CLIENT ─────────────────────────────────────────────────────────
 let _supabaseClient = null;
 
 function getSupabase() {
   if (_supabaseClient) return _supabaseClient;
   if (typeof window !== 'undefined' && window.supabase) {
-    if (isSupabaseConfigured()) {
-      _supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      return _supabaseClient;
-    }
+    _supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return _supabaseClient;
   }
-  throw new Error('Supabase SDK not loaded or not configured');
+  throw new Error('Supabase SDK not loaded');
 }
 
-// ─── OFFLINE / FALLBACK LAYER (localStorage mirror) ──────────────────────
-// If Supabase is not configured yet, fall back to localStorage gracefully
+function isSupabaseConfigured() { return true; }
+
+// ─── SESSION CACHE ────────────────────────────────────────────────────────────
+// School data is cached in sessionStorage (cleared when browser closes).
+// localStorage is only used for UI preferences (e.g. active academic year).
+// On every new browser session, fresh data is pulled from Supabase.
 const LOCAL = {
   get(key) {
-    try {
-      if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
-        const activeYear = localStorage.getItem('mss_activeAcademicYear');
-        if (activeYear) {
-          const val = localStorage.getItem('mss_' + key + '_' + activeYear);
-          if (val !== null) {
-            return JSON.parse(val);
-          }
-        }
-      }
-      return JSON.parse(localStorage.getItem('mss_' + key)) || null;
-    }
+    try { return JSON.parse(sessionStorage.getItem('mss_' + key)) || null; }
     catch { return null; }
   },
   set(key, value) {
-    if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
-      const activeYear = localStorage.getItem('mss_activeAcademicYear');
-      if (activeYear) {
-        localStorage.setItem('mss_' + key + '_' + activeYear, JSON.stringify(value));
-        localStorage.setItem('mss_' + key, JSON.stringify(value));
-        return;
-      }
-    }
-    localStorage.setItem('mss_' + key, JSON.stringify(value));
+    try { sessionStorage.setItem('mss_' + key, JSON.stringify(value)); }
+    catch (e) { console.warn('Session cache write failed:', e); }
   },
   remove(key) {
-    if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
-      const activeYear = localStorage.getItem('mss_activeAcademicYear');
-      if (activeYear) {
-        localStorage.removeItem('mss_' + key + '_' + activeYear);
-      }
-    }
-    localStorage.removeItem('mss_' + key);
+    sessionStorage.removeItem('mss_' + key);
   }
 };
 
@@ -81,9 +52,8 @@ function getActiveAcademicYear() {
   return `${y - 1}-${y.toString().substr(2)}`;
 }
 
-// Background sync helper to push local state modifications to remote Supabase DB asynchronously
+// Background sync: writes session cache changes to Supabase asynchronously
 function triggerBackgroundSync(key, value) {
-  if (!SUPABASE_CONFIGURED) return;
 
   let client;
   try {
@@ -323,40 +293,25 @@ function triggerBackgroundSync(key, value) {
 
 // ─── UNIFIED DB LAYER ────────────────────────────────────────────────────
 /**
- * DB provides async wrappers around Supabase tables.
- * Falls back to localStorage when Supabase is not configured.
+ * DB – Unified data layer.
+ * Reads from sessionStorage cache (fast, in-session only).
+ * Writes go to sessionStorage cache + Supabase simultaneously.
+ * Supabase is always the source of truth.
  */
 var DB = {
-  // ── Unified Storage API for compatibility with app.js ───────────────
   get(key) { return LOCAL.get(key); },
   set(key, value) {
     LOCAL.set(key, value);
-    if (SUPABASE_CONFIGURED) {
-      triggerBackgroundSync(key, value);
-    }
+    triggerBackgroundSync(key, value);
   },
   remove(key) {
     LOCAL.remove(key);
-    if (SUPABASE_CONFIGURED) {
-      // Deletions are handled by sync handlers (e.g. syncing classes/students list will delete the missing elements)
-      triggerBackgroundSync(key, []);
-    }
+    triggerBackgroundSync(key, []);
   },
 
-  // ── Local fallback (sync) ─────────────────────────────────────────────
   getLocal: (key) => LOCAL.get(key),
-  setLocal: (key, value) => {
-    LOCAL.set(key, value);
-    if (SUPABASE_CONFIGURED) {
-      triggerBackgroundSync(key, value);
-    }
-  },
-  removeLocal: (key) => {
-    LOCAL.remove(key);
-    if (SUPABASE_CONFIGURED) {
-      triggerBackgroundSync(key, []);
-    }
-  },
+  setLocal: (key, value) => { LOCAL.set(key, value); triggerBackgroundSync(key, value); },
+  removeLocal: (key) => { LOCAL.remove(key); triggerBackgroundSync(key, []); },
 
   // ── Async Supabase methods ────────────────────────────────────────────
   async getStudents() {
@@ -528,35 +483,7 @@ var DB = {
     return data;
   },
 
-  // ── Supabase Configuration and Synchronization Methods ───────────────
-  configureSupabase(url, key) {
-    try {
-      if (!url || !key) {
-        localStorage.removeItem('supabase_url');
-        localStorage.removeItem('supabase_key');
-        SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
-        SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
-        SUPABASE_CONFIGURED = false;
-        _supabaseClient = null;
-        window.dispatchEvent(new Event('mss-db-sync'));
-        return true;
-      }
-      const client = window.supabase.createClient(url, key);
-      if (client) {
-        localStorage.setItem('supabase_url', url);
-        localStorage.setItem('supabase_key', key);
-        SUPABASE_URL = url;
-        SUPABASE_ANON_KEY = key;
-        SUPABASE_CONFIGURED = true;
-        _supabaseClient = client;
-        window.dispatchEvent(new Event('mss-db-sync'));
-        return true;
-      }
-    } catch (e) {
-      console.error('Failed to configure Supabase:', e);
-    }
-    return false;
-  },
+  // ── Synchronization Methods ───────────────────────────────────────────
 
   async pullAllFromSupabase() {
     if (!isSupabaseConfigured()) {
@@ -673,7 +600,6 @@ var DB = {
         LOCAL.set('admissions', mappedAdmissions);
       }
 
-      localStorage.setItem('mss_last_supabase_pull', Date.now().toString());
       window.dispatchEvent(new Event('mss-db-sync'));
     } catch (error) {
       console.error('Supabase pullAllFromSupabase failed:', error);
@@ -684,18 +610,16 @@ var DB = {
 
 window.DB = DB;
 
-// Automatically pull latest data from Supabase in the background on page load if configured and cache has expired (15-min TTL)
-if (isSupabaseConfigured()) {
-  const cacheTTL = 15 * 60 * 1000; // 15 minutes
-  const lastPull = localStorage.getItem('mss_last_supabase_pull');
-  const now = Date.now();
-  if (!lastPull || (now - parseInt(lastPull, 10)) > cacheTTL) {
-    setTimeout(() => {
-      DB.pullAllFromSupabase().catch(err => {
-        console.warn("Initial Supabase background pull failed (using local cache fallback):", err);
+// Pull fresh data from Supabase on every new browser session.
+// sessionStorage is empty at session start so this always runs.
+if (!sessionStorage.getItem('mss_session_pulled')) {
+  setTimeout(() => {
+    DB.pullAllFromSupabase()
+      .then(() => { sessionStorage.setItem('mss_session_pulled', '1'); })
+      .catch(err => {
+        console.warn('Initial Supabase pull failed:', err);
       });
-    }, 200);
-  }
+  }, 200);
 }
 
 // ─── SQL SCHEMA (for reference / migration) ──────────────────────────────

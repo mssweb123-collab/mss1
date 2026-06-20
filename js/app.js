@@ -154,78 +154,18 @@ function getAvailableAcademicYears() {
 // SEED INITIAL DATA (if not already seeded)
 // ============================================
 function seedData() {
-  if (DB.get('seeded_clean_v2')) return;
+  if (DB.get('seeded_v3_prod')) return;
 
-  // Clear legacy localStorage data
-  localStorage.removeItem('mss_students');
-  localStorage.removeItem('mss_classAttendance');
-  localStorage.removeItem('mss_busAttendance');
-  localStorage.removeItem('mss_marks');
-  localStorage.removeItem('mss_attendanceLogs');
-  localStorage.removeItem('mss_teachers');
-  localStorage.removeItem('mss_buses');
-  localStorage.removeItem('mss_classes');
-  
-  for (let i = localStorage.length - 1; i >= 0; i--) {
-    const key = localStorage.key(i);
-    if (key && key.startsWith('mss_') && key !== 'mss_seeded_clean_v2') {
-      localStorage.removeItem(key);
-    }
-  }
+  // Clear any legacy fake data from previous versions
+  sessionStorage.clear();
 
-  // Admin credentials
+  // Admin credentials – change password via Vercel env vars / Supabase
+  // Default: username=admin, password=mss@admin2024
   DB.set('admin', { username: 'admin', password: sha256('mss@admin2024'), name: 'Principal Admin' });
 
-  // Classes
-  DB.set('classes', [
-    { id: 'c1', name: 'Class 1 - A', section: 'A', grade: 1 },
-    { id: 'c2', name: 'Class 2 - A', section: 'A', grade: 2 },
-    { id: 'c3', name: 'Class 3 - A', section: 'A', grade: 3 },
-    { id: 'c4', name: 'Class 4 - A', section: 'A', grade: 4 },
-    { id: 'c5', name: 'Class 5 - A', section: 'A', grade: 5 },
-    { id: 'c6', name: 'Class 6 - A', section: 'A', grade: 6 },
-    { id: 'c7', name: 'Class 7 - A', section: 'A', grade: 7 },
-    { id: 'c8', name: 'Class 8 - A', section: 'A', grade: 8 },
-    { id: 'c9', name: 'Class 9 - A', section: 'A', grade: 9 },
-    { id: 'c10', name: 'Class 10 - A', section: 'A', grade: 10 },
-  ]);
-
-  // Teachers (Principal) - Empty for production, to be added by admin
-  DB.set('teachers', []);
-
-  // Buses - Empty for production, to be added by admin
-  DB.set('buses', []);
-
-  // Students (empty for production)
-  DB.set('students', []);
-
-  // Subjects per class (pre-defined for c1 to c10)
-  DB.set('subjects', {
-    'c1': ['Tamil', 'English', 'Mathematics', 'Environmental Studies', 'Computer Science'],
-    'c2': ['Tamil', 'English', 'Mathematics', 'Environmental Studies', 'Computer Science'],
-    'c3': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
-    'c4': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
-    'c5': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
-    'c6': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
-    'c7': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
-    'c8': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
-    'c9': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
-    'c10': ['Tamil', 'English', 'Mathematics', 'Science', 'Social Science', 'Computer Science'],
-  });
-
-  // Attendance: classAttendance[studentId] = { year: '2024-25', presentCount: 0 }
-  DB.set('classAttendance', {});
-
-  // Bus Attendance: busAttendance[studentId][YYYY-MM] = count
-  DB.set('busAttendance', {});
-
-  // Marks: marks[studentId][subject] = { exam1, exam2, ... }
-  DB.set('marks', {});
-
-  // Daily attendance records for admin visibility
-  DB.set('attendanceLogs', []);
-
-  DB.set('seeded_clean_v2', true);
+  // All school data (classes, teachers, buses, students) starts empty.
+  // The admin must add them through the dashboard.
+  DB.set('seeded_v3_prod', true);
 }
 
 // ============================================
