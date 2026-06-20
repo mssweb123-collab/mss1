@@ -25,6 +25,7 @@ function getSupabase() {
 }
 
 function isSupabaseConfigured() { return !!(SUPABASE_URL && SUPABASE_ANON_KEY); }
+const SUPABASE_CONFIGURED = isSupabaseConfigured();
 
 
 // ─── SESSION CACHE ────────────────────────────────────────────────────────────

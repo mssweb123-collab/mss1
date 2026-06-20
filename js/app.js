@@ -162,8 +162,10 @@ function seedData() {
   // Admin credentials loaded from Vercel env vars (via window.MSS_CONFIG → js/config.js)
   const cfg = (typeof window !== 'undefined' && window.MSS_CONFIG) || {};
   const adminUser = cfg.ADMIN_USERNAME || 'admin';
-  const adminPass = cfg.ADMIN_PASSWORD || 'mss@admin2024';
-  DB.set('admin', { username: adminUser, password: sha256(adminPass), name: 'Principal Admin' });
+  const adminPass = cfg.ADMIN_PASSWORD || '';
+  if (adminPass) {
+    DB.set('admin', { username: adminUser, password: sha256(adminPass), name: 'Principal Admin' });
+  }
 
   // All school data starts empty. Admin adds everything through the dashboard.
   DB.set('seeded_v3_prod', true);
@@ -200,7 +202,7 @@ const Auth = {
   },
 
   loginAdmin(username, password) {
-    const admin = DB.get('admin') || { username: 'admin', password: sha256('mss@admin2024'), name: 'Principal Admin' };
+    const admin = DB.get('admin');
     if (admin && admin.username.toLowerCase() === username.trim().toLowerCase()) {
       const inputHash = sha256(password);
       if (admin.password === inputHash) {
