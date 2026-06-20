@@ -424,18 +424,18 @@ function handleAdmissionSubmit() {
   const admissions = DB.get('admissions') || [];
   newAdmission.id = 'app_' + Date.now();
   admissions.push(newAdmission);
-  DB.set('admissions', admissions);
+  DB.set('admissions', admissions).then(() => {
+    // Update step indicators
+    document.getElementById('s1').className = 'step-dot done';
+    document.getElementById('s2').className = 'step-dot done';
+    document.getElementById('s3').className = 'step-dot active';
 
-  // Update step indicators
-  document.getElementById('s1').className = 'step-dot done';
-  document.getElementById('s2').className = 'step-dot done';
-  document.getElementById('s3').className = 'step-dot active';
-
-  setTimeout(() => {
-    document.getElementById('admissionForm').style.display = 'none';
-    document.getElementById('admSuccess').style.display = 'block';
-    showToast('Application submitted successfully!', 'success');
-  }, 800);
+    setTimeout(() => {
+      document.getElementById('admissionForm').style.display = 'none';
+      document.getElementById('admSuccess').style.display = 'block';
+      showToast('Application submitted successfully!', 'success');
+    }, 800);
+  });
 }
 </script>
 </body>

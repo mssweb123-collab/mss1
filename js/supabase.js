@@ -90,6 +90,9 @@ function triggerBackgroundSync(key, value) {
         // Deletions
         const toDelete = remoteIds.filter(id => !localIds.includes(id));
         if (toDelete.length > 0) {
+          // Delete referencing marks and attendance logs first to prevent foreign key errors
+          await client.from('marks').delete().in('student_id', toDelete);
+          await client.from('attendance_logs').delete().in('student_id', toDelete);
           await client.from('students').delete().in('id', toDelete);
         }
 
@@ -227,6 +230,21 @@ function triggerBackgroundSync(key, value) {
           type: l.type,
           present: l.present
         }));
+
+        // Deletions: Fetch remote attendance logs and delete any that aren't in local array
+        const { data: remoteLogs, error: fetchErr } = await client.from('attendance_logs').select('student_id, date, type');
+        if (!fetchErr && remoteLogs) {
+          const toDelete = remoteLogs.filter(r => 
+            !value.some(l => l.studentId === r.student_id && l.date === r.date && l.type === r.type)
+          );
+          for (const log of toDelete) {
+            await client.from('attendance_logs').delete()
+              .eq('student_id', log.student_id)
+              .eq('date', log.date)
+              .eq('type', log.type);
+          }
+        }
+
         if (rows.length > 0) {
           const { error: upsertErr } = await client.from('attendance_logs').upsert(rows, { onConflict: 'student_id,date,type' });
           if (upsertErr) throw upsertErr;
@@ -254,6 +272,23 @@ function triggerBackgroundSync(key, value) {
             }
           }
         }
+
+        // Deletions: Fetch remote marks and delete any that aren't in local records
+        const { data: remoteMarks, error: fetchErr } = await client.from('marks').select('student_id, subject, exam');
+        if (!fetchErr && remoteMarks) {
+          const toDelete = remoteMarks.filter(r => 
+            !value[r.student_id] || 
+            !value[r.student_id][r.subject] || 
+            value[r.student_id][r.subject][r.exam] === undefined
+          );
+          for (const m of toDelete) {
+            await client.from('marks').delete()
+              .eq('student_id', m.student_id)
+              .eq('subject', m.subject)
+              .eq('exam', m.exam);
+          }
+        }
+
         if (records.length > 0) {
           const { error: upsertErr } = await client.from('marks').upsert(records, { onConflict: 'student_id,subject,exam' });
           if (upsertErr) throw upsertErr;

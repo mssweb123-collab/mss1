@@ -1275,11 +1275,11 @@
         academicYear: currentAcademicYear()
       };
       students.push(newStudent);
-      DB.set('students', students);
-      
-      closeAddStudentModal();
-      loadDashboardData();
-      showToast('Student added successfully', 'success');
+      DB.set('students', students).then(() => {
+        closeAddStudentModal();
+        loadDashboardData();
+        showToast('Student added successfully', 'success');
+      });
     });
   </script>
 </body>

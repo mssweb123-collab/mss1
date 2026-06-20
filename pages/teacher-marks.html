@@ -427,8 +427,9 @@
         return;
       }
 
-      DB.set('marks', allMarks);
-      showToast('Marks saved successfully', 'success');
+      DB.set('marks', allMarks).then(() => {
+        showToast('Marks saved successfully', 'success');
+      });
     }
 
     window.switchClass = function(classId) {

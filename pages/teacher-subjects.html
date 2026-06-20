@@ -238,9 +238,10 @@
       const maxMarksObj = DB.get('subjectMaxMarks') || {};
       if (!maxMarksObj[myClassId]) maxMarksObj[myClassId] = {};
       maxMarksObj[myClassId][subName] = maxMarkInt;
-      DB.set('subjectMaxMarks', maxMarksObj);
-      showToast(`Max marks for "${subName}" updated to ${maxMarkInt}`, 'success');
-      loadSubjectsList();
+      DB.set('subjectMaxMarks', maxMarksObj).then(() => {
+        showToast(`Max marks for "${subName}" updated to ${maxMarkInt}`, 'success');
+        loadSubjectsList();
+      });
     }
 
     function addSubject() {
@@ -268,18 +269,21 @@
       
       classSubjects.push(name);
       subjectsObj[myClassId] = classSubjects;
-      DB.set('subjects', subjectsObj);
 
       // Save max mark
       const maxMarksObj = DB.get('subjectMaxMarks') || {};
       if (!maxMarksObj[myClassId]) maxMarksObj[myClassId] = {};
       maxMarksObj[myClassId][name] = maxMarkVal;
-      DB.set('subjectMaxMarks', maxMarksObj);
       
-      input.value = '';
-      maxMarkInput.value = '100';
-      showToast(`Subject "${name}" added with max marks ${maxMarkVal}`, 'success');
-      loadSubjectsList();
+      Promise.all([
+        DB.set('subjects', subjectsObj),
+        DB.set('subjectMaxMarks', maxMarksObj)
+      ]).then(() => {
+        input.value = '';
+        maxMarkInput.value = '100';
+        showToast(`Subject "${name}" added with max marks ${maxMarkVal}`, 'success');
+        loadSubjectsList();
+      });
     }
 
     function removeSubject(subName) {
@@ -291,17 +295,20 @@
       
       classSubjects = classSubjects.filter(s => s !== subName);
       subjectsObj[myClassId] = classSubjects;
-      DB.set('subjects', subjectsObj);
 
       // Clean up max marks
       const maxMarksObj = DB.get('subjectMaxMarks') || {};
       if (maxMarksObj[myClassId]) {
         delete maxMarksObj[myClassId][subName];
-        DB.set('subjectMaxMarks', maxMarksObj);
       }
       
-      showToast(`Subject "${subName}" removed`, 'success');
-      loadSubjectsList();
+      Promise.all([
+        DB.set('subjects', subjectsObj),
+        DB.set('subjectMaxMarks', maxMarksObj)
+      ]).then(() => {
+        showToast(`Subject "${subName}" removed`, 'success');
+        loadSubjectsList();
+      });
     }
   </script>
 </body>

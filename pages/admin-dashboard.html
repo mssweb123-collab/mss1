@@ -1620,7 +1620,28 @@
     window.deleteClass = (id) => {
       if (confirm('Are you sure you want to delete this class? This will not delete students or teachers assigned to it, but they will be unassigned.')) {
         const classes = DB.get('classes') || [];
-        DB.set('classes', classes.filter(c => c.id !== id)).then(() => {
+        const students = DB.get('students') || [];
+        const teachers = DB.get('teachers') || [];
+
+        // Unassign students
+        students.forEach(s => {
+          if (s.classId === id) s.classId = null;
+        });
+
+        // Unassign teachers
+        teachers.forEach(t => {
+          if (Array.isArray(t.classId)) {
+            t.classId = t.classId.filter(cid => cid !== id);
+          } else if (t.classId === id) {
+            t.classId = null;
+          }
+        });
+
+        Promise.all([
+          DB.set('classes', classes.filter(c => c.id !== id)),
+          DB.set('students', students),
+          DB.set('teachers', teachers)
+        ]).then(() => {
           loadData();
           renderClassesWise();
           closeClassDetails();
@@ -1964,7 +1985,17 @@
     // Deletions
     window.deleteStudent = (id) => { 
       if(confirm('Delete student?')) { 
-        DB.set('students', DB.get('students').filter(s=>s.id!==id)).then(() => {
+        const marks = DB.get('marks') || {};
+        if (marks[id]) delete marks[id];
+        
+        const logs = DB.get('attendanceLogs') || [];
+        const filteredLogs = logs.filter(l => l.studentId !== id);
+
+        Promise.all([
+          DB.set('students', DB.get('students').filter(s=>s.id!==id)),
+          DB.set('marks', marks),
+          DB.set('attendanceLogs', filteredLogs)
+        ]).then(() => {
           loadData(); 
           if (window.activeClassId) {
             showClassDetails(window.activeClassId);
@@ -1972,8 +2003,30 @@
         });
       } 
     };
-    window.deleteTeacher = (id) => { if(confirm('Delete teacher?')) { DB.set('teachers', DB.get('teachers').filter(t=>t.id!==id)).then(() => { loadData(); }); } };
-    window.deleteBus = (id) => { if(confirm('Delete bus?')) { DB.set('buses', DB.get('buses').filter(b=>b.id!==id)).then(() => { loadData(); }); } };
+    window.deleteTeacher = (id) => {
+      if(confirm('Delete teacher?')) {
+        DB.set('teachers', DB.get('teachers').filter(t=>t.id!==id)).then(() => {
+          loadData();
+        });
+      }
+    };
+    window.deleteBus = (id) => {
+      if(confirm('Delete bus?')) {
+        const students = DB.get('students') || [];
+        students.forEach(s => {
+          if (s.busId === id) {
+            s.busId = null;
+            s.type = 'dayscholar';
+          }
+        });
+        Promise.all([
+          DB.set('buses', DB.get('buses').filter(b=>b.id!==id)),
+          DB.set('students', students)
+        ]).then(() => {
+          loadData();
+        });
+      }
+    };
 
     // ── SYSTEM SETTINGS & YEAR PROMOTION HANDLERS ───────────────────────
     

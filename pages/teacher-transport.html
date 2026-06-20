@@ -303,17 +303,17 @@
       if (student) {
         student.type = type;
         if (type === 'dayscholar') student.busId = null;
-        DB.set('students', allStudents);
-        
-        // Show/hide sub-selector
-        const busSel = document.getElementById(`bus_select_${studentId}`);
-        if (busSel) {
-          busSel.style.display = type === 'bus' ? 'block' : 'none';
-        }
-        
-        // Dynamic re-render card icon styling
-        loadTransport();
-        showToast('Transport mode updated', 'success');
+        DB.set('students', allStudents).then(() => {
+          // Show/hide sub-selector
+          const busSel = document.getElementById(`bus_select_${studentId}`);
+          if (busSel) {
+            busSel.style.display = type === 'bus' ? 'block' : 'none';
+          }
+          
+          // Dynamic re-render card icon styling
+          loadTransport();
+          showToast('Transport mode updated', 'success');
+        });
       }
     }
 
@@ -322,8 +322,9 @@
       const student = allStudents.find(s => s.id === studentId);
       if (student && student.type === 'bus') {
         student.busId = busId;
-        DB.set('students', allStudents);
-        showToast('Bus assigned', 'success');
+        DB.set('students', allStudents).then(() => {
+          showToast('Bus assigned', 'success');
+        });
       }
     }
 
