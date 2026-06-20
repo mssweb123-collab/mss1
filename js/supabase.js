@@ -266,51 +266,8 @@ function triggerBackgroundSync(key, value) {
   }
 
   else if (key === 'admissions') {
-    return (async () => {
-      try {
-        for (const a of value) {
-          const { data: existing } = await client.from('admission_applications')
-            .select('id')
-            .eq('student_name', a.admName || a.student_name || '')
-            .eq('dob', a.admDob || a.dob || null)
-            .eq('phone', a.phone || '')
-            .limit(1);
-
-          const mapped = {
-            student_name: a.admName || a.student_name || '',
-            dob: a.admDob || a.dob || null,
-            gender: a.admGender || a.gender || '',
-            applying_class: a.admClass || a.applying_class || '',
-            nationality: a.nationality || 'Indian',
-            religion: a.religion || '',
-            father_name: a.admFather || a.father_name || '',
-            mother_name: a.admMother || a.mother_name || '',
-            phone: a.phone || '',
-            email: a.email || '',
-            address: a.address || '',
-            father_occupation: a.occFather || a.father_occupation || '',
-            annual_income: a.income || a.annual_income || '',
-            prev_school: a.prevSchool || a.prev_school || '',
-            last_class: a.lastClass || a.last_class || '',
-            transport: a.transport || 'dayscholar',
-            notes: a.notes || '',
-            status: a.status || 'pending',
-            submitted_at: a.submittedAt || a.submitted_at || new Date().toISOString()
-          };
-
-          if (existing && existing.length > 0) {
-            const { error: updateErr } = await client.from('admission_applications').update(mapped).eq('id', existing[0].id);
-            if (updateErr) throw updateErr;
-          } else {
-            const { error: insertErr } = await client.from('admission_applications').insert([mapped]);
-            if (insertErr) throw insertErr;
-          }
-        }
-      } catch (err) {
-        handleSyncError('admissions', err);
-        throw err;
-      }
-    })();
+    // Bypassed: admission_applications table is removed from Supabase as it is connected to a Google Form
+    return Promise.resolve();
   }
   return Promise.resolve();
 }
@@ -489,22 +446,16 @@ var DB = {
 
   // Admission Applications
   async submitAdmission(formData) {
-    if (!SUPABASE_CONFIGURED) {
-      const apps = LOCAL.get('admissions') || [];
-      apps.push({ ...formData, id: genId('app'), submittedAt: new Date().toISOString(), status: 'pending' });
-      LOCAL.set('admissions', apps);
-      return { data: formData, error: null };
-    }
-    return await getSupabase().from('admission_applications').insert([{
-      ...formData, status: 'pending', submitted_at: new Date().toISOString()
-    }]).select().single();
+    // Save locally in sessionStorage cache (bypassed from Supabase since table is removed / Google Form managed)
+    const apps = LOCAL.get('admissions') || [];
+    apps.push({ ...formData, id: genId('app'), submittedAt: new Date().toISOString(), status: 'pending' });
+    LOCAL.set('admissions', apps);
+    return { data: formData, error: null };
   },
 
   async getAdmissions() {
-    if (!SUPABASE_CONFIGURED) return LOCAL.get('admissions') || [];
-    const { data, error } = await getSupabase().from('admission_applications').select('*').order('submitted_at', { ascending: false });
-    if (error) return [];
-    return data;
+    // Retrieve only from local sessionStorage cache
+    return LOCAL.get('admissions') || [];
   },
 
   // ── Synchronization Methods ───────────────────────────────────────────
@@ -594,35 +545,8 @@ var DB = {
         LOCAL.set('marks', marksObj);
       }
 
-      // 7. Admissions
-      const { data: admissions, error: errAdmissions } = await client.from('admission_applications').select('*').order('submitted_at', { ascending: false });
-      if (errAdmissions) {
-        console.error('Supabase pull admissions failed:', errAdmissions);
-      } else if (admissions) {
-        const mappedAdmissions = admissions.map(a => ({
-          id: 'app_' + a.id,
-          admName: a.student_name,
-          admDob: a.dob,
-          admGender: a.gender,
-          admClass: a.applying_class,
-          nationality: a.nationality,
-          religion: a.religion,
-          admFather: a.father_name,
-          admMother: a.mother_name,
-          phone: a.phone,
-          email: a.email,
-          address: a.address,
-          occFather: a.father_occupation,
-          income: a.annual_income,
-          prevSchool: a.prev_school,
-          lastClass: a.last_class,
-          transport: a.transport,
-          notes: a.notes,
-          status: a.status,
-          submittedAt: a.submitted_at
-        }));
-        LOCAL.set('admissions', mappedAdmissions);
-      }
+      // 7. Admissions - Bypassed from Supabase since table is removed / Google Form managed
+      LOCAL.set('admissions', LOCAL.get('admissions') || []);
 
       window.dispatchEvent(new Event('mss-db-sync'));
     } catch (error) {
