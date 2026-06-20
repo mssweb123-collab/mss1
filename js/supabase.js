@@ -5,21 +5,13 @@
 'use strict';
 
 // ─── SUPABASE CONFIG ───────────────────────────────────────────────────────
-let SUPABASE_URL = localStorage.getItem('supabase_url') || 'https://pgnslzcznvtddsgmvipk.supabase.co';
-let SUPABASE_ANON_KEY = localStorage.getItem('supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnbnNsemN6bnZ0ZGRzZ212aXBrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDEyOTcsImV4cCI6MjA5NzUxNzI5N30.nZ09amYSJbH_lHEbDU5r7rnebTbzy0sFUoS1Oc7ERkE';
-
-// Ensure localStorage is populated so the UI detects the configuration
-if (!localStorage.getItem('supabase_url')) {
-  localStorage.setItem('supabase_url', SUPABASE_URL);
-}
-if (!localStorage.getItem('supabase_key')) {
-  localStorage.setItem('supabase_key', SUPABASE_ANON_KEY);
-}
+let SUPABASE_URL = localStorage.getItem('supabase_url') || 'https://YOUR_PROJECT_REF.supabase.co';
+let SUPABASE_ANON_KEY = localStorage.getItem('supabase_key') || 'YOUR_ANON_KEY_HERE';
 
 // Detect if Supabase is configured
 function isSupabaseConfigured() {
   return SUPABASE_URL && SUPABASE_URL !== 'https://YOUR_PROJECT_REF.supabase.co' &&
-         SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== 'YOUR_ANON_KEY_HERE';
+    SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== 'YOUR_ANON_KEY_HERE';
 }
 
 let SUPABASE_CONFIGURED = isSupabaseConfigured();
@@ -82,7 +74,7 @@ const LOCAL = {
 function getActiveAcademicYear() {
   const customYear = localStorage.getItem('mss_activeAcademicYear');
   if (customYear) return customYear;
-  
+
   const y = new Date().getFullYear();
   const m = new Date().getMonth() + 1;
   if (m >= 6) return `${y}-${(y + 1).toString().substr(2)}`;
@@ -92,7 +84,7 @@ function getActiveAcademicYear() {
 // Background sync helper to push local state modifications to remote Supabase DB asynchronously
 function triggerBackgroundSync(key, value) {
   if (!SUPABASE_CONFIGURED) return;
-  
+
   let client;
   try {
     client = getSupabase();
@@ -110,13 +102,13 @@ function triggerBackgroundSync(key, value) {
         if (fetchErr) throw fetchErr;
         const remoteIds = (remoteStudents || []).map(r => r.id);
         const localIds = value.map(s => s.id);
-        
+
         // Deletions
         const toDelete = remoteIds.filter(id => !localIds.includes(id));
         if (toDelete.length > 0) {
           await client.from('students').delete().in('id', toDelete);
         }
-        
+
         // Bulk Upsertions
         const rows = value.map(s => ({
           id: s.id,
@@ -139,7 +131,7 @@ function triggerBackgroundSync(key, value) {
       }
     })();
   }
-  
+
   else if (key === 'teachers') {
     (async () => {
       try {
@@ -147,13 +139,13 @@ function triggerBackgroundSync(key, value) {
         if (fetchErr) throw fetchErr;
         const remoteIds = (remoteTeachers || []).map(r => r.id);
         const localIds = value.map(t => t.id);
-        
+
         // Deletions
         const toDelete = remoteIds.filter(id => !localIds.includes(id));
         if (toDelete.length > 0) {
           await client.from('teachers').delete().in('id', toDelete);
         }
-        
+
         // Bulk Upsertions
         const rows = value.map(t => ({
           id: t.id,
@@ -173,7 +165,7 @@ function triggerBackgroundSync(key, value) {
       }
     })();
   }
-  
+
   else if (key === 'buses') {
     (async () => {
       try {
@@ -181,13 +173,13 @@ function triggerBackgroundSync(key, value) {
         if (fetchErr) throw fetchErr;
         const remoteIds = (remoteBuses || []).map(r => r.id);
         const localIds = value.map(b => b.id);
-        
+
         // Deletions
         const toDelete = remoteIds.filter(id => !localIds.includes(id));
         if (toDelete.length > 0) {
           await client.from('buses').delete().in('id', toDelete);
         }
-        
+
         // Bulk Upsertions
         const rows = value.map(b => ({
           id: b.id,
@@ -206,7 +198,7 @@ function triggerBackgroundSync(key, value) {
       }
     })();
   }
-  
+
   else if (key === 'classes') {
     (async () => {
       try {
@@ -214,13 +206,13 @@ function triggerBackgroundSync(key, value) {
         if (fetchErr) throw fetchErr;
         const remoteIds = (remoteClasses || []).map(r => r.id);
         const localIds = value.map(c => c.id);
-        
+
         // Deletions
         const toDelete = remoteIds.filter(id => !localIds.includes(id));
         if (toDelete.length > 0) {
           await client.from('classes').delete().in('id', toDelete);
         }
-        
+
         // Bulk Upsertions
         const rows = value.map(c => ({
           id: c.id,
@@ -237,7 +229,7 @@ function triggerBackgroundSync(key, value) {
       }
     })();
   }
-  
+
   else if (key === 'attendanceLogs') {
     (async () => {
       try {
@@ -256,7 +248,7 @@ function triggerBackgroundSync(key, value) {
       }
     })();
   }
-  
+
   else if (key === 'marks') {
     (async () => {
       try {
@@ -282,7 +274,7 @@ function triggerBackgroundSync(key, value) {
       }
     })();
   }
-  
+
   else if (key === 'admissions') {
     (async () => {
       try {
@@ -293,7 +285,7 @@ function triggerBackgroundSync(key, value) {
             .eq('dob', a.admDob || a.dob || null)
             .eq('phone', a.phone || '')
             .limit(1);
-            
+
           const mapped = {
             student_name: a.admName || a.student_name || '',
             dob: a.admDob || a.dob || null,
@@ -315,7 +307,7 @@ function triggerBackgroundSync(key, value) {
             status: a.status || 'pending',
             submitted_at: a.submittedAt || a.submitted_at || new Date().toISOString()
           };
-          
+
           if (existing && existing.length > 0) {
             await client.from('admission_applications').update(mapped).eq('id', existing[0].id);
           } else {
