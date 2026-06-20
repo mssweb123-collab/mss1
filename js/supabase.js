@@ -67,19 +67,20 @@ function handleSyncError(key, err) {
 
 // Background sync: writes session cache changes to Supabase asynchronously
 function triggerBackgroundSync(key, value) {
+  if (!SUPABASE_CONFIGURED) return Promise.resolve();
 
   let client;
   try {
     client = getSupabase();
   } catch (e) {
     console.warn("Supabase not fully loaded/configured for background sync:", e);
-    return;
+    return Promise.resolve();
   }
 
   const activeYear = getActiveAcademicYear();
 
   if (key === 'students') {
-    (async () => {
+    return (async () => {
       try {
         const { data: remoteStudents, error: fetchErr } = await client.from('students').select('id');
         if (fetchErr) throw fetchErr;
@@ -111,12 +112,13 @@ function triggerBackgroundSync(key, value) {
         }
       } catch (err) {
         handleSyncError('students', err);
+        throw err;
       }
     })();
   }
 
   else if (key === 'teachers') {
-    (async () => {
+    return (async () => {
       try {
         const { data: remoteTeachers, error: fetchErr } = await client.from('teachers').select('id');
         if (fetchErr) throw fetchErr;
@@ -145,12 +147,13 @@ function triggerBackgroundSync(key, value) {
         }
       } catch (err) {
         handleSyncError('teachers', err);
+        throw err;
       }
     })();
   }
 
   else if (key === 'buses') {
-    (async () => {
+    return (async () => {
       try {
         const { data: remoteBuses, error: fetchErr } = await client.from('buses').select('id');
         if (fetchErr) throw fetchErr;
@@ -178,12 +181,13 @@ function triggerBackgroundSync(key, value) {
         }
       } catch (err) {
         handleSyncError('buses', err);
+        throw err;
       }
     })();
   }
 
   else if (key === 'classes') {
-    (async () => {
+    return (async () => {
       try {
         const { data: remoteClasses, error: fetchErr } = await client.from('classes').select('id');
         if (fetchErr) throw fetchErr;
@@ -209,12 +213,13 @@ function triggerBackgroundSync(key, value) {
         }
       } catch (err) {
         handleSyncError('classes', err);
+        throw err;
       }
     })();
   }
 
   else if (key === 'attendanceLogs') {
-    (async () => {
+    return (async () => {
       try {
         const rows = value.map(l => ({
           student_id: l.studentId,
@@ -228,12 +233,13 @@ function triggerBackgroundSync(key, value) {
         }
       } catch (err) {
         handleSyncError('attendance logs', err);
+        throw err;
       }
     })();
   }
 
   else if (key === 'marks') {
-    (async () => {
+    return (async () => {
       try {
         const records = [];
         for (const studentId in value) {
@@ -254,12 +260,13 @@ function triggerBackgroundSync(key, value) {
         }
       } catch (err) {
         handleSyncError('marks', err);
+        throw err;
       }
     })();
   }
 
   else if (key === 'admissions') {
-    (async () => {
+    return (async () => {
       try {
         for (const a of value) {
           const { data: existing } = await client.from('admission_applications')
@@ -292,16 +299,20 @@ function triggerBackgroundSync(key, value) {
           };
 
           if (existing && existing.length > 0) {
-            await client.from('admission_applications').update(mapped).eq('id', existing[0].id);
+            const { error: updateErr } = await client.from('admission_applications').update(mapped).eq('id', existing[0].id);
+            if (updateErr) throw updateErr;
           } else {
-            await client.from('admission_applications').insert([mapped]);
+            const { error: insertErr } = await client.from('admission_applications').insert([mapped]);
+            if (insertErr) throw insertErr;
           }
         }
       } catch (err) {
         handleSyncError('admissions', err);
+        throw err;
       }
     })();
   }
+  return Promise.resolve();
 }
 
 // ─── UNIFIED DB LAYER ────────────────────────────────────────────────────
@@ -315,16 +326,16 @@ var DB = {
   get(key) { return LOCAL.get(key); },
   set(key, value) {
     LOCAL.set(key, value);
-    triggerBackgroundSync(key, value);
+    return triggerBackgroundSync(key, value);
   },
   remove(key) {
     LOCAL.remove(key);
-    triggerBackgroundSync(key, []);
+    return triggerBackgroundSync(key, []);
   },
 
   getLocal: (key) => LOCAL.get(key),
-  setLocal: (key, value) => { LOCAL.set(key, value); triggerBackgroundSync(key, value); },
-  removeLocal: (key) => { LOCAL.remove(key); triggerBackgroundSync(key, []); },
+  setLocal: (key, value) => { LOCAL.set(key, value); return triggerBackgroundSync(key, value); },
+  removeLocal: (key) => { LOCAL.remove(key); return triggerBackgroundSync(key, []); },
 
   // ── Async Supabase methods ────────────────────────────────────────────
   async getStudents() {
