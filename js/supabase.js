@@ -65,8 +65,8 @@ function handleSyncError(key, err) {
   }
 }
 
-// Background sync: writes session cache changes to Supabase asynchronously
-function triggerBackgroundSync(key, value) {
+// Background sync: writes session cache changes to Supabase asynchronously by comparing changes with oldValue
+function triggerBackgroundSync(key, value, oldValue) {
   if (!SUPABASE_CONFIGURED) return Promise.resolve();
 
   let client;
@@ -82,13 +82,12 @@ function triggerBackgroundSync(key, value) {
   if (key === 'students') {
     return (async () => {
       try {
-        const { data: remoteStudents, error: fetchErr } = await client.from('students').select('id');
-        if (fetchErr) throw fetchErr;
-        const remoteIds = (remoteStudents || []).map(r => r.id);
-        const localIds = value.map(s => s.id);
+        const oldArray = oldValue || [];
+        const oldIds = oldArray.map(s => s.id);
+        const newIds = value.map(s => s.id);
 
         // Deletions
-        const toDelete = remoteIds.filter(id => !localIds.includes(id));
+        const toDelete = oldIds.filter(id => !newIds.includes(id));
         if (toDelete.length > 0) {
           // Delete referencing marks and attendance logs first to prevent foreign key errors
           await client.from('marks').delete().in('student_id', toDelete);
@@ -96,20 +95,34 @@ function triggerBackgroundSync(key, value) {
           await client.from('students').delete().in('id', toDelete);
         }
 
-        // Bulk Upsertions
-        const rows = value.map(s => ({
-          id: s.id,
-          roll_no: s.rollNo || '',
-          name: s.name || '',
-          dob: s.dob || null,
-          class_id: s.classId === 'graduated' ? null : (s.classId || null),
-          type: s.type || 'dayscholar',
-          bus_id: s.busId || null,
-          phone: s.phone || null,
-          parent_name: s.parentName || null,
-          academic_year: s.academicYear || activeYear
-        }));
-        if (rows.length > 0) {
+        // Upsertions: Only new or modified students
+        const toUpsert = value.filter(s => {
+          const old = oldArray.find(o => o.id === s.id);
+          if (!old) return true;
+          return old.name !== s.name ||
+                 old.rollNo !== s.rollNo ||
+                 old.dob !== s.dob ||
+                 old.classId !== s.classId ||
+                 old.type !== s.type ||
+                 old.busId !== s.busId ||
+                 old.phone !== s.phone ||
+                 old.parentName !== s.parentName ||
+                 old.academicYear !== s.academicYear;
+        });
+
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(s => ({
+            id: s.id,
+            roll_no: s.rollNo || '',
+            name: s.name || '',
+            dob: s.dob || null,
+            class_id: s.classId === 'graduated' ? null : (s.classId || null),
+            type: s.type || 'dayscholar',
+            bus_id: s.busId || null,
+            phone: s.phone || null,
+            parent_name: s.parentName || null,
+            academic_year: s.academicYear || activeYear
+          }));
           const { error: upsertErr } = await client.from('students').upsert(rows);
           if (upsertErr) throw upsertErr;
         }
@@ -123,28 +136,38 @@ function triggerBackgroundSync(key, value) {
   else if (key === 'teachers') {
     return (async () => {
       try {
-        const { data: remoteTeachers, error: fetchErr } = await client.from('teachers').select('id');
-        if (fetchErr) throw fetchErr;
-        const remoteIds = (remoteTeachers || []).map(r => r.id);
-        const localIds = value.map(t => t.id);
+        const oldArray = oldValue || [];
+        const oldIds = oldArray.map(t => t.id);
+        const newIds = value.map(t => t.id);
 
         // Deletions
-        const toDelete = remoteIds.filter(id => !localIds.includes(id));
+        const toDelete = oldIds.filter(id => !newIds.includes(id));
         if (toDelete.length > 0) {
           await client.from('teachers').delete().in('id', toDelete);
         }
 
-        // Bulk Upsertions
-        const rows = value.map(t => ({
-          id: t.id,
-          name: t.name || '',
-          username: t.username || '',
-          password: t.password || '',
-          class_id: Array.isArray(t.classId) ? JSON.stringify(t.classId) : (t.classId || null),
-          phone: t.phone || null,
-          email: t.email || null
-        }));
-        if (rows.length > 0) {
+        // Upsertions
+        const toUpsert = value.filter(t => {
+          const old = oldArray.find(o => o.id === t.id);
+          if (!old) return true;
+          return old.name !== t.name ||
+                 old.username !== t.username ||
+                 old.password !== t.password ||
+                 JSON.stringify(old.classId) !== JSON.stringify(t.classId) ||
+                 old.phone !== t.phone ||
+                 old.email !== t.email;
+        });
+
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(t => ({
+            id: t.id,
+            name: t.name || '',
+            username: t.username || '',
+            password: t.password || '',
+            class_id: Array.isArray(t.classId) ? JSON.stringify(t.classId) : (t.classId || null),
+            phone: t.phone || null,
+            email: t.email || null
+          }));
           const { error: upsertErr } = await client.from('teachers').upsert(rows);
           if (upsertErr) throw upsertErr;
         }
@@ -158,27 +181,36 @@ function triggerBackgroundSync(key, value) {
   else if (key === 'buses') {
     return (async () => {
       try {
-        const { data: remoteBuses, error: fetchErr } = await client.from('buses').select('id');
-        if (fetchErr) throw fetchErr;
-        const remoteIds = (remoteBuses || []).map(r => r.id);
-        const localIds = value.map(b => b.id);
+        const oldArray = oldValue || [];
+        const oldIds = oldArray.map(b => b.id);
+        const newIds = value.map(b => b.id);
 
         // Deletions
-        const toDelete = remoteIds.filter(id => !localIds.includes(id));
+        const toDelete = oldIds.filter(id => !newIds.includes(id));
         if (toDelete.length > 0) {
           await client.from('buses').delete().in('id', toDelete);
         }
 
-        // Bulk Upsertions
-        const rows = value.map(b => ({
-          id: b.id,
-          number: b.number || '',
-          route: b.route || '',
-          driver: b.driver || null,
-          phone: b.phone || null,
-          capacity: Number(b.capacity) || 40
-        }));
-        if (rows.length > 0) {
+        // Upsertions
+        const toUpsert = value.filter(b => {
+          const old = oldArray.find(o => o.id === b.id);
+          if (!old) return true;
+          return old.number !== b.number ||
+                 old.route !== b.route ||
+                 old.driver !== b.driver ||
+                 old.phone !== b.phone ||
+                 old.capacity !== b.capacity;
+        });
+
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(b => ({
+            id: b.id,
+            number: b.number || '',
+            route: b.route || '',
+            driver: b.driver || null,
+            phone: b.phone || null,
+            capacity: Number(b.capacity) || 40
+          }));
           const { error: upsertErr } = await client.from('buses').upsert(rows);
           if (upsertErr) throw upsertErr;
         }
@@ -192,25 +224,32 @@ function triggerBackgroundSync(key, value) {
   else if (key === 'classes') {
     return (async () => {
       try {
-        const { data: remoteClasses, error: fetchErr } = await client.from('classes').select('id');
-        if (fetchErr) throw fetchErr;
-        const remoteIds = (remoteClasses || []).map(r => r.id);
-        const localIds = value.map(c => c.id);
+        const oldArray = oldValue || [];
+        const oldIds = oldArray.map(c => c.id);
+        const newIds = value.map(c => c.id);
 
         // Deletions
-        const toDelete = remoteIds.filter(id => !localIds.includes(id));
+        const toDelete = oldIds.filter(id => !newIds.includes(id));
         if (toDelete.length > 0) {
           await client.from('classes').delete().in('id', toDelete);
         }
 
-        // Bulk Upsertions
-        const rows = value.map(c => ({
-          id: c.id,
-          name: c.name || '',
-          section: c.section || '',
-          grade: Number(c.grade) || 0
-        }));
-        if (rows.length > 0) {
+        // Upsertions
+        const toUpsert = value.filter(c => {
+          const old = oldArray.find(o => o.id === c.id);
+          if (!old) return true;
+          return old.name !== c.name ||
+                 old.section !== c.section ||
+                 old.grade !== c.grade;
+        });
+
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(c => ({
+            id: c.id,
+            name: c.name || '',
+            section: c.section || '',
+            grade: Number(c.grade) || 0
+          }));
           const { error: upsertErr } = await client.from('classes').upsert(rows);
           if (upsertErr) throw upsertErr;
         }
@@ -224,28 +263,38 @@ function triggerBackgroundSync(key, value) {
   else if (key === 'attendanceLogs') {
     return (async () => {
       try {
-        const rows = value.map(l => ({
-          student_id: l.studentId,
-          date: l.date,
-          type: l.type,
-          present: l.present
-        }));
+        const oldArray = oldValue || [];
+        const newArray = value || [];
 
-        // Deletions: Fetch remote attendance logs and delete any that aren't in local array
-        const { data: remoteLogs, error: fetchErr } = await client.from('attendance_logs').select('student_id, date, type');
-        if (!fetchErr && remoteLogs) {
-          const toDelete = remoteLogs.filter(r => 
-            !value.some(l => l.studentId === r.student_id && l.date === r.date && l.type === r.type)
-          );
-          for (const log of toDelete) {
-            await client.from('attendance_logs').delete()
-              .eq('student_id', log.student_id)
-              .eq('date', log.date)
-              .eq('type', log.type);
-          }
+        const toDelete = [];
+        const toUpsert = [];
+
+        // Deleted records
+        oldArray.forEach(o => {
+          const exists = newArray.some(n => n.studentId === o.studentId && n.date === o.date && n.type === o.type);
+          if (!exists) toDelete.push(o);
+        });
+
+        // New or modified records
+        newArray.forEach(n => {
+          const old = oldArray.find(o => o.studentId === n.studentId && o.date === n.date && o.type === n.type);
+          if (!old || old.present !== n.present) toUpsert.push(n);
+        });
+
+        for (const log of toDelete) {
+          await client.from('attendance_logs').delete()
+            .eq('student_id', log.studentId)
+            .eq('date', log.date)
+            .eq('type', log.type);
         }
 
-        if (rows.length > 0) {
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(l => ({
+            student_id: l.studentId,
+            date: l.date,
+            type: l.type,
+            present: l.present
+          }));
           const { error: upsertErr } = await client.from('attendance_logs').upsert(rows, { onConflict: 'student_id,date,type' });
           if (upsertErr) throw upsertErr;
         }
@@ -259,38 +308,54 @@ function triggerBackgroundSync(key, value) {
   else if (key === 'marks') {
     return (async () => {
       try {
-        const records = [];
-        for (const studentId in value) {
-          for (const subject in value[studentId]) {
-            for (const exam in value[studentId][subject]) {
-              records.push({
-                student_id: studentId,
-                subject: subject,
-                exam: exam,
-                marks_obtained: Number(value[studentId][subject][exam]) || 0
-              });
+        const oldObj = oldValue || {};
+        const newObj = value || {};
+
+        const toDelete = [];
+        const toUpsert = [];
+
+        const flattenMarks = (obj) => {
+          const arr = [];
+          for (const sId in obj) {
+            for (const sub in obj[sId]) {
+              for (const exam in obj[sId][sub]) {
+                arr.push({ studentId: sId, subject: sub, exam: exam, val: obj[sId][sub][exam] });
+              }
             }
           }
+          return arr;
+        };
+
+        const oldRecords = flattenMarks(oldObj);
+        const newRecords = flattenMarks(newObj);
+
+        // Deleted records
+        oldRecords.forEach(o => {
+          const exists = newRecords.some(n => n.studentId === o.studentId && n.subject === o.subject && n.exam === o.exam);
+          if (!exists) toDelete.push(o);
+        });
+
+        // New/modified records
+        newRecords.forEach(n => {
+          const old = oldRecords.find(o => o.studentId === n.studentId && o.subject === n.subject && o.exam === n.exam);
+          if (!old || old.val !== n.val) toUpsert.push(n);
+        });
+
+        for (const m of toDelete) {
+          await client.from('marks').delete()
+            .eq('student_id', m.studentId)
+            .eq('subject', m.subject)
+            .eq('exam', m.exam);
         }
 
-        // Deletions: Fetch remote marks and delete any that aren't in local records
-        const { data: remoteMarks, error: fetchErr } = await client.from('marks').select('student_id, subject, exam');
-        if (!fetchErr && remoteMarks) {
-          const toDelete = remoteMarks.filter(r => 
-            !value[r.student_id] || 
-            !value[r.student_id][r.subject] || 
-            value[r.student_id][r.subject][r.exam] === undefined
-          );
-          for (const m of toDelete) {
-            await client.from('marks').delete()
-              .eq('student_id', m.student_id)
-              .eq('subject', m.subject)
-              .eq('exam', m.exam);
-          }
-        }
-
-        if (records.length > 0) {
-          const { error: upsertErr } = await client.from('marks').upsert(records, { onConflict: 'student_id,subject,exam' });
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(r => ({
+            student_id: r.studentId,
+            subject: r.subject,
+            exam: r.exam,
+            marks_obtained: Number(r.val) || 0
+          }));
+          const { error: upsertErr } = await client.from('marks').upsert(rows, { onConflict: 'student_id,subject,exam' });
           if (upsertErr) throw upsertErr;
         }
       } catch (err) {
@@ -301,7 +366,6 @@ function triggerBackgroundSync(key, value) {
   }
 
   else if (key === 'admissions') {
-    // Bypassed: admission_applications table is removed from Supabase as it is connected to a Google Form
     return Promise.resolve();
   }
   return Promise.resolve();
@@ -317,17 +381,27 @@ function triggerBackgroundSync(key, value) {
 var DB = {
   get(key) { return LOCAL.get(key); },
   set(key, value) {
+    const oldValue = LOCAL.get(key);
     LOCAL.set(key, value);
-    return triggerBackgroundSync(key, value);
+    return triggerBackgroundSync(key, value, oldValue);
   },
   remove(key) {
+    const oldValue = LOCAL.get(key);
     LOCAL.remove(key);
-    return triggerBackgroundSync(key, []);
+    return triggerBackgroundSync(key, [], oldValue);
   },
 
   getLocal: (key) => LOCAL.get(key),
-  setLocal: (key, value) => { LOCAL.set(key, value); return triggerBackgroundSync(key, value); },
-  removeLocal: (key) => { LOCAL.remove(key); return triggerBackgroundSync(key, []); },
+  setLocal: (key, value) => {
+    const oldValue = LOCAL.get(key);
+    LOCAL.set(key, value);
+    return triggerBackgroundSync(key, value, oldValue);
+  },
+  removeLocal: (key) => {
+    const oldValue = LOCAL.get(key);
+    LOCAL.remove(key);
+    return triggerBackgroundSync(key, [], oldValue);
+  },
 
   // ── Async Supabase methods ────────────────────────────────────────────
   async getStudents() {
