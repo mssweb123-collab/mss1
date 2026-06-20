@@ -1974,8 +1974,7 @@
         marks: DB.get('marks') || {},
         admissions: DB.get('admissions') || [],
         classAttendance: DB.get('classAttendance') || {},
-        busAttendance: DB.get('busAttendance') || {},
-        admin: DB.get('admin') || null
+        busAttendance: DB.get('busAttendance') || {}
       };
       
       const jsonStr = JSON.stringify(data, null, 2);
@@ -2369,9 +2368,6 @@
         DB.set('admissions', inspectedData.admissions || []);
         DB.set('classAttendance', inspectedData.classAttendance || {});
         DB.set('busAttendance', inspectedData.busAttendance || {});
-        if (inspectedData.admin) {
-          DB.set('admin', inspectedData.admin);
-        }
         
         const restoreYear = inspectedData.students?.[0]?.academicYear || inspectedData.students?.[0]?.academic_year || currentAcademicYear();
         localStorage.setItem('mss_activeAcademicYear', restoreYear);

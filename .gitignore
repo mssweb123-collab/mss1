@@ -12,3 +12,4 @@ node_modules/
 
 # Generated config file (built from env vars by build.sh)
 js/config.js
+github.md

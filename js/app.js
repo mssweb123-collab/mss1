@@ -154,18 +154,13 @@ function getAvailableAcademicYears() {
 // SEED INITIAL DATA (if not already seeded)
 // ============================================
 function seedData() {
+  // Always clean up old cached admin credentials in localStorage
+  localStorage.removeItem('mss_admin');
+
   if (DB.get('seeded_v3_prod')) return;
 
   // Clear any legacy fake data from previous versions
   sessionStorage.clear();
-
-  // Admin credentials loaded from Vercel env vars (via window.MSS_CONFIG → js/config.js)
-  const cfg = (typeof window !== 'undefined' && window.MSS_CONFIG) || {};
-  const adminUser = cfg.ADMIN_USERNAME || 'admin';
-  const adminPass = cfg.ADMIN_PASSWORD || '';
-  if (adminPass) {
-    DB.set('admin', { username: adminUser, password: sha256(adminPass), name: 'Principal Admin' });
-  }
 
   // All school data starts empty. Admin adds everything through the dashboard.
   DB.set('seeded_v3_prod', true);
@@ -202,16 +197,18 @@ const Auth = {
   },
 
   loginAdmin(username, password) {
-    const admin = DB.get('admin');
-    if (admin && admin.username.toLowerCase() === username.trim().toLowerCase()) {
+    const cfg = (typeof window !== 'undefined' && window.MSS_CONFIG) || {};
+    const adminUser = cfg.ADMIN_USERNAME || 'admin';
+    const adminPass = cfg.ADMIN_PASSWORD || '';
+
+    // If no admin password is set in Vercel, login is disabled.
+    if (!adminPass) return null;
+
+    if (adminUser.toLowerCase() === username.trim().toLowerCase()) {
       const inputHash = sha256(password);
-      if (admin.password === inputHash) {
-        return this.login('admin', 'admin', admin.name);
-      }
-      if (admin.password === password) {
-        admin.password = inputHash;
-        DB.set('admin', admin);
-        return this.login('admin', 'admin', admin.name);
+      const expectedHash = sha256(adminPass);
+      if (expectedHash === inputHash) {
+        return this.login('admin', 'admin', 'Principal Admin');
       }
     }
     return null;
