@@ -937,36 +937,13 @@
       <div class="modal-body">
         <form id="addClassModalForm">
           <div class="form-group">
-            <label class="form-label">Class Name</label>
-            <input type="text" id="addCName" placeholder="e.g. Class 7 - A" class="form-control" required>
+            <label class="form-label">Grade Level</label>
+            <input type="number" id="addCGrade" placeholder="e.g. 7" class="form-control" min="1" max="12" required>
           </div>
           <div class="form-group">
             <label class="form-label">Section</label>
-            <input type="text" id="addCSection" placeholder="e.g. A" class="form-control" required>
+            <input type="text" id="addCSection" placeholder="e.g. A" class="form-control" maxlength="5" required>
           </div>
-          <div class="form-group">
-            <label class="form-label">Grade Level</label>
-            <input type="number" id="addCGrade" placeholder="e.g. 7" class="form-control" required>
-          </div>
-          
-          <div class="optional-section">
-            <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.75rem;">
-              Assign Teacher (Optional)
-            </h4>
-            <div class="form-group">
-              <label class="form-label">Teacher Name</label>
-              <input type="text" id="addCTeacherName" placeholder="e.g. Jane Smith" class="form-control">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Username (Login)</label>
-              <input type="text" id="addCTeacherUsername" placeholder="e.g. janesmith" class="form-control">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Password</label>
-              <input type="password" id="addCTeacherPassword" placeholder="Enter password" class="form-control">
-            </div>
-          </div>
-          
           <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem; font-weight: 700;">Create Class</button>
         </form>
       </div>
@@ -1884,41 +1861,16 @@
 
     document.getElementById('addClassModalForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const className = document.getElementById('addCName').value;
-      const classSection = document.getElementById('addCSection').value;
+      const classSection = document.getElementById('addCSection').value.trim().toUpperCase();
       const classGrade = Number(document.getElementById('addCGrade').value);
-      
-      const teacherName = document.getElementById('addCTeacherName').value.trim();
-      const teacherUsername = document.getElementById('addCTeacherUsername').value.trim();
-      const teacherPassword = document.getElementById('addCTeacherPassword').value.trim();
+      // Auto-generate class name from grade + section
+      const className = `Class ${classGrade} - ${classSection}`;
 
       const classId = genId('c');
-      
-      // Save Class
       const classes = DB.get('classes') || [];
-      classes.push({
-        id: classId,
-        name: className,
-        section: classSection,
-        grade: classGrade
-      });
+      classes.push({ id: classId, name: className, section: classSection, grade: classGrade });
       DB.set('classes', classes);
-
-      // Save Teacher if details are provided
-      if (teacherName) {
-        const teachers = DB.get('teachers') || [];
-        teachers.push({
-          id: genId('t'),
-          name: teacherName,
-          username: teacherUsername || teacherName.toLowerCase().replace(/\s+/g, ''),
-          password: sha256(teacherPassword || '123456'), // Default password if empty
-          classId: classId
-        });
-        DB.set('teachers', teachers);
-        showToast(`Class and Teacher '${teacherName}' created successfully!`, 'success');
-      } else {
-        showToast('Class created successfully!', 'success');
-      }
+      showToast(`'${className}' created successfully!`, 'success');
 
       closeAddClassModal();
       loadData();
