@@ -157,13 +157,24 @@ function seedData() {
   // Always clean up old cached admin credentials in localStorage
   localStorage.removeItem('mss_admin');
 
-  if (DB.get('seeded_v3_prod')) return;
-
-  // Clear any legacy fake data from previous versions
-  sessionStorage.clear();
-
-  // All school data starts empty. Admin adds everything through the dashboard.
-  DB.set('seeded_v3_prod', true);
+  // Clean up all old mock/demo data from both localStorage and sessionStorage once
+  if (!localStorage.getItem('mss_seeded_v4_clean')) {
+    // Clear sessionStorage
+    sessionStorage.clear();
+    
+    // Clear localStorage keys starting with mss_
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('mss_') && key !== 'mss_seeded_v4_clean') {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    // Mark as cleaned in localStorage so it runs only once per device
+    localStorage.setItem('mss_seeded_v4_clean', 'true');
+  }
 }
 
 // ============================================

@@ -57,6 +57,15 @@ function getActiveAcademicYear() {
 }
 
 // Background sync: writes session cache changes to Supabase asynchronously
+// Background sync error helper
+function handleSyncError(key, err) {
+  console.error(`Background sync for '${key}' failed:`, err);
+  if (typeof showToast === 'function') {
+    showToast(`Syncing ${key} to Supabase failed! Verify your database tables & RLS policies.`, 'danger', 5000);
+  }
+}
+
+// Background sync: writes session cache changes to Supabase asynchronously
 function triggerBackgroundSync(key, value) {
 
   let client;
@@ -101,7 +110,7 @@ function triggerBackgroundSync(key, value) {
           if (upsertErr) throw upsertErr;
         }
       } catch (err) {
-        console.error('Background sync students failed:', err);
+        handleSyncError('students', err);
       }
     })();
   }
@@ -135,7 +144,7 @@ function triggerBackgroundSync(key, value) {
           if (upsertErr) throw upsertErr;
         }
       } catch (err) {
-        console.error('Background sync teachers failed:', err);
+        handleSyncError('teachers', err);
       }
     })();
   }
@@ -168,7 +177,7 @@ function triggerBackgroundSync(key, value) {
           if (upsertErr) throw upsertErr;
         }
       } catch (err) {
-        console.error('Background sync buses failed:', err);
+        handleSyncError('buses', err);
       }
     })();
   }
@@ -199,7 +208,7 @@ function triggerBackgroundSync(key, value) {
           if (upsertErr) throw upsertErr;
         }
       } catch (err) {
-        console.error('Background sync classes failed:', err);
+        handleSyncError('classes', err);
       }
     })();
   }
@@ -218,7 +227,7 @@ function triggerBackgroundSync(key, value) {
           if (upsertErr) throw upsertErr;
         }
       } catch (err) {
-        console.error('Background sync attendance logs failed:', err);
+        handleSyncError('attendance logs', err);
       }
     })();
   }
@@ -244,7 +253,7 @@ function triggerBackgroundSync(key, value) {
           if (upsertErr) throw upsertErr;
         }
       } catch (err) {
-        console.error('Background sync marks failed:', err);
+        handleSyncError('marks', err);
       }
     })();
   }
@@ -289,7 +298,7 @@ function triggerBackgroundSync(key, value) {
           }
         }
       } catch (err) {
-        console.error('Background sync admissions failed:', err);
+        handleSyncError('admissions', err);
       }
     })();
   }
@@ -607,6 +616,9 @@ var DB = {
       window.dispatchEvent(new Event('mss-db-sync'));
     } catch (error) {
       console.error('Supabase pullAllFromSupabase failed:', error);
+      if (typeof showToast === 'function') {
+        showToast('Failed to load data from Supabase. Verify database tables and RLS permissions.', 'danger', 5000);
+      }
       throw error;
     }
   }
@@ -724,11 +736,49 @@ ALTER TABLE attendance_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE marks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admission_applications ENABLE ROW LEVEL SECURITY;
 
--- Public read for classes (for admission form dropdowns)
-CREATE POLICY "Public read classes" ON classes FOR SELECT USING (true);
+-- 🚨 IMPORTANT: Row Level Security (RLS) Policies
+-- The following policies grant full access (SELECT, INSERT, UPDATE, DELETE) using the anon key.
+-- Copy and run these in the Supabase SQL editor to ensure the frontend can read and write data.
 
--- Admission applications: anyone can insert
-CREATE POLICY "Anyone can apply" ON admission_applications FOR INSERT WITH CHECK (true);
+-- 1. Classes Policies
+CREATE POLICY "Classes select" ON classes FOR SELECT USING (true);
+CREATE POLICY "Classes insert" ON classes FOR INSERT WITH CHECK (true);
+CREATE POLICY "Classes update" ON classes FOR UPDATE USING (true);
+CREATE POLICY "Classes delete" ON classes FOR DELETE USING (true);
 
--- For a production app, use Supabase Auth and role-based policies
+-- 2. Students Policies
+CREATE POLICY "Students select" ON students FOR SELECT USING (true);
+CREATE POLICY "Students insert" ON students FOR INSERT WITH CHECK (true);
+CREATE POLICY "Students update" ON students FOR UPDATE USING (true);
+CREATE POLICY "Students delete" ON students FOR DELETE USING (true);
+
+-- 3. Teachers Policies
+CREATE POLICY "Teachers select" ON teachers FOR SELECT USING (true);
+CREATE POLICY "Teachers insert" ON teachers FOR INSERT WITH CHECK (true);
+CREATE POLICY "Teachers update" ON teachers FOR UPDATE USING (true);
+CREATE POLICY "Teachers delete" ON teachers FOR DELETE USING (true);
+
+-- 4. Buses Policies
+CREATE POLICY "Buses select" ON buses FOR SELECT USING (true);
+CREATE POLICY "Buses insert" ON buses FOR INSERT WITH CHECK (true);
+CREATE POLICY "Buses update" ON buses FOR UPDATE USING (true);
+CREATE POLICY "Buses delete" ON buses FOR DELETE USING (true);
+
+-- 5. Attendance Logs Policies
+CREATE POLICY "Attendance select" ON attendance_logs FOR SELECT USING (true);
+CREATE POLICY "Attendance insert" ON attendance_logs FOR INSERT WITH CHECK (true);
+CREATE POLICY "Attendance update" ON attendance_logs FOR UPDATE USING (true);
+CREATE POLICY "Attendance delete" ON attendance_logs FOR DELETE USING (true);
+
+-- 6. Marks Policies
+CREATE POLICY "Marks select" ON marks FOR SELECT USING (true);
+CREATE POLICY "Marks insert" ON marks FOR INSERT WITH CHECK (true);
+CREATE POLICY "Marks update" ON marks FOR UPDATE USING (true);
+CREATE POLICY "Marks delete" ON marks FOR DELETE USING (true);
+
+-- 7. Admission Applications Policies
+CREATE POLICY "Admissions select" ON admission_applications FOR SELECT USING (true);
+CREATE POLICY "Admissions insert" ON admission_applications FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admissions update" ON admission_applications FOR UPDATE USING (true);
+CREATE POLICY "Admissions delete" ON admission_applications FOR DELETE USING (true);
 */
