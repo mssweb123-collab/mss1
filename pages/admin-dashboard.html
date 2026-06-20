@@ -2022,10 +2022,10 @@
       
       // Archive current year data under the currentYear suffix
       localStorage.setItem('mss_students_' + currentYear, JSON.stringify(students));
-      localStorage.setItem('mss_attendanceLogs_' + currentYear, localStorage.getItem('mss_attendanceLogs') || '[]');
-      localStorage.setItem('mss_marks_' + currentYear, localStorage.getItem('mss_marks') || '{}');
-      localStorage.setItem('mss_classAttendance_' + currentYear, localStorage.getItem('mss_classAttendance') || '{}');
-      localStorage.setItem('mss_busAttendance_' + currentYear, localStorage.getItem('mss_busAttendance') || '{}');
+      localStorage.setItem('mss_attendanceLogs_' + currentYear, JSON.stringify(DB.get('attendanceLogs') || []));
+      localStorage.setItem('mss_marks_' + currentYear, JSON.stringify(DB.get('marks') || {}));
+      localStorage.setItem('mss_classAttendance_' + currentYear, JSON.stringify(DB.get('classAttendance') || {}));
+      localStorage.setItem('mss_busAttendance_' + currentYear, JSON.stringify(DB.get('busAttendance') || {}));
       
       // 2. Perform promotion
       const updatedStudents = students.map(student => {
@@ -2065,7 +2065,7 @@
       DB.set('busAttendance', {});
       
       // 4. Save to Supabase (if configured)
-      const configured = localStorage.getItem('supabase_url') && localStorage.getItem('supabase_url') !== 'https://YOUR_PROJECT_REF.supabase.co';
+      const configured = typeof isSupabaseConfigured === 'function' && isSupabaseConfigured();
       if (configured && typeof getSupabase === 'function') {
         try {
           showToast('Syncing promotion to Supabase, please wait...', 'info');
@@ -2372,7 +2372,7 @@
         const restoreYear = inspectedData.students?.[0]?.academicYear || inspectedData.students?.[0]?.academic_year || currentAcademicYear();
         localStorage.setItem('mss_activeAcademicYear', restoreYear);
         
-        const configured = localStorage.getItem('supabase_url') && localStorage.getItem('supabase_url') !== 'https://YOUR_PROJECT_REF.supabase.co';
+        const configured = typeof isSupabaseConfigured === 'function' && isSupabaseConfigured();
         if (configured && typeof getSupabase === 'function') {
           showToast('Syncing restored data to Supabase...', 'info');
           const client = getSupabase();
