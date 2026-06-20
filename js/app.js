@@ -159,12 +159,13 @@ function seedData() {
   // Clear any legacy fake data from previous versions
   sessionStorage.clear();
 
-  // Admin credentials – change password via Vercel env vars / Supabase
-  // Default: username=admin, password=mss@admin2024
-  DB.set('admin', { username: 'admin', password: sha256('mss@admin2024'), name: 'Principal Admin' });
+  // Admin credentials loaded from Vercel env vars (via window.MSS_CONFIG → js/config.js)
+  const cfg = (typeof window !== 'undefined' && window.MSS_CONFIG) || {};
+  const adminUser = cfg.ADMIN_USERNAME || 'admin';
+  const adminPass = cfg.ADMIN_PASSWORD || 'mss@admin2024';
+  DB.set('admin', { username: adminUser, password: sha256(adminPass), name: 'Principal Admin' });
 
-  // All school data (classes, teachers, buses, students) starts empty.
-  // The admin must add them through the dashboard.
+  // All school data starts empty. Admin adds everything through the dashboard.
   DB.set('seeded_v3_prod', true);
 }
 

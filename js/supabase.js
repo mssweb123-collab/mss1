@@ -5,16 +5,18 @@
 'use strict';
 
 // ─── SUPABASE CONFIG ─────────────────────────────────────────────────────────
-// The anon/public key is safe to embed in frontend code by design.
-// Secret keys are stored in Vercel Dashboard → Environment Variables (never here).
-const SUPABASE_URL = 'https://pgnslzcznvtddsgmvipk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBnbnNsemN6bnZ0ZGRzZ212aXBrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDEyOTcsImV4cCI6MjA5NzUxNzI5N30.nZ09amYSJbH_lHEbDU5r7rnebTbzy0sFUoS1Oc7ERkE';
+// Credentials are injected at build time via Vercel env vars → build.sh → js/config.js
+// window.MSS_CONFIG is defined in js/config.js (gitignored, generated at build)
+const _cfg = (typeof window !== 'undefined' && window.MSS_CONFIG) || {};
+const SUPABASE_URL = _cfg.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = _cfg.SUPABASE_ANON_KEY || '';
 
 // ─── SUPABASE CLIENT ─────────────────────────────────────────────────────────
 let _supabaseClient = null;
 
 function getSupabase() {
   if (_supabaseClient) return _supabaseClient;
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) throw new Error('Supabase not configured – check Vercel env vars.');
   if (typeof window !== 'undefined' && window.supabase) {
     _supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     return _supabaseClient;
@@ -22,7 +24,8 @@ function getSupabase() {
   throw new Error('Supabase SDK not loaded');
 }
 
-function isSupabaseConfigured() { return true; }
+function isSupabaseConfigured() { return !!(SUPABASE_URL && SUPABASE_ANON_KEY); }
+
 
 // ─── SESSION CACHE ────────────────────────────────────────────────────────────
 // School data is cached in sessionStorage (cleared when browser closes).

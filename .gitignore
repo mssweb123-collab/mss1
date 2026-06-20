@@ -9,3 +9,6 @@ node_modules/
 .env
 .env.local
 .env.production
+
+# Generated config file (built from env vars by build.sh)
+js/config.js
