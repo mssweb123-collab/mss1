@@ -2239,7 +2239,8 @@
         return;
       }
 
-      const RATE = 0.55;              // cinematic slow playback
+      const isMobile = window.innerWidth <= 768;
+      const RATE = isMobile ? 1.0 : 0.55; // normal speed on mobile, cinematic slow on desktop
       const CROSSFADE_LEAD = 1.0;     // seconds before end to begin crossfade
       const videos = [vidA, vidB];
       let activeIdx = 0;              // which video is currently showing
