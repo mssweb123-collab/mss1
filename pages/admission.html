@@ -271,7 +271,7 @@
         <div class="steps-bar"><div class="step-dot active" id="s1"></div><div class="step-dot" id="s2"></div><div class="step-dot" id="s3"></div></div>
 
         <!-- Google Form Integration -->
-        <form id="admissionForm" action="https://docs.google.com/forms/d/e/1FAIpQLSf7WBz6aS6QCNwIbqK9ScYYTqALlsEoTz1ezOEg8nzRaep9-A/formResponse" method="POST" target="admFrame" onsubmit="handleAdmissionSubmit()">
+        <form id="admissionForm" action="https://docs.google.com/forms/d/e/1FAIpQLSf7WBz6aS6QCNwIbqK9ScYYTqALlsEoTz1ezOEg8nzRaep9-A/formResponse" method="POST" target="admFrame" onsubmit="handleAdmissionSubmit(event)">
           <!-- Hidden Google Form fields -->
           <input type="hidden" name="entry.2005620554" id="g_name"/>
           <input type="hidden" name="entry.1045781291" id="g_dob"/>
@@ -376,7 +376,9 @@
 <script src="../js/supabase.js"></script>
 <script src="../js/app.js"></script>
 <script>
-function handleAdmissionSubmit() {
+function handleAdmissionSubmit(e) {
+  if (e && preventDoubleSubmit(e)) return;
+
   // Compile all form data into Google Form fields
   document.getElementById('g_name').value = document.getElementById('admName').value;
   document.getElementById('g_dob').value = document.getElementById('admDob').value;
@@ -429,6 +431,8 @@ function handleAdmissionSubmit() {
     document.getElementById('s1').className = 'step-dot done';
     document.getElementById('s2').className = 'step-dot done';
     document.getElementById('s3').className = 'step-dot active';
+
+    if (e && e.target) releaseDoubleSubmit(e.target);
 
     setTimeout(() => {
       document.getElementById('admissionForm').style.display = 'none';

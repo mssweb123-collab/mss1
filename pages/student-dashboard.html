@@ -397,6 +397,7 @@
 
     .bg-success { background: var(--success); }
     .bg-accent { background: var(--accent); }
+    .bg-danger { background: var(--danger); }
     .bg-light { background: var(--text-muted); }
 
     /* Day Scholar Card View */
@@ -584,10 +585,12 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 32px;
-      background: #1e293b;
-      border-top: 3px solid #475569;
+      height: 34px;
+      background:
+        linear-gradient(180deg, rgba(71, 85, 105, 0.95), #1e293b 34%, #0f172a 100%);
+      border-top: 4px solid rgba(34, 197, 94, 0.34);
       overflow: hidden;
+      box-shadow: inset 0 8px 14px rgba(255, 255, 255, 0.08);
     }
     
     .anim-road::before {
@@ -595,11 +598,20 @@
       position: absolute;
       left: 0;
       width: 200%;
-      height: 2px;
-      background: repeating-linear-gradient(90deg, #e2e8f0, #e2e8f0 18px, transparent 18px, transparent 36px);
+      height: 3px;
+      background: repeating-linear-gradient(90deg, #f8fafc, #f8fafc 20px, transparent 20px, transparent 42px);
       top: 50%;
       transform: translateY(-50%);
-      opacity: 0.6;
+      opacity: 0.72;
+      border-radius: var(--radius-full);
+    }
+
+    .anim-road::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+      opacity: 0.85;
     }
 
     .anim-road.moving::before {
@@ -617,7 +629,37 @@
       left: 0;
       right: 0;
       bottom: 32px;
-      background: linear-gradient(180deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.02) 100%);
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.95) 0 8%, transparent 18%),
+        radial-gradient(circle at 78% 22%, rgba(253, 224, 71, 0.26), transparent 20%),
+        linear-gradient(180deg, #bde7ff 0%, #e0f2fe 48%, #f7fbff 100%);
+    }
+
+    .anim-sky::before {
+      content: '';
+      position: absolute;
+      inset: auto 0 0;
+      height: 46px;
+      background:
+        linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.72)),
+        radial-gradient(ellipse at 20% 100%, rgba(16, 185, 129, 0.22), transparent 46%),
+        radial-gradient(ellipse at 78% 100%, rgba(79, 70, 229, 0.13), transparent 48%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .anim-sky::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 12% 34%, rgba(255,255,255,0.58) 0 1px, transparent 2px),
+        radial-gradient(circle at 46% 18%, rgba(255,255,255,0.46) 0 1px, transparent 2px),
+        radial-gradient(circle at 88% 42%, rgba(255,255,255,0.52) 0 1px, transparent 2px);
+      opacity: 0.85;
+      z-index: 1;
+      pointer-events: none;
     }
 
     .mountain-range {
@@ -626,7 +668,7 @@
       left: 0;
       width: 100%;
       height: 60px;
-      z-index: 1;
+      z-index: 2;
       opacity: 0.8;
     }
 
@@ -636,11 +678,11 @@
       right: 18%;
       width: 28px;
       height: 28px;
-      background: radial-gradient(circle, #fef08a 0%, #facc15 100%);
+      background: radial-gradient(circle, #fff7ad 0%, #facc15 72%, #f59e0b 100%);
       border-radius: 50%;
-      box-shadow: 0 0 20px rgba(253, 224, 71, 0.5);
+      box-shadow: 0 0 0 9px rgba(253, 224, 71, 0.14), 0 0 28px rgba(253, 224, 71, 0.52);
       animation: sun-pulse 4s ease-in-out infinite alternate;
-      z-index: 1;
+      z-index: 2;
     }
 
     @keyframes sun-pulse {
@@ -650,13 +692,14 @@
     
     .scenery-tree {
       position: absolute;
-      bottom: 32px;
+      bottom: 34px;
       width: 0;
       height: 0;
       border-left: 8px solid transparent;
       border-right: 8px solid transparent;
-      border-bottom: 22px solid rgba(16, 185, 129, 0.35);
+      border-bottom: 24px solid rgba(16, 185, 129, 0.42);
       z-index: 2;
+      filter: drop-shadow(0 5px 6px rgba(16, 185, 129, 0.16));
     }
     .tree-1 { left: 24%; }
     .tree-2 { left: 45%; border-bottom-height: 28px; opacity: 0.8; }
@@ -664,72 +707,144 @@
 
     .anim-cloud {
       position: absolute;
-      background: rgba(255, 255, 255, 0.8);
+      left: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(239, 246, 255, 0.86));
       border-radius: 50px;
-      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.5);
-      z-index: 2;
+      box-shadow: 0 10px 24px rgba(96, 165, 250, 0.16), inset 0 -4px 10px rgba(148, 163, 184, 0.08);
+      z-index: 3;
+      opacity: 0.95;
+      will-change: transform;
     }
+
+    .anim-cloud::before,
+    .anim-cloud::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: inherit;
+      box-shadow: inherit;
+    }
+
+    .anim-cloud::before {
+      width: 48%;
+      height: 150%;
+      left: 16%;
+      bottom: 24%;
+    }
+
+    .anim-cloud::after {
+      width: 58%;
+      height: 170%;
+      right: 12%;
+      bottom: 14%;
+    }
+
     .cloud-1 {
-      width: 50px;
-      height: 16px;
-      top: 15px;
-      animation: float-cloud 35s linear infinite;
+      width: 72px;
+      height: 20px;
+      top: 18px;
+      animation: float-cloud 38s linear infinite;
     }
     .cloud-2 {
-      width: 70px;
-      height: 22px;
-      top: 35px;
-      animation: float-cloud 25s linear infinite reverse;
+      width: 96px;
+      height: 26px;
+      top: 45px;
+      opacity: 0.88;
+      animation: float-cloud-reverse 32s linear infinite;
     }
     .cloud-3 {
-      width: 40px;
-      height: 14px;
-      top: 25px;
-      animation: float-cloud 45s linear infinite;
+      width: 58px;
+      height: 18px;
+      top: 30px;
+      opacity: 0.8;
+      animation: float-cloud 48s linear infinite;
+    }
+    .cloud-4 {
+      width: 118px;
+      height: 30px;
+      top: 78px;
+      opacity: 0.62;
+      animation: float-cloud 58s linear infinite;
+    }
+    .cloud-5 {
+      width: 62px;
+      height: 19px;
+      top: 10px;
+      opacity: 0.72;
+      animation: float-cloud-reverse 42s linear infinite;
     }
 
     @keyframes float-cloud {
-      0% { left: -80px; }
-      100% { left: 105%; }
+      0% { transform: translate3d(-140px, 0, 0); }
+      100% { transform: translate3d(calc(100vw + 160px), 0, 0); }
+    }
+
+    @keyframes float-cloud-reverse {
+      0% { transform: translate3d(calc(100vw + 160px), 0, 0); }
+      100% { transform: translate3d(-150px, 0, 0); }
     }
     
-    .anim-house, .anim-school {
+    .anim-house-1, .anim-house-2, .anim-school {
       position: absolute;
-      bottom: 32px;
+      bottom: 34px;
       display: flex;
       flex-direction: column;
       align-items: center;
       z-index: 5;
     }
     
-    .anim-house {
+    .anim-house-1 {
       left: 4%;
+    }
+
+    .anim-house-2 {
+      left: 88%;
+      display: none;
     }
     
     .anim-school {
-      right: 4%;
+      left: 88%;
+      transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     }
     
-    .house-svg, .school-svg {
-      width: 82px;
-      height: 98px;
-      filter: drop-shadow(0 6px 12px rgba(79, 70, 229, 0.08));
+    .house-img, .school-img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.1));
       transition: var(--transition);
     }
-    .house-svg:hover, .school-svg:hover {
-      transform: scale(1.03);
+    .school-img {
+      width: 84px;
+      height: 84px;
+    }
+    .house-img:hover, .school-img:hover {
+      transform: scale(1.08) translateY(-4px);
+    }
+    .location-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 0.15rem 0.6rem;
+      border-radius: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
     
     .anim-bus {
       position: absolute;
-      bottom: 32px;
+      bottom: 34px;
       transition: left 3s cubic-bezier(0.25, 1, 0.5, 1);
       left: 8%;
       z-index: 10;
+      transform-origin: 50% 100%;
     }
 
     .anim-bus.bus-moving {
-      animation: bus-vibrate 0.12s ease-in-out infinite alternate;
+      animation: bus-vibrate 0.16s ease-in-out infinite alternate;
     }
     
     @keyframes bus-vibrate {
@@ -738,9 +853,38 @@
     }
     
     .bus-svg {
-      width: 104px;
-      height: 58px;
-      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.16));
+      width: 124px;
+      height: 66px;
+      filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.22));
+    }
+
+    .bus-body {
+      fill: url(#busBodyGrad);
+      stroke: rgba(146, 64, 14, 0.22);
+      stroke-width: 1;
+    }
+
+    .bus-top {
+      fill: rgba(255, 247, 237, 0.5);
+    }
+
+    .bus-window {
+      fill: url(#busWindowGrad);
+      stroke: rgba(255, 255, 255, 0.72);
+      stroke-width: 0.8;
+    }
+
+    .bus-stripe {
+      fill: rgba(255, 255, 255, 0.36);
+    }
+
+    .bus-light {
+      animation: bus-light-glow 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes bus-light-glow {
+      from { opacity: 0.62; }
+      to { opacity: 1; }
     }
 
     .spinning-wheel {
@@ -803,29 +947,173 @@
       box-shadow: 0 0 8px var(--warning);
     }
     
+    .dot-red {
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+    
+    .anim-student {
+      position: absolute;
+      bottom: 34px;
+      transition: left 3s cubic-bezier(0.25, 1, 0.5, 1);
+      left: 8%;
+      z-index: 10;
+      font-size: 2.2rem;
+      line-height: 1;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+    }
+    .anim-student.student-moving {
+      animation: student-walk 0.5s ease-in-out infinite alternate;
+    }
+    @keyframes student-walk {
+      0% { transform: translateY(0) rotate(-5deg); }
+      100% { transform: translateY(-4px) rotate(5deg); }
+    }
+
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: .4; transform: scale(.75); }
     }
 
-    /* ── Live Attendance Checkpoints Timeline ── */
-    .checkpoints-wrapper {
+    /* ── Live Attendance Journey ── */
+    .journey-card {
+      grid-column: 1 / -1;
+      padding: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(239, 246, 255, 0.8)),
+        radial-gradient(circle at 12% 8%, rgba(16, 185, 129, 0.14), transparent 30%),
+        radial-gradient(circle at 88% 12%, rgba(124, 58, 237, 0.14), transparent 30%);
+      border: 1px solid rgba(79, 70, 229, 0.12);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.07);
+    }
+
+    .journey-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.62), transparent 34%, rgba(255, 255, 255, 0.38)),
+        repeating-linear-gradient(135deg, rgba(79, 70, 229, 0.045) 0 1px, transparent 1px 18px);
+      pointer-events: none;
+    }
+
+    .journey-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .journey-inner {
+      position: relative;
+      z-index: 1;
+      padding: 1.5rem;
+    }
+
+    .journey-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       gap: 1rem;
-      padding: 1rem 0;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    }
+
+    .journey-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      min-width: 0;
+    }
+
+    .journey-title-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 0 14px 30px rgba(79, 70, 229, 0.24);
+      flex-shrink: 0;
+      font-size: 1.35rem;
+    }
+
+    .journey-title {
+      font-size: 1.2rem;
+      line-height: 1.25;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .journey-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.84rem;
+      font-weight: 650;
+      margin-top: 0.25rem;
+    }
+
+    .journey-status-pill {
+      position: static;
+      transform: none;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      border-radius: var(--radius-full);
+      padding: 0.45rem 0.95rem;
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--primary-dark);
+      border: 1px solid rgba(79, 70, 229, 0.1);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+      white-space: normal;
+      max-width: 360px;
+      text-align: left;
+    }
+
+    .journey-status-pill .anim-dot {
+      flex: 0 0 auto;
+      margin-right: 0;
+    }
+
+    .journey-status-text {
+      font-size: 0.8rem;
+      font-weight: 850;
+      line-height: 1.25;
+    }
+
+    .journey-strip {
+      margin-bottom: 1.25rem;
+      border: 1px solid rgba(79, 70, 229, 0.1);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 18px 36px rgba(15, 23, 42, 0.06);
+      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 62%, #e0f2fe 100%);
+      border-radius: 22px;
+    }
+
+    .journey-strip .animation-scene {
+      height: 170px;
+    }
+
+    .checkpoints-wrapper {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: stretch;
+      gap: 0.85rem;
+      padding: 0.2rem 0 0;
       position: relative;
     }
     
     .checkpoints-wrapper::before {
       content: '';
       position: absolute;
-      left: 12%;
-      right: 12%;
-      top: 35%;
-      height: 3px;
-      background: rgba(15, 23, 42, 0.06);
+      left: 16%;
+      right: 16%;
+      top: 28px;
+      height: 4px;
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.24), rgba(79, 70, 229, 0.18), rgba(245, 158, 11, 0.24));
+      border-radius: var(--radius-full);
       z-index: 1;
       transform: translateY(-50%);
     }
@@ -834,62 +1122,85 @@
       display: none;
     }
 
+    .checkpoints-wrapper.single-step {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .checkpoint-step {
       display: flex;
       flex-direction: column;
       align-items: center;
       position: relative;
       z-index: 2;
-      flex: 1;
       text-align: center;
+      min-width: 0;
+      padding: 0 0.65rem 0.85rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid rgba(15, 23, 42, 0.055);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.035);
+      transition: var(--transition);
+    }
+
+    .checkpoint-step:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 16px 30px rgba(79, 70, 229, 0.08);
     }
 
     .checkpoint-icon-circle {
-      width: 48px;
-      height: 48px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       background: #f1f5f9;
       color: #94a3b8;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
-      border: 3px solid #fff;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      font-size: 1.32rem;
+      border: 5px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
       transition: all 0.3s ease;
+      margin-top: -0.05rem;
     }
 
     .checkpoint-step.completed .checkpoint-icon-circle {
       background: linear-gradient(135deg, #10b981, #059669);
       color: #fff;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+      box-shadow: 0 10px 24px rgba(16, 185, 129, 0.28);
     }
 
     .checkpoint-step.absent .checkpoint-icon-circle {
       background: linear-gradient(135deg, #ef4444, #dc2626);
       color: #fff;
-      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
+      box-shadow: 0 10px 24px rgba(239, 68, 68, 0.25);
     }
 
     .checkpoint-step.pending .checkpoint-icon-circle {
       background: #fff;
       color: var(--primary);
-      border: 3px solid var(--primary-light);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.06);
+      border-color: rgba(199, 210, 254, 0.95);
+      box-shadow: 0 10px 22px rgba(79, 70, 229, 0.1);
     }
 
     .checkpoint-name {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 800;
       color: var(--primary-dark);
-      margin-top: 0.75rem;
+      margin-top: 0.8rem;
+      line-height: 1.25;
+    }
+
+    .checkpoint-copy {
+      min-width: 0;
     }
 
     .checkpoint-time {
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       color: var(--text-secondary);
       font-weight: 600;
-      margin-top: 0.15rem;
+      margin-top: 0.22rem;
+      min-height: 1.1rem;
     }
 
     .checkpoint-status-badge {
@@ -1061,6 +1372,55 @@
         margin-bottom: 1.25rem;
       }
 
+      .journey-card {
+        padding: 0;
+      }
+
+      .journey-inner {
+        padding: 1rem;
+      }
+
+      .journey-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.85rem;
+        margin-bottom: 1rem;
+      }
+
+      .journey-title-group {
+        align-items: flex-start;
+      }
+
+      .journey-title-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        font-size: 1.15rem;
+      }
+
+      .journey-title {
+        font-size: 1.02rem;
+      }
+
+      .journey-subtitle {
+        font-size: 0.76rem;
+      }
+
+      .journey-status-pill {
+        max-width: none;
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .journey-strip {
+        border-radius: 18px;
+      }
+
+      .journey-strip .animation-scene {
+        height: 145px;
+      }
+
       /* Stats Stack */
       .stats-visualization {
         flex-direction: column;
@@ -1078,38 +1438,52 @@
 
       /* Live Checkpoints - Vertical Stepper */
       .checkpoints-wrapper {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1.5rem;
-        padding-left: 2rem;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding-left: 0;
       }
       .checkpoints-wrapper::before {
-        left: 2.25rem;
-        top: 0.5rem;
-        bottom: 0.5rem;
-        width: 3px;
+        left: 27px;
+        top: 1.25rem;
+        bottom: 1.25rem;
+        width: 4px;
         height: auto;
         transform: none;
+        right: auto;
       }
       .checkpoint-step {
         flex-direction: row;
         align-items: center;
         text-align: left;
-        gap: 1rem;
+        gap: 0.75rem;
         width: 100%;
+        padding: 0.65rem 0.75rem;
       }
       .checkpoint-icon-circle {
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
         font-size: 1rem;
         flex-shrink: 0;
+        border-width: 4px;
+        margin-top: 0;
       }
       .checkpoint-name {
         margin-top: 0;
+        font-size: 0.84rem;
+      }
+      .checkpoint-copy {
+        flex: 1;
+      }
+      .checkpoint-time {
+        font-size: 0.7rem;
+        min-height: auto;
       }
       .checkpoint-status-badge {
         margin-top: 0;
         margin-left: auto;
+        flex-shrink: 0;
+        font-size: 0.62rem;
+        padding: 0.22rem 0.45rem;
       }
 
       /* Exam tabs */
@@ -1171,92 +1545,114 @@
       <!-- Injected via JS -->
     </div>
 
-    <!-- BUS ANIMATION STRIP -->
-    <div class="animation-strip" id="animStrip" style="display:none;">
-      <div class="animation-scene" id="animScene">
-        <div class="anim-sky">
-          <svg class="mountain-range" viewBox="0 0 1000 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,80 L80,45 L160,75 L240,35 L320,65 L400,30 L480,80 L560,40 L640,70 L720,25 L800,60 L880,20 L960,75 L1000,55 L1000,100 L0,100 Z" fill="rgba(79, 70, 229, 0.05)" />
-            <path d="M0,90 L120,65 L280,90 L440,55 L600,80 L760,60 L920,85 L1000,75 L1000,100 L0,100 Z" fill="rgba(124, 58, 237, 0.07)" />
-          </svg>
-          <div class="anim-sun"></div>
-          <div class="anim-cloud cloud-1"></div>
-          <div class="anim-cloud cloud-2" style="animation-delay: -10s;"></div>
-          <div class="anim-cloud cloud-3" style="animation-delay: -20s;"></div>
+    <!-- Today's Journey & Live Checkpoints Card -->
+    <div class="panel-card journey-card" id="checkpointsCard">
+      <div class="journey-inner">
+        <div class="journey-header">
+          <div class="journey-title-group">
+            <span class="journey-title-icon"><i class="bi bi-geo-alt-fill"></i></span>
+            <div>
+              <h3 class="journey-title">Today's Live Attendance & Journey</h3>
+              <div class="journey-subtitle">Real-time route and classroom checkpoint status</div>
+            </div>
+          </div>
+          <div class="anim-label journey-status-pill" id="animLabel">
+            <span class="anim-dot dot-orange" id="animDot"></span>
+            <span class="journey-status-text" id="animStatus">Tracking...</span>
+          </div>
         </div>
-        <div class="scenery-tree tree-1"></div>
-        <div class="scenery-tree tree-2"></div>
-        <div class="scenery-tree tree-3"></div>
-        <div class="anim-road" id="animRoad"></div>
-        <!-- House -->
-        <div class="anim-house">
-          <svg class="house-svg" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="10" y="30" width="60" height="35" fill="var(--white)" stroke="var(--primary)" stroke-width="2" rx="4" />
-            <polygon points="5,32 40,8 75,32" fill="var(--accent)" />
-            <rect x="30" y="45" width="20" height="20" fill="var(--primary)" rx="2" />
-            <rect x="14" y="36" width="12" height="10" fill="#bae6fd" rx="1" />
-            <rect x="54" y="36" width="12" height="10" fill="#bae6fd" rx="1" />
-            <text x="40" y="82" text-anchor="middle" font-size="10" fill="var(--text-secondary)" font-weight="600">Home</text>
-          </svg>
+        
+        <div class="animation-strip journey-strip" id="animStrip">
+          <div class="animation-scene" id="animScene">
+            <div class="anim-sky">
+              <svg class="mountain-range" viewBox="0 0 1000 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,80 L80,45 L160,75 L240,35 L320,65 L400,30 L480,80 L560,40 L640,70 L720,25 L800,60 L880,20 L960,75 L1000,55 L1000,100 L0,100 Z" fill="rgba(79, 70, 229, 0.05)" />
+                <path d="M0,90 L120,65 L280,90 L440,55 L600,80 L760,60 L920,85 L1000,75 L1000,100 L0,100 Z" fill="rgba(124, 58, 237, 0.07)" />
+              </svg>
+              <div class="anim-sun"></div>
+              <div class="anim-cloud cloud-1"></div>
+              <div class="anim-cloud cloud-2" style="animation-delay: -10s;"></div>
+              <div class="anim-cloud cloud-3" style="animation-delay: -20s;"></div>
+              <div class="anim-cloud cloud-4" style="animation-delay: -28s;"></div>
+              <div class="anim-cloud cloud-5" style="animation-delay: -16s;"></div>
+            </div>
+            <div class="scenery-tree tree-1"></div>
+            <div class="scenery-tree tree-2"></div>
+            <div class="scenery-tree tree-3"></div>
+            <div class="anim-road" id="animRoad"></div>
+            <!-- House 1 (Left) -->
+            <div class="anim-house-1">
+              <img src="../assets/home_photo.png" alt="Home" class="house-img" />
+              <span class="location-label">Home</span>
+            </div>
+            <!-- Bus -->
+            <div class="anim-bus" id="animBus" style="display: none;">
+              <svg class="bus-svg" viewBox="0 0 130 60" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="busBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fde68a" />
+                    <stop offset="44%" stop-color="#f59e0b" />
+                    <stop offset="100%" stop-color="#d97706" />
+                  </linearGradient>
+                  <linearGradient id="busWindowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#e0f2fe" />
+                    <stop offset="100%" stop-color="#7dd3fc" />
+                  </linearGradient>
+                </defs>
+                <ellipse cx="56" cy="54" rx="54" ry="5" fill="rgba(15,23,42,0.18)" />
+                <polygon points="101,30 129,21 129,45 101,37" fill="rgba(253,224,71,0.38)" class="headlight-beam" />
+                <path class="bus-body" d="M7 13H89C97 13 104 19 106 27L111 47H4V19C4 15.7 6.7 13 7 13Z" />
+                <path class="bus-top" d="M11 13H86C94 13 100 18 102 24H7V17C7 14.8 8.8 13 11 13Z" />
+                <rect class="bus-stripe" x="7" y="31" width="99" height="5" rx="2.5" />
+                <rect class="bus-window" x="11" y="17" width="17" height="12" rx="2.5" />
+                <rect class="bus-window" x="32" y="17" width="17" height="12" rx="2.5" />
+                <rect class="bus-window" x="53" y="17" width="17" height="12" rx="2.5" />
+                <path class="bus-window" d="M76 17H88C93 17 97 20.5 99 25V29H76V17Z" />
+                <rect x="10" y="38" width="17" height="5" fill="rgba(120,53,15,0.18)" rx="2" />
+                <rect x="36" y="38" width="19" height="5" fill="rgba(120,53,15,0.18)" rx="2" />
+                <rect x="64" y="36" width="17" height="10" fill="rgba(255,247,237,0.45)" rx="2" />
+                <rect x="83" y="35" width="17" height="11" fill="rgba(255,247,237,0.34)" rx="2" />
+                <circle class="bus-light" cx="106" cy="35" r="3" fill="#fef3c7" />
+                <circle cx="6" cy="36" r="2.5" fill="#ef4444" opacity="0.8" />
+                <path d="M6 47H111" stroke="rgba(120,53,15,0.3)" stroke-width="2" stroke-linecap="round" />
+                <!-- Spinning wheels -->
+                <g class="spinning-wheel" style="transform-origin: 20px 48px;">
+                  <circle cx="20" cy="48" r="8" fill="#1e293b" />
+                  <circle cx="20" cy="48" r="5" fill="#475569" />
+                  <line x1="20" y1="40" x2="20" y2="56" stroke="#f8fafc" stroke-width="1.3" />
+                  <line x1="12" y1="48" x2="28" y2="48" stroke="#f8fafc" stroke-width="1.3" />
+                  <circle cx="20" cy="48" r="2.4" fill="#f8fafc" />
+                </g>
+                <g class="spinning-wheel" style="transform-origin: 80px 48px;">
+                  <circle cx="80" cy="48" r="8" fill="#1e293b" />
+                  <circle cx="80" cy="48" r="5" fill="#475569" />
+                  <line x1="80" y1="40" x2="80" y2="56" stroke="#f8fafc" stroke-width="1.3" />
+                  <line x1="72" y1="48" x2="88" y2="48" stroke="#f8fafc" stroke-width="1.3" />
+                  <circle cx="80" cy="48" r="2.4" fill="#f8fafc" />
+                </g>
+                <text x="52" y="43" text-anchor="middle" font-size="8" fill="#7c2d12" font-weight="900" letter-spacing="0.05em">MSS BUS</text>
+              </svg>
+            </div>
+            <!-- Walking Student -->
+            <div class="anim-student" id="animStudent" style="display: none;">
+              <div class="walking-avatar">🚶‍♂️</div>
+            </div>
+            <!-- School -->
+            <div class="anim-school" id="animSchool">
+              <img src="../assets/school_photo.png" alt="School" class="school-img" />
+              <span class="location-label">School</span>
+            </div>
+            <!-- House 2 (Right - Bus Student Only) -->
+            <div class="anim-house-2" id="animHouse2">
+              <img src="../assets/home_photo.png" alt="Home" class="house-img" />
+              <span class="location-label">Home</span>
+            </div>
+          </div>
         </div>
-        <!-- Bus -->
-        <div class="anim-bus" id="animBus">
-          <svg class="bus-svg" viewBox="0 0 130 60" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="100,30 128,22 128,44 100,36" fill="rgba(253,224,71,0.45)" class="headlight-beam" />
-            <rect x="2" y="10" width="100" height="36" fill="var(--accent)" rx="6" />
-            <rect x="2" y="10" width="100" height="12" fill="var(--accent-light)" rx="6" />
-            <rect x="8" y="16" width="18" height="10" fill="#bae6fd" rx="2" opacity=".9" />
-            <rect x="30" y="16" width="18" height="10" fill="#bae6fd" rx="2" opacity=".9" />
-            <rect x="52" y="16" width="18" height="10" fill="#bae6fd" rx="2" opacity=".9" />
-            <rect x="74" y="16" width="18" height="10" fill="#bae6fd" rx="2" opacity=".9" />
-            <rect x="8" y="30" width="14" height="10" fill="#bae6fd" rx="1" opacity=".85" />
-            <rect x="30" y="30" width="14" height="10" fill="#bae6fd" rx="1" opacity=".85" />
-            <rect x="52" y="30" width="14" height="10" fill="#bae6fd" rx="1" opacity=".85" />
-            <rect x="80" y="24" width="18" height="16" fill="var(--accent-light)" rx="3" />
-            <!-- Spinning wheels -->
-            <g class="spinning-wheel" style="transform-origin: 20px 48px;">
-              <circle cx="20" cy="48" r="8" fill="#1e293b" />
-              <line x1="20" y1="40" x2="20" y2="56" stroke="#e2e8f0" stroke-width="1.5" />
-              <line x1="12" y1="48" x2="28" y2="48" stroke="#e2e8f0" stroke-width="1.5" />
-              <circle cx="20" cy="48" r="3" fill="#e2e8f0" />
-            </g>
-            <g class="spinning-wheel" style="transform-origin: 80px 48px;">
-              <circle cx="80" cy="48" r="8" fill="#1e293b" />
-              <line x1="80" y1="40" x2="80" y2="56" stroke="#e2e8f0" stroke-width="1.5" />
-              <line x1="72" y1="48" x2="88" y2="48" stroke="#e2e8f0" stroke-width="1.5" />
-              <circle cx="80" cy="48" r="3" fill="#e2e8f0" />
-            </g>
-            <text x="51" y="44" text-anchor="middle" font-size="8" fill="var(--white)" font-weight="bold" letter-spacing="0.05em">MSS BUS</text>
-          </svg>
+
+        <div class="checkpoints-wrapper" id="checkpointsWrapper">
+          <!-- Injected dynamically via JS -->
         </div>
-        <!-- School -->
-        <div class="anim-school">
-          <svg class="school-svg" viewBox="0 0 90 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="5" y="25" width="80" height="46" fill="var(--white)" stroke="var(--primary)" stroke-width="2" rx="6" />
-            <rect x="25" y="10" width="40" height="15" fill="var(--primary-dark)" rx="3" />
-            <polygon points="20,12 45,0 70,12" fill="var(--accent)" />
-            <rect x="36" y="47" width="18" height="24" fill="var(--primary)" rx="2" />
-            <rect x="10" y="32" width="12" height="10" fill="#bae6fd" rx="1" />
-            <rect x="68" y="32" width="12" height="10" fill="#bae6fd" rx="1" />
-            <rect x="10" y="48" width="12" height="10" fill="#bae6fd" rx="1" />
-            <rect x="68" y="48" width="12" height="10" fill="#bae6fd" rx="1" />
-            <text x="45" y="85" text-anchor="middle" font-size="10" fill="var(--text-secondary)" font-weight="600">School</text>
-          </svg>
-        </div>
-        <!-- Status Label -->
-        <div class="anim-label" id="animLabel">
-          <span class="anim-dot dot-orange" id="animDot"></span>
-          <span id="animStatus">Tracking...</span>
-        </div>
-      </div>
-    </div>
-    <!-- Live Checkpoints Card -->
-    <div class="panel-card" style="margin-bottom: 0.5rem;" id="checkpointsCard">
-      <div class="panel-title">
-        <i class="bi bi-geo-alt-fill icon-accent"></i> Today's Live Checkpoints
-      </div>
-      <div class="checkpoints-wrapper" id="checkpointsWrapper">
-        <!-- Injected dynamically via JS -->
       </div>
     </div>
 
@@ -1265,7 +1661,7 @@
       <div class="panel-card">
         <div class="panel-title flex-between">
           <span><i class="bi bi-calendar3 icon-accent"></i> Academic Attendance</span>
-          <span class="badge badge-accent">2024-25</span>
+          <span class="badge badge-accent" id="academicYearBadge"></span>
         </div>
         <div class="stats-visualization">
           <div class="progress-ring-container">
@@ -1292,10 +1688,6 @@
             <div class="meta-item">
               <span class="meta-dot bg-danger"></span>
               <span>Absent: <strong id="absentDaysLabel">0</strong> Days</span>
-            </div>
-            <div class="meta-item" style="border-top: 1px dashed rgba(15, 23, 42, 0.08); padding-top: 0.4rem; margin-top: 0.2rem;">
-              <span class="meta-dot bg-primary"></span>
-              <span>Total School Days: <strong>220</strong> Days</span>
             </div>
           </div>
         </div>
@@ -1415,6 +1807,13 @@
 
       const cls = classes.find(c => c.id === student.classId)?.name || '';
 
+      // Set Academic Year Badge dynamically
+      const activeYear = currentAcademicYear() || student.academicYear || student.academic_year || 'N/A';
+      const academicYearBadge = document.getElementById('academicYearBadge');
+      if (academicYearBadge) {
+        academicYearBadge.textContent = activeYear;
+      }
+
       // Profile
       const transportPill = student.type === 'bus'
         ? `<span class="profile-badge transport-pill bus-mode"><i class="bi bi-bus-front"></i> School Bus</span>`
@@ -1434,18 +1833,19 @@
       `;
 
       // Attendance
-      const classAtt = DB.get('classAttendance') || {};
-      const presentCount = classAtt[student.id] ? classAtt[student.id].presentCount : 0;
-      const totalSchoolDays = 220;
-      const absentCount = totalSchoolDays - presentCount;
+      const logs = DB.get('attendanceLogs') || [];
+      const studentLogs = logs.filter(l => l.studentId === student.id && l.type === 'class');
+      const presentCount = studentLogs.filter(l => l.present).length;
+      const absentCount = studentLogs.filter(l => !l.present).length;
+      const totalMarkedDays = studentLogs.length;
 
       document.getElementById('classAttCount').textContent = presentCount;
       document.getElementById('presentDaysLabel').textContent = presentCount;
       document.getElementById('absentDaysLabel').textContent = absentCount;
       
-      // Update Attendance progress ring (Target 220 Days)
+      // Update Attendance progress ring (Present / Total Marked Days)
       setTimeout(() => {
-        updateProgressRing('attendanceProgressRing', presentCount, totalSchoolDays);
+        updateProgressRing('attendanceProgressRing', presentCount, totalMarkedDays || 1);
       }, 300);
 
       // Bus
@@ -1473,8 +1873,8 @@
         }, 300);
 
         // Render Year-long Month-by-month Breakdown
-        const activeYear = currentAcademicYear();
-        const startYear = parseInt(activeYear.split('-')[0], 10);
+        const activeYear = currentAcademicYear() || student.academicYear || student.academic_year || '';
+        const startYear = activeYear ? parseInt(activeYear.split('-')[0], 10) : new Date().getFullYear();
         
         const monthOrder = [
           { key: `${startYear}-06`, name: 'Jun' },
@@ -1581,8 +1981,10 @@
             <div class="checkpoint-icon-circle">
               <i class="bi ${icon}"></i>
             </div>
-            <div class="checkpoint-name">School Classroom</div>
-            <div class="checkpoint-time">${timeText}</div>
+            <div class="checkpoint-copy">
+              <div class="checkpoint-name">School Classroom</div>
+              <div class="checkpoint-time">${timeText}</div>
+            </div>
             <span class="checkpoint-status-badge badge-${stepClass}">${statusText}</span>
           </div>
         `;
@@ -1655,8 +2057,10 @@
             <div class="checkpoint-icon-circle">
               <i class="bi ${mbIcon}"></i>
             </div>
-            <div class="checkpoint-name">Morning Bus</div>
-            <div class="checkpoint-time">${mbTime}</div>
+            <div class="checkpoint-copy">
+              <div class="checkpoint-name">Morning Bus</div>
+              <div class="checkpoint-time">${mbTime}</div>
+            </div>
             <span class="checkpoint-status-badge badge-${mbClass}">${mbStatus}</span>
           </div>
           
@@ -1664,8 +2068,10 @@
             <div class="checkpoint-icon-circle">
               <i class="bi ${clsIcon}"></i>
             </div>
-            <div class="checkpoint-name">Classroom</div>
-            <div class="checkpoint-time">${clsTime}</div>
+            <div class="checkpoint-copy">
+              <div class="checkpoint-name">Classroom</div>
+              <div class="checkpoint-time">${clsTime}</div>
+            </div>
             <span class="checkpoint-status-badge badge-${clsClass}">${clsStatus}</span>
           </div>
           
@@ -1673,8 +2079,10 @@
             <div class="checkpoint-icon-circle">
               <i class="bi ${ebIcon}"></i>
             </div>
-            <div class="checkpoint-name">Evening Bus</div>
-            <div class="checkpoint-time">${ebTime}</div>
+            <div class="checkpoint-copy">
+              <div class="checkpoint-name">Evening Bus</div>
+              <div class="checkpoint-time">${ebTime}</div>
+            </div>
             <span class="checkpoint-status-badge badge-${ebClass}">${ebStatus}</span>
           </div>
         `;
@@ -1686,55 +2094,151 @@
       const att = Attendance.getStudentAttendance(student.id, today());
       
       const bus = document.getElementById('animBus');
+      const studentEl = document.getElementById('animStudent');
       const label = document.getElementById('animStatus');
       const dot = document.getElementById('animDot');
+      const road = document.getElementById('animRoad');
       
       let state = 'home';
       
+      // Setup elements based on student type
       if (student.type === 'bus') {
-        if (att.busEvening && att.busEvening.present === true) {
-          state = 'evening-bus';
-        } else if (att.class && att.class.present === true) {
-          state = 'school';
-        } else if (att.busMorning && att.busMorning.present === true) {
-          state = 'morning-bus';
+        if (bus) bus.style.display = 'block';
+        if (studentEl) studentEl.style.display = 'none';
+        
+        // Show Home 2 and move School to Center
+        const house2 = document.getElementById('animHouse2');
+        const school = document.getElementById('animSchool');
+        if (house2) house2.style.display = 'flex';
+        if (school) {
+          school.style.left = '46%';
+        }
+      } else {
+        if (bus) bus.style.display = 'none';
+        if (studentEl) studentEl.style.display = 'block';
+        
+        // Hide Home 2 and move School to Right
+        const house2 = document.getElementById('animHouse2');
+        const school = document.getElementById('animSchool');
+        if (house2) house2.style.display = 'none';
+        if (school) {
+          school.style.left = '88%';
+        }
+      }
+      
+      // Determine state using 3 boolean data keys for bus student, 1 for dayscholar
+      if (student.type === 'bus') {
+        const mb = att.busMorning;
+        const cls = att.class;
+        const eb = att.busEvening;
+        
+        if (eb) {
+          if (eb.present === true) {
+            // Context-aware time check: past 5:00 PM, show arrived home safely
+            const now = new Date();
+            if (now.getHours() >= 17) {
+              state = 'reached-home-evening';
+            } else {
+              state = 'evening-bus';
+            }
+          } else {
+            state = 'missed-evening-bus';
+          }
+        } else if (cls) {
+          if (cls.present === true) {
+            state = 'school';
+          } else {
+            state = 'absent-school';
+          }
+        } else if (mb) {
+          if (mb.present === true) {
+            state = 'morning-bus';
+          } else {
+            state = 'missed-morning-bus';
+          }
         } else {
           state = 'home';
         }
       } else {
-        if (att.class && att.class.present === true) {
-          state = 'school';
+        const cls = att.class;
+        if (cls) {
+          if (cls.present === true) {
+            state = 'school';
+          } else {
+            state = 'absent';
+          }
         } else {
-          state = 'home';
+          state = 'home'; // Pending classroom check-in (heading to school)
         }
       }
       
       setTimeout(() => {
-        const road = document.getElementById('animRoad');
-        if (state === 'school') {
-          bus.style.left = '82%';
-          label.textContent = '🏫 Arrived at School — Attendance Taken!';
-          dot.className = 'anim-dot dot-green';
-          if (road) road.classList.remove('moving');
-          bus.classList.remove('bus-moving');
-        } else if (state === 'morning-bus') {
-          bus.style.left = '50%';
-          label.textContent = '🚌 On Morning Bus — Heading to School';
-          dot.className = 'anim-dot dot-orange';
-          if (road) road.classList.add('moving');
-          bus.classList.add('bus-moving');
-        } else if (state === 'evening-bus') {
-          bus.style.left = '50%';
-          label.textContent = '🚌 On Evening Bus — Heading Home';
-          dot.className = 'anim-dot dot-orange';
-          if (road) road.classList.add('moving');
-          bus.classList.add('bus-moving');
+        // Stop moving state resets
+        if (road) road.classList.remove('moving');
+        if (bus) bus.classList.remove('bus-moving');
+        if (studentEl) studentEl.classList.remove('student-moving');
+        
+        const activeActor = (student.type === 'bus') ? bus : studentEl;
+        if (!activeActor) return;
+        
+        if (student.type === 'bus') {
+          // Bus Student Animations & Labels
+          if (state === 'school') {
+            activeActor.style.left = '46%';
+            label.textContent = '🏫 Present in School Classroom!';
+            dot.className = 'anim-dot dot-green';
+          } else if (state === 'absent-school') {
+            activeActor.style.left = '46%';
+            label.textContent = '❌ Marked Absent in Class';
+            dot.className = 'anim-dot dot-red';
+          } else if (state === 'morning-bus') {
+            activeActor.style.left = '26%';
+            label.textContent = '🚌 On Morning Bus — Heading to School';
+            dot.className = 'anim-dot dot-orange';
+            if (road) road.classList.add('moving');
+            activeActor.classList.add('bus-moving');
+          } else if (state === 'missed-morning-bus') {
+            activeActor.style.left = '6%';
+            label.textContent = '❌ Missed Morning Bus';
+            dot.className = 'anim-dot dot-red';
+          } else if (state === 'evening-bus') {
+            activeActor.style.left = '68%';
+            label.textContent = '🚌 On Evening Bus — Heading Home';
+            dot.className = 'anim-dot dot-orange';
+            if (road) road.classList.add('moving');
+            activeActor.classList.add('bus-moving');
+          } else if (state === 'reached-home-evening') {
+            activeActor.style.left = '88%';
+            label.textContent = '🏠 Arrived Home Safely — Evening Trip Done!';
+            dot.className = 'anim-dot dot-green';
+          } else if (state === 'missed-evening-bus') {
+            activeActor.style.left = '46%';
+            label.textContent = '❌ Missed Evening Bus';
+            dot.className = 'anim-dot dot-red';
+          } else {
+            // Home / Pending
+            activeActor.style.left = '6%';
+            label.textContent = '🏠 At Home — Waiting for Morning Bus';
+            dot.className = 'anim-dot dot-orange';
+          }
         } else {
-          bus.style.left = '8%';
-          label.textContent = student.type === 'bus' ? '🏠 At Home — Waiting to board Morning Bus' : '🏠 At Home';
-          dot.className = 'anim-dot dot-orange';
-          if (road) road.classList.remove('moving');
-          bus.classList.remove('bus-moving');
+          // Day Scholar Student Animations & Labels
+          if (state === 'school') {
+            activeActor.style.left = '86%';
+            label.textContent = '🏫 Arrived at School — Classroom In!';
+            dot.className = 'anim-dot dot-green';
+          } else if (state === 'absent') {
+            activeActor.style.left = '6%';
+            label.textContent = '❌ Marked Absent Today';
+            dot.className = 'anim-dot dot-red';
+          } else {
+            // Home / Pending Classroom checkin
+            activeActor.style.left = '46%';
+            label.textContent = '🚶‍♂️ Heading to School — Class Pending';
+            dot.className = 'anim-dot dot-orange';
+            if (road) road.classList.add('moving');
+            activeActor.classList.add('student-moving');
+          }
         }
       }, 500);
     }

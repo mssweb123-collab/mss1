@@ -247,6 +247,49 @@
     .save-all-btn:active {
       transform: translateY(0);
     }
+
+    @media (max-width: 580px) {
+      .header-bar {
+        padding: 1rem 1.25rem;
+      }
+      .header-bar h1 {
+        font-size: 1.15rem;
+        gap: 0.4rem;
+      }
+      .back-btn span {
+        display: none;
+      }
+      .back-btn {
+        padding: 0.55rem;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container-content {
+        padding: 1.25rem 1rem;
+        gap: 1.25rem;
+      }
+      .control-card {
+        padding: 1.25rem;
+      }
+      .student-mark-card {
+        padding: 1.25rem 1rem;
+      }
+      .subjects-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+      .save-bar {
+        padding: 0.75rem 1rem;
+      }
+      .save-all-btn {
+        padding: 0.75rem;
+        font-size: 0.95rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -261,7 +304,7 @@
   <header class="header-bar">
     <h1><i class="bi bi-journal-check icon-accent"></i> Enter Marks</h1>
     <button class="back-btn" onclick="window.location.href='teacher-dashboard.html'">
-      <i class="bi bi-arrow-left"></i> Dashboard
+      <i class="bi bi-arrow-left"></i> <span>Dashboard</span>
     </button>
   </header>
 
@@ -306,31 +349,49 @@
     let students = [];
     let selectedExam = 'exam1';
 
-    if (session) {
+    function initTeacherSession() {
       const teachers = DB.get('teachers') || [];
       const teacher = teachers.find(t => t.id === session.id);
-      if (teacher) {
-        myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
+      if (!teacher) return false;
+
+      myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
+      if (!myClassId) {
         myClassId = myClassIds[0] || null;
-        mySubjects = (DB.get('subjects') || {})[myClassId] || ['English', 'Maths', 'Science'];
-        
-        if (myClassIds.length > 1) {
-          const classes = DB.get('classes') || [];
-          const selector = document.getElementById('classSelectDropdown');
+      }
+      mySubjects = (DB.get('subjects') || {})[myClassId] || [];
+      
+      if (myClassIds.length > 1) {
+        const classes = DB.get('classes') || [];
+        const selector = document.getElementById('classSelectDropdown');
+        if (selector && selector.children.length <= 1) {
           selector.innerHTML = classes.filter(c => myClassIds.includes(c.id)).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-          document.getElementById('classSelectorCard').style.display = 'block';
+          const card = document.getElementById('classSelectorCard');
+          if (card) card.style.display = 'block';
         }
       }
-      
-      loadMarks();
+      return true;
+    }
+
+    if (session) {
+      const initialized = initTeacherSession();
+      if (initialized) {
+        loadMarks();
+      }
 
       // Listen to database sync
-      window.addEventListener('mss-db-sync', loadMarks);
+      window.addEventListener('mss-db-sync', () => {
+        initTeacherSession();
+        loadMarks();
+      });
     }
 
     function getMyStudents() {
       const allStudents = DB.get('students') || [];
-      return allStudents.filter(s => s.classId === myClassId);
+      const activeYear = currentAcademicYear();
+      return allStudents.filter(s => 
+        s.classId === myClassId && 
+        (!activeYear || (s.academicYear || s.academic_year) === activeYear)
+      );
     }
 
     function switchExam(btn) {
@@ -353,7 +414,10 @@
       }
 
       const searchQuery = document.getElementById('searchBar').value.toLowerCase().trim();
-      const filtered = students.filter(s => s.name.toLowerCase().includes(searchQuery));
+      const filtered = students.filter(s =>
+        s.name.toLowerCase().includes(searchQuery) ||
+        (s.rollNo || '').toLowerCase().includes(searchQuery)
+      );
       const allMarks = DB.get('marks') || {};
 
       if (filtered.length === 0) {
@@ -363,14 +427,34 @@
 
       const maxMarksObj = DB.get('subjectMaxMarks') || {};
 
+      // Compute class-wide totals for ranking
+      const classTotals = students.map(s => {
+        const sm = allMarks[s.id] || {};
+        const classSubjects = (DB.get('subjects') || {})[s.classId] || [];
+        let total = 0;
+        classSubjects.forEach(sub => {
+          const val = sm[sub] && sm[sub][selectedExam];
+          if (typeof val === 'number') total += val;
+        });
+        return { id: s.id, total };
+      }).sort((a, b) => b.total - a.total);
+      const getRank = (studentId) => {
+        const idx = classTotals.findIndex(x => x.id === studentId);
+        return idx >= 0 ? idx + 1 : '-';
+      };
+
       list.innerHTML = filtered.map(s => {
         const smarks = allMarks[s.id] || {};
         const classMaxMarks = maxMarksObj[s.classId] || {};
         
-        const classSubjects = (DB.get('subjects') || {})[s.classId] || ['English', 'Maths', 'Science'];
+        const classSubjects = (DB.get('subjects') || {})[s.classId] || [];
+        let studentTotal = 0;
+        let maxTotal = 0;
         const inputs = classSubjects.map(sub => {
           const val = smarks[sub] && smarks[sub][selectedExam] !== undefined ? smarks[sub][selectedExam] : '';
           const maxMark = classMaxMarks[sub] !== undefined ? classMaxMarks[sub] : 100;
+          if (typeof val === 'number') studentTotal += val;
+          maxTotal += maxMark;
           return `
             <div class="subject-input-box">
               <span class="subject-label">${sub} <span style="font-size:0.75rem; color:var(--text-secondary); text-transform:none;">(Max: ${maxMark})</span></span>
@@ -378,15 +462,29 @@
             </div>
           `;
         }).join('');
+
+        const rank = getRank(s.id);
+        const pct = maxTotal > 0 && studentTotal > 0 ? Math.round((studentTotal / maxTotal) * 100) : null;
+        const rankColor = rank === 1 ? '#f59e0b' : rank === 2 ? '#94a3b8' : rank === 3 ? '#d97706' : 'var(--primary)';
         
         return `
           <div class="student-mark-card">
             <div class="student-header">
               <span class="student-name">${s.name}</span>
-              <span class="student-roll">Roll No: ${s.rollNo}</span>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <span class="student-roll">Roll No: ${s.rollNo}</span>
+                ${rank !== '-' ? `<span style="background:rgba(79,70,229,0.08); color:${rankColor}; padding:0.2rem 0.55rem; border-radius:99px; font-size:0.75rem; font-weight:800;">Rank #${rank}</span>` : ''}
+              </div>
             </div>
             <div class="subjects-grid">
               ${inputs}
+              <div class="subject-input-box" style="border: 1.5px solid rgba(79,70,229,0.2); background: rgba(79,70,229,0.04);">
+                <span class="subject-label" style="color: var(--primary);">Total</span>
+                <div style="font-size:1.1rem; font-weight:800; text-align:center; color:var(--primary-dark); padding: 0.5rem;">
+                  ${studentTotal > 0 ? `${studentTotal}<span style="font-size:0.7rem; color:var(--text-secondary); font-weight:600;"> / ${maxTotal}</span>` : '<span style="color:var(--text-muted)">—</span>'}
+                  ${pct !== null ? `<div style="font-size:0.72rem; color:var(--success); font-weight:700;">${pct}%</div>` : ''}
+                </div>
+              </div>
             </div>
           </div>
         `;
@@ -434,7 +532,7 @@
 
     window.switchClass = function(classId) {
       myClassId = classId;
-      mySubjects = (DB.get('subjects') || {})[myClassId] || ['English', 'Maths', 'Science'];
+      mySubjects = (DB.get('subjects') || {})[myClassId] || [];
       loadMarks();
     };
 

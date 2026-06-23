@@ -355,8 +355,8 @@
         <i class="bi bi-exclamation-circle-fill"></i> Invalid credentials. Access denied.
       </div>
 
-      <button type="submit" class="btn btn-primary w-full btn-submit">
-        <span>Sign In</span>
+      <button type="submit" class="btn btn-primary w-full btn-submit" id="submitBtn" disabled>
+        <span id="submitBtnText">Loading portal...</span>
         <i class="bi bi-arrow-right-short"></i>
       </button>
     </form>
@@ -388,6 +388,27 @@ function togglePw() {
     icon.classList.add('bi-eye');
   }
 }
+
+// Enable form once database sync completes
+window.addEventListener('mss-db-sync', () => {
+  const btn = document.getElementById('submitBtn');
+  const txt = document.getElementById('submitBtnText');
+  if (btn && txt) {
+    btn.disabled = false;
+    txt.textContent = 'Sign In';
+  }
+}, { once: true });
+
+// Fallback: enable immediately if Supabase is unconfigured
+if (typeof isSupabaseConfigured === 'function' && !isSupabaseConfigured()) {
+  const btn = document.getElementById('submitBtn');
+  const txt = document.getElementById('submitBtnText');
+  if (btn && txt) {
+    btn.disabled = false;
+    txt.textContent = 'Sign In';
+  }
+}
+
 document.getElementById('teacherLoginForm').addEventListener('submit', function(e) {
   e.preventDefault();
   if (attempts >= 5) { showToast('Too many attempts', 'error'); return; }

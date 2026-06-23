@@ -58,11 +58,37 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
   <style>
     /* ── Hero ── */
+    /* ── Hero Video Background ── */
+    .hero-video-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .hero-video-bg video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      filter: saturate(1.15) brightness(0.98);
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+      perspective: 1000px;
+      will-change: opacity;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    .hero-video-bg video.vid-active {
+      opacity: 1;
+    }
+
     .hero-home {
-      background: radial-gradient(circle at 80% 20%, rgba(79, 70, 229, 0.15) 0%, transparent 50%),
-                  radial-gradient(circle at 20% 80%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
-                  linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-      min-height: 100vh;
+      min-height: 85vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -71,122 +97,359 @@
       overflow: hidden;
       border-bottom-left-radius: 40px;
       border-bottom-right-radius: 40px;
+      background: #0f172a;
     }
-
+    /* Animated grain texture overlay */
     .hero-home::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: url('assets/mss1.jpg') center/cover no-repeat;
-      opacity: .07;
-      mix-blend-mode: overlay;
-      transform: translateY(calc(var(--scroll-y, 0) * 0.35px));
-      will-change: transform;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0.4;
     }
+
+
+
+    .hero-home::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 180px;
+      background: linear-gradient(180deg, transparent 0%, rgba(248, 250, 252, 0.97) 100%);
+      pointer-events: none;
+      z-index: 3;
+    }
+
+
 
     .hero-content {
       position: relative;
-      z-index: 2;
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 4rem;
-      align-items: center;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 4rem 2rem;
+      width: 100%;
+      padding: 4.5rem 2rem 5rem;
       transform: translateY(calc(var(--scroll-y, 0) * 0.12px));
       will-change: transform;
     }
 
-    .hero-text h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2.4rem, 5vw, 3.6rem);
-      color: #fff;
-      line-height: 1.15;
-      margin-bottom: 1.25rem;
-      font-weight: 900;
-      letter-spacing: -0.02em;
+    .hero-text {
+      max-width: 780px;
+      background: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border: none;
+      padding: 0;
+      padding-left: 50px;
+      box-shadow: none;
+      margin-bottom: 2rem;
     }
 
-    .hero-text h1 span {
+    .hero-text h1 {
+      font-size: clamp(2.8rem, 5.8vw, 5.2rem);
+      line-height: 1.08;
+      margin-bottom: 2.8rem;
+      text-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+    }
+
+    .hero-title-grow {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 0.82em;
+      color: rgba(255, 255, 255, 0.95);
+      display: inline-block;
+      margin-bottom: 0.15rem;
+    }
+
+    .hero-text h1 span.highlight-gold {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffe082 0%, #fbbf24 50%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: #fbbf24;
+      display: inline-block;
+      margin-bottom: 0.1rem;
+    }
+
+    .hero-title-school {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      letter-spacing: -0.01em;
       color: #ffffff;
-      background: none;
-      -webkit-text-fill-color: initial;
+      display: inline-block;
     }
 
     .hero-text p {
-      color: rgba(255, 255, 255, .85);
-      font-size: 1.15rem;
-      margin-bottom: 2.5rem;
-      line-height: 1.75;
+      color: rgba(255, 255, 255, .9);
+      font-size: clamp(1rem, 2vw, 1.24rem);
+      margin-bottom: 1.35rem;
+      line-height: 1.65;
+      max-width: 680px;
     }
 
     .hero-btns {
       display: flex;
-      gap: 1.25rem;
+      align-items: center;
+      gap: 0.9rem;
       flex-wrap: wrap;
     }
 
-    .hero-img-col {
-      position: relative;
-      display: flex;
-      justify-content: center;
+    /* ── Premium Gold CTA Buttons — Glow + Shine ── */
+    @keyframes goldGlowPulse {
+      0%, 100% {
+        box-shadow:
+          0 0 4px 1px rgba(251, 191, 36, 0.2),
+          0 0 8px 3px rgba(245, 158, 11, 0.15),
+          0 5px 12px    rgba(245, 158, 11, 0.2);
+      }
+      50% {
+        box-shadow:
+          0 0 6px 2px  rgba(251, 191, 36, 0.35),
+          0 0 12px 5px rgba(245, 158, 11, 0.25),
+          0 10px 16px   rgba(245, 158, 11, 0.3);
+      }
+    }
+
+    @keyframes goldBgShimmer {
+      0%   { background-position: 0%   50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0%   50%; }
+    }
+
+    @keyframes shineSweep {
+      0%   { transform: translateX(-120%) skewX(-20deg); }
+      100% { transform: translateX(260%)  skewX(-20deg); }
+    }
+
+    .btn-gold-filled {
+      position: relative !important;
+      overflow: hidden !important;
+      background: linear-gradient(
+        120deg,
+        #ffe082 0%,
+        #fbbf24 30%,
+        #f59e0b 60%,
+        #fbbf24 80%,
+        #ffe082 100%
+      ) !important;
+      background-size: 250% 250% !important;
+      animation:
+        goldGlowPulse  2.4s ease-in-out infinite,
+        goldBgShimmer  3.5s ease         infinite !important;
+      color: #080c1e !important;
+      font-weight: 800 !important;
+      border: none !important;
+      transition: transform 0.3s var(--ease-smooth), filter 0.3s !important;
+    }
+
+    /* Sweeping shine streak — runs every 3.5 s */
+    .btn-gold-filled::after {
+      content: '' !important;
+      position: absolute !important;
+      top: -20% !important;
+      left: 0 !important;
+      width: 45% !important;
+      height: 140% !important;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.55) 45%,
+        rgba(255, 255, 255, 0.75) 55%,
+        transparent 100%
+      ) !important;
+      animation: shineSweep 3.5s ease-in-out infinite !important;
+      pointer-events: none !important;
+      border-radius: inherit !important;
+    }
+
+    .btn-gold-filled:hover {
+      transform: translateY(-4px) scale(1.03) !important;
+      filter: brightness(1.08) saturate(1.1) !important;
+    }
+
+    .btn-gold-filled i {
+      color: #080c1e !important;
+      position: relative !important;
+      z-index: 1 !important;
+    }
+
+    /* Ensure text sits above the shine layer */
+    .btn-gold-filled > * {
+      position: relative !important;
+      z-index: 1 !important;
+    }
+    .btn-gold-outline {
+      border: 2px solid #fbbf24 !important;
+      background: rgba(251, 191, 36, 0.08) !important;
+      color: #fbbf24 !important;
+      font-weight: 800 !important;
+      transition: all 0.3s var(--ease-smooth) !important;
+    }
+    .btn-gold-outline:hover {
+      transform: translateY(-3px) !important;
+      background: rgba(251, 191, 36, 0.2) !important;
+      box-shadow: 0 15px 30px rgba(245, 158, 11, 0.15) !important;
+    }
+    .btn-gold-outline i {
+      color: #fbbf24 !important;
+    }
+
+    .btn-student-glass {
+      background: linear-gradient(120deg, rgba(30, 41, 59, 0.4), rgba(45, 60, 85, 0.45), rgba(30, 41, 59, 0.4)) !important;
+      background-size: 200% 200% !important;
+      animation: liquidShimmer 5s ease infinite !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border: 2px solid rgba(251, 191, 36, 0.8) !important;
+      color: #fbbf24 !important;
+      font-weight: 700 !important;
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.1) !important;
+      transition: all 0.3s var(--ease-smooth) !important;
+    }
+    .btn-student-glass:hover {
+      transform: translateY(-2px) !important;
+      background: rgba(251, 191, 36, 0.15) !important;
+      box-shadow: 0 12px 25px rgba(245, 158, 11, 0.25) !important;
+      border-color: #fbbf24 !important;
+    }
+    .btn-student-glass i {
+      color: #fbbf24 !important;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
       align-items: center;
-      perspective: 2000px;
-      transform: translateY(calc(var(--scroll-y, 0) * -0.05px));
-      will-change: transform;
-    }
-
-    .hero-school-img {
-      border-radius: var(--radius-lg);
-      width: 100%;
-      max-width: 440px;
-      box-shadow: 0 30px 60px rgba(79, 70, 229, 0.25);
-      border: 4px solid rgba(255, 255, 255, 0.15);
-      transform: rotateX(5deg) rotateY(-12deg);
-      transform-style: preserve-3d;
-      transition: var(--transition);
-      animation: float-image 6s ease-in-out infinite;
-    }
-    
-    @keyframes float-image {
-      0%, 100% { transform: rotateX(5deg) rotateY(-12deg) translateY(0); }
-      50% { transform: rotateX(4deg) rotateY(-10deg) translateY(-10px); }
-    }
-    
-    .hero-img-col:hover .hero-school-img {
-      transform: rotateX(2deg) rotateY(-8deg) translateY(-4px) scale(1.02);
-      box-shadow: 0 40px 80px rgba(79, 70, 229, 0.35);
-      animation-play-state: paused;
-    }
-
-    .hero-badge {
-      position: absolute;
-      bottom: -12px;
-      right: 12px;
-      background: linear-gradient(135deg, var(--accent-light), var(--accent));
-      color: #fff;
-      padding: .65rem 1.5rem;
+      gap: 0.45rem;
+      color: #fde68a;
+      background: rgba(15, 23, 42, 0.38);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-radius: var(--radius-full);
-      font-size: .88rem;
+      padding: 0.5rem 0.9rem;
+      margin-bottom: 1.15rem;
+      font-size: 0.82rem;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1.55rem;
+    }
+
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: #ffffff;
+      background: linear-gradient(120deg, rgba(30, 41, 59, 0.4), rgba(45, 60, 85, 0.45), rgba(30, 41, 59, 0.4));
+      background-size: 200% 200%;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-full);
+      padding: 0.48rem 0.78rem;
+      font-size: 0.84rem;
+      font-weight: 750;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      animation: chipFloat 5.5s ease-in-out infinite, liquidShimmer 6s ease infinite;
+    }
+
+    .hero-chip:nth-child(2) { animation-delay: 0.3s; }
+    .hero-chip:nth-child(3) { animation-delay: 0.6s; }
+    .hero-chip:nth-child(4) { animation-delay: 0.9s; }
+
+    @keyframes chipFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    @keyframes liquidShimmer {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .hero-chip i {
+      color: #fbbf24;
+    }
+
+    .hero-action-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.86rem;
       font-weight: 700;
-      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
-      letter-spacing: 0.02em;
+    }
+
+    .hero-action-note i {
+      color: #86efac;
+    }
+
+    @keyframes heroTextureDrift {
+      from { transform: translate3d(0, 0, 0); }
+      to { transform: translate3d(18px, -10px, 0); }
+    }
+
+    @keyframes miniPhotoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .hero-btns .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.28) 46%, transparent 72%);
+      transform: translateX(-120%);
+      transition: transform 0.8s var(--ease-smooth);
+    }
+
+    .hero-btns .btn:hover::after {
+      transform: translateX(120%);
+    }
+
+    .hero-btns .btn {
+      min-height: 48px;
     }
 
     /* ── Stats ── */
     .stats-bar {
-      background: var(--glass-bg);
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 28px;
-      box-shadow: 0 20px 50px rgba(79, 70, 229, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
       max-width: 1100px;
       margin: -4rem auto 0;
       padding: 2.2rem;
       position: relative;
       z-index: 10;
+      overflow: hidden;
+    }
+
+    .stats-bar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(79, 70, 229, 0.08), transparent 32%, rgba(245, 158, 11, 0.1));
+      pointer-events: none;
     }
 
     .stats-grid {
@@ -194,11 +457,14 @@
       grid-template-columns: repeat(4, 1fr);
       gap: 1.5rem;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
     .stat-item {
       text-align: center;
       border-right: 1px solid var(--border-color);
+      padding: 0.25rem 1rem;
     }
     
     .stat-item:last-child {
@@ -230,25 +496,75 @@
     }
 
     .feature-card {
-      background: var(--white);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.98));
       border: 1px solid rgba(15, 23, 42, 0.04);
-      border-radius: 28px;
-      padding: 2.5rem 2rem;
+      border-radius: 22px;
+      padding: 2.35rem 1.8rem;
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      text-align: center;
-      box-shadow: 0 4px 25px rgba(15, 23, 42, 0.01);
+      text-align: left;
+      box-shadow: 0 12px 36px rgba(15, 23, 42, 0.035);
       position: relative;
       overflow: hidden;
       z-index: 1;
     }
 
+    .feature-card.reveal.active,
+    .campus-tile.reveal.active,
+    .mgmt-card.reveal.active,
+    .ql-item.reveal.active {
+      animation: premiumRise 0.85s var(--ease-smooth) both;
+    }
+
+    .features-grid .feature-card:nth-child(2),
+    .campus-grid .campus-tile:nth-child(2),
+    .mgmt-grid .mgmt-card:nth-child(2),
+    .quick-links .ql-item:nth-child(2) {
+      animation-delay: 0.08s;
+    }
+
+    .features-grid .feature-card:nth-child(3),
+    .campus-grid .campus-tile:nth-child(3),
+    .mgmt-grid .mgmt-card:nth-child(3),
+    .quick-links .ql-item:nth-child(3) {
+      animation-delay: 0.16s;
+    }
+
+    .features-grid .feature-card:nth-child(4),
+    .campus-grid .campus-tile:nth-child(4),
+    .quick-links .ql-item:nth-child(4) {
+      animation-delay: 0.24s;
+    }
+
+    .features-grid .feature-card:nth-child(5),
+    .campus-grid .campus-tile:nth-child(5),
+    .quick-links .ql-item:nth-child(5) {
+      animation-delay: 0.32s;
+    }
+
+    .features-grid .feature-card:nth-child(6),
+    .quick-links .ql-item:nth-child(6) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes premiumRise {
+      from {
+        opacity: 0;
+        transform: translateY(22px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
     .feature-card::before {
       content: '';
       position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(79, 70, 229, 0.03), rgba(124, 58, 237, 0.03));
-      opacity: 0;
-      transition: opacity 0.4s ease;
+      inset: 0 0 auto;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--warning));
+      opacity: 0.88;
       z-index: -1;
     }
 
@@ -259,20 +575,20 @@
     }
 
     .feature-card:hover::before {
-      opacity: 1;
+      opacity: 0.95;
     }
 
     .feature-icon {
-      font-size: 1.75rem;
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
+      font-size: 1.55rem;
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
       background: linear-gradient(135deg, rgba(79, 70, 229, 0.07) 0%, rgba(124, 58, 237, 0.07) 100%);
       color: var(--primary);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.35rem;
       box-shadow: inset 0 0 10px rgba(79, 70, 229, 0.05);
       transition: all 0.4s var(--ease-bounce);
     }
@@ -295,16 +611,116 @@
     .feature-card p {
       color: var(--text-secondary);
       font-size: .92rem;
-      line-height: 1.6;
+      line-height: 1.7;
+    }
+
+    .feature-card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 1.15rem;
+      color: var(--primary);
+      font-size: 0.84rem;
+      font-weight: 850;
+    }
+
+    /* ── Campus Showcase ── */
+    .campus-showcase {
+      background: linear-gradient(180deg, #f8fafc 0%, #eef6ff 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .campus-showcase::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 8% 16%, rgba(79, 70, 229, 0.08), transparent 28%),
+        radial-gradient(circle at 92% 18%, rgba(245, 158, 11, 0.1), transparent 30%);
+      pointer-events: none;
+    }
+
+    .campus-showcase .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .campus-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.85fr 0.85fr;
+      grid-auto-rows: 230px;
+      gap: 1rem;
+    }
+
+    .campus-tile {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      min-height: 0;
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      background: var(--white);
+    }
+
+    .campus-tile.large {
+      grid-row: span 2;
+    }
+
+    .campus-tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.8s var(--ease-smooth);
+    }
+
+    .campus-tile:hover img {
+      transform: scale(1.07);
+    }
+
+    .campus-caption {
+      position: absolute;
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      color: var(--white);
+      background: rgba(15, 23, 42, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 16px;
+      padding: 0.8rem 0.9rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      font-weight: 850;
+      font-size: 0.9rem;
+    }
+
+    .campus-caption i {
+      color: #fbbf24;
+      font-size: 1.1rem;
     }
 
     /* ── About snippet ── */
     .about-strip {
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      background:
+        linear-gradient(90deg, rgba(15, 23, 42, 0.9), rgba(49, 46, 129, 0.74)),
+        url('A/mss2.jpg') center/cover no-repeat;
       color: #fff;
       padding: 6.5rem 2rem;
       position: relative;
       overflow: hidden;
+    }
+
+    .about-strip::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 24px);
+      opacity: 0.52;
+      pointer-events: none;
     }
 
     .about-inner {
@@ -314,13 +730,42 @@
       grid-template-columns: 1fr 1.1fr;
       gap: 4rem;
       align-items: center;
+      position: relative;
+      z-index: 1;
     }
 
     .about-inner img {
-      border-radius: 28px;
+      border-radius: 22px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, .3);
       width: 100%;
       border: 4px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .about-points {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin: 1.35rem 0 1.6rem;
+    }
+
+    .about-point {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 0.7rem 0.75rem;
+      font-size: 0.88rem;
+      font-weight: 750;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .about-point i {
+      color: #fbbf24;
+      flex-shrink: 0;
     }
 
     .about-text h2 {
@@ -462,59 +907,120 @@
       color: var(--primary-dark);
     }
 
+    @media(max-width:1100px) {
+      .hero-home {
+        min-height: 82vh;
+      }
+
+      .hero-content {
+        padding: 3.5rem 2rem 4rem;
+      }
+
+      .hero-text {
+        max-width: 660px;
+      }
+
+      .hero-text h1 {
+        font-size: clamp(2.45rem, 6vw, 4.2rem);
+      }
+
+    }
+
     @media(max-width:768px) {
       .hero-home {
-        min-height: auto;
-        padding-top: calc(var(--navbar-height) + 1.5rem);
-        padding-bottom: 5.5rem;
+        min-height: 80vh;
+        padding-top: calc(var(--navbar-height) + 2rem);
+        padding-bottom: 3rem;
+        background: #0f172a;
       }
+      .hero-video-bg {
+        display: block !important;
+      }
+      .hero-video-bg video {
+        object-fit: cover;
+        object-position: center;
+      }
+      .hero-text {
+        padding: 0;
+        border-radius: 0;
+        background: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
+        box-shadow: none;
+      }
+
 
       .scroll-indicator {
         display: none !important;
       }
 
       .hero-content {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 1.5rem;
+        text-align: left;
         transform: none !important;
-        padding: 2.5rem 1.25rem;
+        padding: 2rem 1.15rem 3.5rem;
+      }
+
+      .hero-text h1 {
+        font-size: clamp(2.18rem, 9vw, 3.1rem);
+        line-height: 1.08;
+        margin-bottom: 0.9rem;
+      }
+
+      .hero-text p {
+        font-size: 0.94rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      .hero-kicker {
+        font-size: 0.68rem;
+        letter-spacing: 0.06em;
+        padding: 0.42rem 0.7rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .hero-trust-row {
+        gap: 0.5rem;
+        margin-top: 1.6rem;
+        margin-bottom: 1rem;
+      }
+
+      .hero-chip {
+        font-size: 0.7rem;
+        padding: 0.36rem 0.55rem;
       }
 
       .hero-btns {
         display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 0.5rem !important;
+        grid-template-columns: 1fr !important;
+        gap: 0.6rem !important;
         width: 100% !important;
-        max-width: 320px !important;
-        margin: 0 auto !important;
+        max-width: 360px !important;
+        margin: 0 !important;
       }
 
       .hero-btns .btn {
-        padding: 0.7rem 0.5rem !important;
-        font-size: 0.85rem !important;
+        padding: 0.78rem 1rem !important;
+        font-size: 0.88rem !important;
         white-space: nowrap !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
+        border-radius: 18px !important;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16) !important;
       }
 
-      .hero-img-col {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        perspective: 1000px;
-        transform: none !important;
-        margin-top: 1rem;
+      .hero-btns .btn i {
+        font-size: 0.95rem;
+      }
+
+      .hero-action-note {
+        justify-content: flex-start;
+        margin-top: 0.1rem;
+        font-size: 0.78rem;
         width: 100%;
-      }
-
-      .hero-school-img {
-        max-width: 320px;
-        width: 90%;
-        transform: rotateX(3deg) rotateY(-5deg);
-        box-shadow: 0 15px 35px rgba(79, 70, 229, 0.2);
-        border: 3px solid rgba(255, 255, 255, 0.15);
+        padding: 0.35rem 0.15rem;
       }
 
       .stats-bar {
@@ -548,6 +1054,19 @@
         padding: 4.5rem 1rem;
       }
 
+      .about-points {
+        grid-template-columns: 1fr;
+      }
+
+      .campus-grid {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 210px;
+      }
+
+      .campus-tile.large {
+        grid-row: span 1;
+      }
+
       /* Preloader Mobile Adjustments */
       .preloader-card {
         padding: 2.5rem 1.5rem;
@@ -564,13 +1083,63 @@
       }
     }
 
+    @media(max-width:420px) {
+      .hero-home {
+        min-height: 94vh;
+        border-bottom-left-radius: 24px;
+        border-bottom-right-radius: 24px;
+      }
+
+      .hero-content {
+        padding: 1.8rem 1rem 8.2rem;
+      }
+
+      .hero-text h1 {
+        font-size: clamp(2rem, 12vw, 2.75rem);
+      }
+
+      .hero-trust-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 2rem;
+        margin-bottom: 1.2rem;
+      }
+
+      .hero-chip {
+        justify-content: center;
+        width: 100%;
+        border-radius: 14px;
+      }
+
+      .stats-grid {
+        gap: 0.75rem;
+      }
+
+      .stat-num {
+        font-size: 2rem;
+      }
+
+      .stat-label {
+        font-size: 0.74rem;
+      }
+
+      .campus-caption {
+        left: 0.7rem;
+        right: 0.7rem;
+        bottom: 0.7rem;
+        font-size: 0.78rem;
+        padding: 0.62rem 0.7rem;
+      }
+    }
+
     /* ── Floating Glow spheres for Hero Background ── */
     .hero-bg-glows {
       position: absolute;
       inset: 0;
       overflow: hidden;
-      z-index: 1;
+      z-index: 3;
       pointer-events: none;
+      display: block;
     }
     .glow-sphere {
       position: absolute;
@@ -617,6 +1186,30 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       display: inline-block;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-home::before,
+      .hero-chip,
+      .feature-card.reveal.active,
+      .campus-tile.reveal.active,
+      .mgmt-card.reveal.active,
+      .ql-item.reveal.active,
+      .hero-title-anim .anim-line > span,
+      .hero-text-delayed-p,
+      .hero-text-delayed-btns {
+        animation: none !important;
+      }
+
+      .hero-content {
+        transform: none !important;
+      }
+
+      .reveal,
+      .reveal-left,
+      .reveal-right {
+        transition: none !important;
+      }
     }
 
     /* ── Scroll Reveal Anim Styles ── */
@@ -669,6 +1262,7 @@
     
     .hero-title-anim .anim-line > span {
       display: inline-block;
+      max-width: 100%;
       opacity: 0;
       transform: translateY(110%) skewY(5deg);
       filter: blur(5px);
@@ -1046,6 +1640,24 @@
         transform: translateY(0);
       }
     }
+
+
+    /* ── Enhanced Feature Cards ── */
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 22px;
+      background: radial-gradient(circle at 50% 0%, rgba(79,70,229,0.06) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .feature-card:hover::after { opacity: 1; }
+
+    /* ── Scroll Indicator z-index fix ── */
+    .scroll-indicator { z-index: 6 !important; }
   </style>
 </head>
 
@@ -1090,45 +1702,58 @@
       <div class="nav-logo-text">MSS Matriculation School<span>Uppatty, The Nilgiris</span></div>
     </div>
     <ul class="nav-links" id="navLinks">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="pages/about.html">About</a></li>
-      <li><a href="pages/gallery.html">Gallery</a></li>
-      <li><a href="pages/contact.html">Contact</a></li>
-      <li><a href="pages/admission.html">Admission</a></li>
-      <li><a href="pages/student-login.html" class="btn-nav">Student Login</a></li>
+      <li><a href="index.html"><i class="bi bi-house-door-fill"></i><span>Home</span></a></li>
+      <li><a href="pages/about.html"><i class="bi bi-info-circle-fill"></i><span>About</span></a></li>
+      <li><a href="pages/gallery.html"><i class="bi bi-images"></i><span>Gallery</span></a></li>
+      <li><a href="pages/contact.html"><i class="bi bi-telephone-fill"></i><span>Contact</span></a></li>
+      <li><a href="pages/admission.html"><i class="bi bi-file-earmark-medical-fill"></i><span>Admission</span></a></li>
+      <li><a href="pages/student-login.html" class="btn-nav"><i class="bi bi-person-fill-lock"></i><span>Student Login</span></a></li>
     </ul>
-    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">
       <span></span><span></span><span></span>
     </button>
   </nav>
 
   <!-- HERO -->
   <section class="hero-home" id="home">
+    <!-- Video Background (dual-video crossfade for smooth repeat) -->
+    <div class="hero-video-bg">
+      <video muted playsinline preload="auto" aria-hidden="true" id="heroBgVideoA" class="hero-vid-layer">
+        <source src="assets/video/VEDIO%20FOR%20MOBILE.mp4" type="video/mp4" media="(max-width: 768px)" />
+        <source src="assets/video/School_building_animation_morning_mist_202606231232.webm" type="video/webm" />
+        <source src="assets/video/School_building_animation_morning_mist_202606231232.mp4" type="video/mp4" />
+      </video>
+      <video muted playsinline preload="auto" aria-hidden="true" id="heroBgVideoB" class="hero-vid-layer">
+        <source src="assets/video/VEDIO%20FOR%20MOBILE.mp4" type="video/mp4" media="(max-width: 768px)" />
+        <source src="assets/video/School_building_animation_morning_mist_202606231232.webm" type="video/webm" />
+        <source src="assets/video/School_building_animation_morning_mist_202606231232.mp4" type="video/mp4" />
+      </video>
+    </div>
     <div class="hero-bg-glows">
       <div class="glow-sphere sphere-1"></div>
       <div class="glow-sphere sphere-2"></div>
       <div class="glow-sphere sphere-3"></div>
     </div>
     <div class="hero-content page-enter">
+
       <div class="hero-text">
         <h1 class="hero-title-anim" aria-label="Welcome to MSS Matriculation School, Uppatty">
-          <span class="anim-line"><span>Welcome to</span></span>
-          <span class="anim-line"><span>MSS Matriculation School</span></span>
-          <span class="anim-line"><span>Uppatty</span></span>
+          <span class="anim-line"><span class="hero-title-grow">Grow With</span></span>
+          <span class="anim-line"><span class="highlight-gold">MSS Matriculation</span></span>
+          <span class="anim-line"><span class="hero-title-school">School Uppatty</span></span>
         </h1>
-        <p class="hero-text-delayed-p">Established in 1992 at Uppatty, Nilgiris — nurturing young minds with quality education, character formation
-          and holistic development.</p>
+        <div class="hero-trust-row hero-text-delayed-p">
+          <span class="hero-chip"><i class="bi bi-calendar2-check-fill"></i> Since 1992</span>
+          <span class="hero-chip"><i class="bi bi-mortarboard-fill"></i> Classes I-X</span>
+          <span class="hero-chip"><i class="bi bi-bus-front-fill"></i> Safe Transport</span>
+          <span class="hero-chip"><i class="bi bi-pc-display"></i> Smart Learning</span>
+        </div>
         <div class="hero-btns hero-text-delayed-btns">
-          <a href="pages/admission.html" class="btn btn-accent">Apply Now <i class="bi bi-file-earmark-text-fill"></i></a>
-          <a href="pages/about.html" class="btn btn-outline" style="color:#fff;border-color:#fff;">Learn More</a>
+          <a href="pages/admission.html" class="btn btn-gold-filled">Apply Now <i class="bi bi-file-earmark-text-fill"></i></a>
+          <a href="pages/student-login.html" class="btn btn-gold-filled">Student Login <i class="bi bi-arrow-right"></i></a>
         </div>
       </div>
-      <div class="hero-img-col">
-        <img class="hero-school-img" src="A/mss1.jpg" alt="MSS School Building" />
-        <span class="hero-badge"><i class="bi bi-building-fill-check"></i> Est. 1992</span>
-      </div>
     </div>
-    
     <!-- Scroll Down Indicator -->
     <div class="scroll-indicator" style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: calc(1 - var(--scroll-y, 0) / 300); transition: opacity 0.2s; pointer-events: none;">
       <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;">Scroll Down</span>
@@ -1149,8 +1774,11 @@
     </div>
   </div>
 
+
+
   <!-- FEATURES -->
   <section class="section" style="background:#f8f9fa;">
+
     <div class="container">
       <div class="section-header text-center">
         <p style="color:#f4a020;font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-size:.85rem;">Why Choose Us</p>
@@ -1162,32 +1790,72 @@
           <span class="feature-icon"><i class="bi bi-mortarboard-fill"></i></span>
           <h3>Academic Excellence</h3>
           <p>Innovative teaching with regular assessments and parent-teacher meetings to track student growth.</p>
+          <a class="feature-card-link" href="pages/about.html">Explore academics <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="feature-card reveal">
           <span class="feature-icon"><i class="bi bi-building-fill-gear"></i></span>
           <h3>Best Infrastructure</h3>
           <p>Modern classrooms, computer lab, science lab and sports facilities to support all-round development.</p>
+          <a class="feature-card-link" href="pages/gallery.html">View facilities <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="feature-card reveal">
           <span class="feature-icon"><i class="bi bi-person-workspace"></i></span>
           <h3>Personal Attention</h3>
           <p>Experienced and dedicated teachers who give individual attention to every student's learning needs.</p>
+          <a class="feature-card-link" href="pages/contact.html">Talk to school <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="feature-card reveal">
           <span class="feature-icon"><i class="bi bi-shield-fill-check"></i></span>
           <h3>Safe Campus</h3>
           <p>Comprehensive security measures ensuring the safety of every child on campus and in transit.</p>
+          <a class="feature-card-link" href="pages/contact.html">Contact office <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="feature-card reveal">
           <span class="feature-icon"><i class="bi bi-bus-front-fill"></i></span>
           <h3>Bus Tracking</h3>
           <p>Real-time bus attendance system so parents always know when their child boards and arrives at school.</p>
+          <a class="feature-card-link" href="pages/student-login.html">Open portal <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="feature-card reveal">
           <span class="feature-icon"><i class="bi bi-phone-vibrate-fill"></i></span>
           <h3>Parent Portal</h3>
           <p>Online portal for parents to view attendance, marks, and communicate with the school effortlessly.</p>
+          <a class="feature-card-link" href="pages/student-login.html">Student access <i class="bi bi-arrow-right"></i></a>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAMPUS SHOWCASE -->
+  <section class="section campus-showcase">
+    <div class="container">
+      <div class="section-header text-center">
+        <p style="color:#f4a020;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:.85rem;">Campus Life</p>
+        <h2 class="section-title">A Place to Learn, Play and Grow</h2>
+        <div class="accent-line"></div>
+        <p class="section-subtitle">Real spaces from MSS School, designed for everyday learning and student confidence.</p>
+      </div>
+      <div class="campus-grid">
+        <a class="campus-tile large reveal" href="pages/gallery.html">
+          <img src="A/mss1.jpg" alt="MSS school campus building" />
+          <span class="campus-caption">Green Nilgiris Campus <i class="bi bi-arrow-up-right"></i></span>
+        </a>
+        <a class="campus-tile reveal" href="pages/gallery.html">
+          <img src="A/msspclab2.jpg" alt="MSS computer lab" />
+          <span class="campus-caption">Computer Lab <i class="bi bi-pc-display"></i></span>
+        </a>
+        <a class="campus-tile reveal" href="pages/gallery.html">
+          <img src="A/lab.jpg" alt="MSS science lab" />
+          <span class="campus-caption">Science Lab <i class="bi bi-lightbulb-fill"></i></span>
+        </a>
+        <a class="campus-tile reveal" href="pages/gallery.html">
+          <img src="A/mss3bus.jpg" alt="MSS school transport" />
+          <span class="campus-caption">School Transport <i class="bi bi-bus-front-fill"></i></span>
+        </a>
+        <a class="campus-tile reveal" href="pages/gallery.html">
+          <img src="A/mss-matric-school-20-uppaty.jpg" alt="MSS student activity" />
+          <span class="campus-caption">Activities <i class="bi bi-stars"></i></span>
+        </a>
       </div>
     </div>
   </section>
@@ -1202,6 +1870,12 @@
         <div class="accent-line" style="margin:0.75rem 0 1rem;width:60px;height:4px;border-radius:2px;"></div>
         <p>MSS Matriculation School is situated in the serene village of Uppatty, Pandalur, The Nilgiris. Started as an English medium nursery school, it became a full Matriculation school in the year 2000.</p>
         <p>Run by MSS Trust (Minority Service Society) under the auspices of Uppatty Juma Masjid Committee, we provide student-centric education developing total personality of every child.</p>
+        <div class="about-points">
+          <span class="about-point"><i class="bi bi-check-circle-fill"></i> English medium learning</span>
+          <span class="about-point"><i class="bi bi-check-circle-fill"></i> Science & computer labs</span>
+          <span class="about-point"><i class="bi bi-check-circle-fill"></i> Sports and activities</span>
+          <span class="about-point"><i class="bi bi-check-circle-fill"></i> Parent connected portal</span>
+        </div>
         <a href="pages/about.html" class="btn btn-accent">Read More About Us</a>
       </div>
     </div>
@@ -1539,6 +2213,119 @@
       const statsBarEl = document.querySelector('.stats-bar');
       if (statsBarEl) statsObserver.observe(statsBarEl);
     });
+
+
+
+    // Hero bg video — dual-video crossfade for perfectly smooth repeat
+    (function() {
+      const vidA = document.getElementById('heroBgVideoA');
+      const vidB = document.getElementById('heroBgVideoB');
+      if (!vidA || !vidB) return;
+
+      // Respect reduced-motion preference
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) {
+        vidA.style.display = 'none';
+        vidB.style.display = 'none';
+        return;
+      }
+
+      const RATE = 0.55;              // cinematic slow playback
+      const CROSSFADE_LEAD = 1.0;     // seconds before end to begin crossfade
+      const videos = [vidA, vidB];
+      let activeIdx = 0;              // which video is currently showing
+      let crossfading = false;
+
+      // ── Set slow playback rate (iOS resets it, so we re-apply) ──
+      function applyRate(v) {
+        try { v.playbackRate = RATE; } catch(e) {}
+      }
+
+      videos.forEach(function(v) {
+        v.addEventListener('play',       function() { applyRate(v); });
+        v.addEventListener('ratechange', function() { applyRate(v); });
+      });
+
+      // ── Start the first video ──
+      function startFirstVideo() {
+        const v = videos[activeIdx];
+        applyRate(v);
+        v.currentTime = 0;
+        v.play().then(function() {
+          v.classList.add('vid-active');
+        }).catch(function() {
+          // Autoplay blocked — show it anyway
+          v.classList.add('vid-active');
+        });
+      }
+
+      // Wait for the first video to be ready
+      if (vidA.readyState >= 3) {
+        startFirstVideo();
+      } else {
+        vidA.addEventListener('canplaythrough', function handler() {
+          vidA.removeEventListener('canplaythrough', handler);
+          startFirstVideo();
+        });
+      }
+
+      // ── Crossfade: pre-cue the next video and blend ──
+      function doCrossfade() {
+        if (crossfading) return;
+        crossfading = true;
+
+        const current = videos[activeIdx];
+        const nextIdx = (activeIdx + 1) % 2;
+        const next    = videos[nextIdx];
+
+        // Prepare the next video at the start
+        next.currentTime = 0;
+        applyRate(next);
+
+        next.play().then(function() {
+          // Fade in the next, fade out the current
+          next.classList.add('vid-active');
+          current.classList.remove('vid-active');
+
+          activeIdx = nextIdx;
+
+          // After the CSS transition finishes, pause & reset the old video
+          setTimeout(function() {
+            current.pause();
+            current.currentTime = 0;
+            crossfading = false;
+          }, 700); // matches the CSS transition duration (0.6s + buffer)
+        }).catch(function() {
+          // Fallback: just loop the current video natively
+          current.currentTime = 0;
+          current.play().catch(function(){});
+          crossfading = false;
+        });
+      }
+
+      // ── Monitor active video time and trigger crossfade near end ──
+      function checkTime() {
+        const active = videos[activeIdx];
+        if (active.duration && !crossfading) {
+          // Use real time remaining (accounting for playback rate)
+          const remaining = (active.duration - active.currentTime) / (active.playbackRate || RATE);
+          if (remaining <= CROSSFADE_LEAD) {
+            doCrossfade();
+          }
+        }
+        requestAnimationFrame(checkTime);
+      }
+      requestAnimationFrame(checkTime);
+
+      // ── Fallback: if a video somehow reaches 'ended', force crossfade ──
+      videos.forEach(function(v, i) {
+        v.addEventListener('ended', function() {
+          if (i === activeIdx && !crossfading) {
+            doCrossfade();
+          }
+        });
+      });
+    })();
   </script>
 </body>
 </html>

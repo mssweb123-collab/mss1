@@ -171,25 +171,39 @@
     let myClassId = null;
     let myClassIds = [];
 
-    if (session) {
+    function initTeacherSession() {
       const teachers = DB.get('teachers') || [];
       const teacher = teachers.find(t => t.id === session.id);
-      if (teacher) {
-        myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
+      if (!teacher) return false;
+
+      myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
+      if (!myClassId) {
         myClassId = myClassIds[0] || null;
-        
-        if (myClassIds.length > 1) {
-          const classes = DB.get('classes') || [];
-          const selector = document.getElementById('classSelectDropdown');
-          selector.innerHTML = classes.filter(c => myClassIds.includes(c.id)).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-          document.getElementById('classSelectorCard').style.display = 'block';
-        }
       }
       
-      loadSubjectsList();
+      if (myClassIds.length > 1) {
+        const classes = DB.get('classes') || [];
+        const selector = document.getElementById('classSelectDropdown');
+        if (selector && selector.children.length <= 1) {
+          selector.innerHTML = classes.filter(c => myClassIds.includes(c.id)).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+          const card = document.getElementById('classSelectorCard');
+          if (card) card.style.display = 'block';
+        }
+      }
+      return true;
+    }
+
+    if (session) {
+      const initialized = initTeacherSession();
+      if (initialized) {
+        loadSubjectsList();
+      }
 
       // Listen to database sync
-      window.addEventListener('mss-db-sync', loadSubjectsList);
+      window.addEventListener('mss-db-sync', () => {
+        initTeacherSession();
+        loadSubjectsList();
+      });
     }
 
     window.switchClass = function(classId) {
@@ -199,7 +213,7 @@
 
     function loadSubjectsList() {
       const subjectsObj = DB.get('subjects') || {};
-      const classSubjects = subjectsObj[myClassId] || ['English', 'Maths', 'Science'];
+      const classSubjects = subjectsObj[myClassId] || [];
       const maxMarksObj = DB.get('subjectMaxMarks') || {};
       const classMaxMarks = maxMarksObj[myClassId] || {};
       const list = document.getElementById('subjectsList');
@@ -260,7 +274,7 @@
       }
       
       const subjectsObj = DB.get('subjects') || {};
-      const classSubjects = subjectsObj[myClassId] || ['English', 'Maths', 'Science'];
+      const classSubjects = subjectsObj[myClassId] || [];
       
       if (classSubjects.some(s => s.toLowerCase() === name.toLowerCase())) {
         showToast('Subject already exists', 'error');
@@ -291,7 +305,7 @@
       if (!confirmed) return;
       
       const subjectsObj = DB.get('subjects') || {};
-      let classSubjects = subjectsObj[myClassId] || ['English', 'Maths', 'Science'];
+      let classSubjects = subjectsObj[myClassId] || [];
       
       classSubjects = classSubjects.filter(s => s !== subName);
       subjectsObj[myClassId] = classSubjects;

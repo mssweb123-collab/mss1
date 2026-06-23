@@ -589,26 +589,37 @@
     let myClassId = null;
     let cachedStudents = [];
 
-    if (session) {
+    function initTeacherProfile() {
       const teachers = DB.get('teachers') || [];
       const teacher = teachers.find(t => t.id === session.id);
-      if (teacher) {
-        document.getElementById('teacherNameHeader').textContent = teacher.name;
-        window.myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
-        myClassId = window.myClassIds[0] || null;
-        const classes = DB.get('classes') || [];
-        const assignedClasses = classes.filter(c => window.myClassIds.includes(c.id));
+      if (!teacher) return false;
+
+      document.getElementById('teacherNameHeader').textContent = teacher.name;
+      window.myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
+      myClassId = window.myClassIds[0] || null;
+      
+      const classes = DB.get('classes') || [];
+      const assignedClasses = classes.filter(c => window.myClassIds.includes(c.id));
+      const classDisplay = document.getElementById('classNameDisplay');
+      if (classDisplay) {
         if (assignedClasses.length > 0) {
-          document.getElementById('classNameDisplay').textContent = `Classes: ${assignedClasses.map(c => c.name).join(', ')}`;
+          classDisplay.textContent = `Classes: ${assignedClasses.map(c => c.name).join(', ')}`;
         } else {
-          document.getElementById('classNameDisplay').textContent = `Class: Not Assigned`;
+          classDisplay.textContent = `Class: Not Assigned`;
         }
       }
-      
-      loadDashboardData();
+      return true;
+    }
+
+    if (session) {
+      const initialized = initTeacherProfile();
+      if (initialized) {
+        loadDashboardData();
+      }
 
       // Listen to database sync
       window.addEventListener('mss-db-sync', () => {
+        initTeacherProfile();
         loadDashboardData();
       });
     }
@@ -617,7 +628,11 @@
 
     function getMyStudents() {
       const allStudents = DB.get('students') || [];
-      return allStudents.filter(s => window.myClassIds.includes(s.classId));
+      const activeYear = currentAcademicYear();
+      return allStudents.filter(s => 
+        window.myClassIds.includes(s.classId) && 
+        (!activeYear || (s.academicYear || s.academic_year) === activeYear)
+      );
     }
 
     function loadDashboardData() {
@@ -657,7 +672,7 @@
       }
 
       const subjectsObj = DB.get('subjects') || {};
-      const classSubjects = subjectsObj[myClassId] || ['English', 'Maths', 'Science'];
+      const classSubjects = subjectsObj[myClassId] || [];
       const allMarks = DB.get('marks') || {};
 
       // Compute ranks map for Qtr, Half, and Annual
@@ -796,7 +811,7 @@
       const className = cls ? cls.name : 'Unknown';
 
       const subjectsObj = DB.get('subjects') || {};
-      const classSubjects = subjectsObj[s.classId] || ['English', 'Maths', 'Science'];
+      const classSubjects = subjectsObj[s.classId] || [];
 
       const allMarks = DB.get('marks') || {};
       const smarks = allMarks[s.id] || {};
@@ -914,7 +929,7 @@
             <div>
               <div class="info-item"><strong>Date of Birth:</strong> ${formatDate(s.dob)}</div>
               <div class="info-item"><strong>Parent Name:</strong> ${s.parentName || 'N/A'}</div>
-              <div class="info-item"><strong>Academic Year:</strong> 2024-2025</div>
+              <div class="info-item"><strong>Academic Year:</strong> ${s.academicYear || s.academic_year || currentAcademicYear() || 'N/A'}</div>
             </div>
           </div>
 

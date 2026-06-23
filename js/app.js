@@ -87,66 +87,136 @@ function sha256(ascii) {
 // ============================================
 // DATA LAYER
 // ============================================
-var DB = window.DB || {
-  get(key) {
-    try {
-      if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
-        const activeYear = localStorage.getItem('mss_activeAcademicYear');
-        if (activeYear) {
-          const val = localStorage.getItem('mss_' + key + '_' + activeYear);
-          if (val !== null) {
-            return JSON.parse(val);
+function getAcademicYearOfDate(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length < 2) return '';
+  const y = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  if (isNaN(y) || isNaN(m)) return '';
+  if (m >= 6) return `${y}-${(y + 1).toString().substr(2)}`;
+  return `${y - 1}-${y.toString().substr(2)}`;
+}
+
+function recalculateAttendanceStats(logs) {
+  if (!Array.isArray(logs)) return { classAttendance: {}, busAttendance: {} };
+  const classAttendance = {};
+  const busAttendance = {};
+  
+  let activeYear = '';
+  if (typeof currentAcademicYear === 'function') {
+    activeYear = currentAcademicYear();
+  } else {
+    activeYear = sessionStorage.getItem('mss_activeAcademicYear') || localStorage.getItem('mss_activeAcademicYear') || '';
+  }
+
+  logs.forEach(log => {
+    const studentId = log.studentId;
+    if (!studentId) return;
+
+    if (log.type === 'class') {
+      if (log.present) {
+        const logYear = getAcademicYearOfDate(log.date);
+        if (logYear === activeYear) {
+          if (!classAttendance[studentId]) {
+            classAttendance[studentId] = { year: activeYear, presentCount: 0 };
           }
+          classAttendance[studentId].presentCount++;
         }
       }
-      return JSON.parse(localStorage.getItem('mss_' + key)) || null;
+    } else if (log.type === 'bus' || log.type.startsWith('bus-')) {
+      if (log.present) {
+        const month = log.date.substring(0, 7); // YYYY-MM
+        if (!busAttendance[studentId]) busAttendance[studentId] = {};
+        if (!busAttendance[studentId][month]) busAttendance[studentId][month] = 0;
+        busAttendance[studentId][month]++;
+      }
     }
-    catch { return null; }
-  },
-  set(key, value) {
+  });
+
+  return { classAttendance, busAttendance };
+}
+
+const _fallback_mem_store = {};
+var DB = window.DB || {
+  get(key) {
     if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
       const activeYear = localStorage.getItem('mss_activeAcademicYear');
       if (activeYear) {
-        localStorage.setItem('mss_' + key + '_' + activeYear, JSON.stringify(value));
-        localStorage.setItem('mss_' + key, JSON.stringify(value));
-        return;
+        const val = _fallback_mem_store[key + '_' + activeYear];
+        if (val !== undefined) return JSON.parse(JSON.stringify(val));
       }
     }
-    localStorage.setItem('mss_' + key, JSON.stringify(value));
+    const val = _fallback_mem_store[key];
+    return val !== undefined ? JSON.parse(JSON.stringify(val)) : null;
+  },
+  set(key, value) {
+    const valCopy = JSON.parse(JSON.stringify(value));
+    if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
+      const activeYear = localStorage.getItem('mss_activeAcademicYear');
+      if (activeYear) {
+        _fallback_mem_store[key + '_' + activeYear] = valCopy;
+        _fallback_mem_store[key] = valCopy;
+        
+        if (key === 'attendanceLogs') {
+          const stats = recalculateAttendanceStats(value);
+          if (stats) {
+            _fallback_mem_store['classAttendance_' + activeYear] = stats.classAttendance;
+            _fallback_mem_store['classAttendance'] = stats.classAttendance;
+            _fallback_mem_store['busAttendance_' + activeYear] = stats.busAttendance;
+            _fallback_mem_store['busAttendance'] = stats.busAttendance;
+          }
+        }
+        
+        return Promise.resolve();
+      }
+    }
+    _fallback_mem_store[key] = valCopy;
+    return Promise.resolve();
   },
   remove(key) {
     if (['students', 'attendanceLogs', 'marks', 'classAttendance', 'busAttendance'].includes(key)) {
       const activeYear = localStorage.getItem('mss_activeAcademicYear');
       if (activeYear) {
-        localStorage.removeItem('mss_' + key + '_' + activeYear);
+        delete _fallback_mem_store[key + '_' + activeYear];
       }
     }
-    localStorage.removeItem('mss_' + key);
+    delete _fallback_mem_store[key];
+    
+    if (key === 'attendanceLogs') {
+      const activeYear = localStorage.getItem('mss_activeAcademicYear');
+      if (activeYear) {
+        delete _fallback_mem_store['classAttendance_' + activeYear];
+        delete _fallback_mem_store['busAttendance_' + activeYear];
+      }
+      delete _fallback_mem_store['classAttendance'];
+      delete _fallback_mem_store['busAttendance'];
+    }
   }
 };
 
 function getAvailableAcademicYears() {
   const years = new Set();
-  const activeYear = localStorage.getItem('mss_activeAcademicYear');
+  
+  // Load years from DB
+  const dbYears = DB.get('academicYears') || [];
+  dbYears.forEach(yr => {
+    if (yr) years.add(yr);
+  });
+
+  // Load from sessionStorage / localStorage preference
+  const activeYear = sessionStorage.getItem('mss_activeAcademicYear') || localStorage.getItem('mss_activeAcademicYear');
   if (activeYear) {
     years.add(activeYear);
   }
   
-  const y = new Date().getFullYear();
-  const m = new Date().getMonth() + 1;
-  const currentDefault = (m >= 6) ? `${y}-${(y + 1).toString().substr(2)}` : `${y - 1}-${y.toString().substr(2)}`;
-  years.add(currentDefault);
-  years.add('2024-25');
+  // Load from student database entries
+  const students = DB.get('students') || [];
+  students.forEach(s => {
+    const yr = s.academicYear || s.academic_year;
+    if (yr) years.add(yr);
+  });
   
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && key.startsWith('mss_students_')) {
-      const year = key.replace('mss_students_', '');
-      if (year && year !== 'null' && year !== 'undefined') {
-        years.add(year);
-      }
-    }
-  }
   return Array.from(years).sort();
 }
 
@@ -157,23 +227,20 @@ function seedData() {
   // Always clean up old cached admin credentials in localStorage
   localStorage.removeItem('mss_admin');
 
-  // Clean up all old mock/demo data from both localStorage and sessionStorage once
-  if (!localStorage.getItem('mss_seeded_v4_clean')) {
-    // Clear sessionStorage
+  // Force-clear all cached data and local storage keys prefix 'mss_' once to give a fresh clean slate
+  if (!localStorage.getItem('mss_clean_slate_v5')) {
     sessionStorage.clear();
     
-    // Clear localStorage keys starting with mss_
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('mss_') && key !== 'mss_seeded_v4_clean') {
+      if (key && key.startsWith('mss_')) {
         keysToRemove.push(key);
       }
     }
     keysToRemove.forEach(key => localStorage.removeItem(key));
     
-    // Mark as cleaned in localStorage so it runs only once per device
-    localStorage.setItem('mss_seeded_v4_clean', 'true');
+    localStorage.setItem('mss_clean_slate_v5', 'true');
   }
 }
 
@@ -244,7 +311,12 @@ const Auth = {
 
   loginStudent(rollNo, dob) {
     const students = DB.get('students') || [];
-    const s = students.find(s => s.rollNo.trim() === rollNo.trim() && s.dob === dob);
+    // Support both camelCase (local/cached) and snake_case (Supabase raw rows)
+    const s = students.find(s => {
+      const roll = (s.rollNo || s.roll_no || '').trim();
+      const birthDate = s.dob || null;
+      return roll === rollNo.trim() && birthDate === dob;
+    });
     if (s) {
       return this.login('student', s.id, s.name);
     }
@@ -300,12 +372,14 @@ function initNavbar() {
     toggle.addEventListener('click', () => {
       links.classList.toggle('open');
       toggle.classList.toggle('active');
+      toggle.setAttribute('aria-expanded', links.classList.contains('open') ? 'true' : 'false');
     });
     // Close on link click
     links.querySelectorAll('a').forEach(a => {
       a.addEventListener('click', () => {
         links.classList.remove('open');
         toggle.classList.remove('active');
+        toggle.setAttribute('aria-expanded', 'false');
       });
     });
   }
@@ -331,16 +405,6 @@ const Attendance = {
       logs.push({ studentId, date, type: 'class', present });
     }
     DB.set('attendanceLogs', logs);
-
-    // Update count
-    if (present) {
-      const att = DB.get('classAttendance') || {};
-      if (!att[studentId]) att[studentId] = { year: '2024-25', presentCount: 0 };
-      // Only count if not already marked present today
-      const prevRecord = logs.find(l => l.studentId === studentId && l.date === date && l.type === 'class');
-      att[studentId].presentCount = (att[studentId].presentCount || 0) + (prevRecord && prevRecord.present ? 0 : 1);
-      DB.set('classAttendance', att);
-    }
   },
 
   markBus(studentId, date, present, shift = 'morning') {
@@ -353,19 +417,6 @@ const Attendance = {
       logs.push({ studentId, date, type: logType, present });
     }
     DB.set('attendanceLogs', logs);
-
-    if (present) {
-      const ba = DB.get('busAttendance') || {};
-      const month = date.substring(0, 7); // YYYY-MM
-      if (!ba[studentId]) ba[studentId] = {};
-      if (!ba[studentId][month]) ba[studentId][month] = 0;
-      // Avoid double counting
-      const alreadyCounted = logs.filter(l => l.studentId === studentId && l.date === date && l.type === logType && l.present);
-      if (alreadyCounted.length <= 1) {
-        ba[studentId][month]++;
-      }
-      DB.set('busAttendance', ba);
-    }
   },
 
   getStudentAttendance(studentId, date) {
@@ -407,14 +458,53 @@ function currentMonth() {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
 }
 function currentAcademicYear() {
-  const customYear = localStorage.getItem('mss_activeAcademicYear');
+  const customYear = sessionStorage.getItem('mss_activeAcademicYear') || localStorage.getItem('mss_activeAcademicYear');
   if (customYear) return customYear;
-  
-  const y = new Date().getFullYear();
-  const m = new Date().getMonth() + 1;
-  if (m >= 6) return `${y}-${(y + 1).toString().substr(2)}`;
-  return `${y - 1}-${y.toString().substr(2)}`;
+  return ''; // Forced setup: return empty so the user must create/select one first.
 }
+
+// Signal that student data is ready after Supabase pull (used by student-login.html)
+window._mssStudentDataReady = false;
+window.addEventListener('mss-db-sync', () => {
+  window._mssStudentDataReady = true;
+});
+// Also mark ready if Supabase is not configured (local-only mode)
+if (typeof isSupabaseConfigured === 'function' && !isSupabaseConfigured()) {
+  window._mssStudentDataReady = true;
+}
+
+// Duplicate submission prevention helper
+function preventDoubleSubmit(e) {
+  if (!e || !e.target) return false;
+  const form = e.target;
+  if (form.dataset.submitting === 'true') {
+    e.preventDefault();
+    e.stopPropagation();
+    return true; // was double submit
+  }
+  form.dataset.submitting = 'true';
+  const submitBtn = form.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    form.dataset.originalBtnText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:0.4rem;"><span class="mss-spinner" style="width:14px;height:14px;border-width:2px;margin:0;"></span> Saving...</span>';
+  }
+  return false; // first submission
+}
+
+function releaseDoubleSubmit(form) {
+  if (!form) return;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  if (submitBtn && form.dataset.originalBtnText !== undefined) {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = form.dataset.originalBtnText;
+  }
+  delete form.dataset.submitting;
+  delete form.dataset.originalBtnText;
+}
+
+window.preventDoubleSubmit = preventDoubleSubmit;
+window.releaseDoubleSubmit = releaseDoubleSubmit;
 
 document.addEventListener('DOMContentLoaded', () => {
   seedData();

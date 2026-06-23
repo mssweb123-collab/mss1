@@ -32,17 +32,28 @@ const SUPABASE_CONFIGURED = isSupabaseConfigured();
 // School data is cached in sessionStorage (cleared when browser closes).
 // localStorage is only used for UI preferences (e.g. active academic year).
 // On every new browser session, fresh data is pulled from Supabase.
+const _mem_store = {};
 const LOCAL = {
   get(key) {
-    try { return JSON.parse(sessionStorage.getItem('mss_' + key)) || null; }
-    catch { return null; }
+    const val = _mem_store[key];
+    return val !== undefined ? JSON.parse(JSON.stringify(val)) : null;
   },
   set(key, value) {
-    try { sessionStorage.setItem('mss_' + key, JSON.stringify(value)); }
-    catch (e) { console.warn('Session cache write failed:', e); }
+    _mem_store[key] = JSON.parse(JSON.stringify(value));
+    if (key === 'attendanceLogs') {
+      const stats = recalculateAttendanceStats(value);
+      if (stats) {
+        _mem_store['classAttendance'] = stats.classAttendance;
+        _mem_store['busAttendance'] = stats.busAttendance;
+      }
+    }
   },
   remove(key) {
-    sessionStorage.removeItem('mss_' + key);
+    delete _mem_store[key];
+    if (key === 'attendanceLogs') {
+      _mem_store['classAttendance'] = {};
+      _mem_store['busAttendance'] = {};
+    }
   }
 };
 
@@ -55,6 +66,52 @@ function getActiveAcademicYear() {
   if (m >= 6) return `${y}-${(y + 1).toString().substr(2)}`;
   return `${y - 1}-${y.toString().substr(2)}`;
 }
+
+function getAcademicYearOfDate(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length < 2) return '';
+  const y = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  if (isNaN(y) || isNaN(m)) return '';
+  if (m >= 6) return `${y}-${(y + 1).toString().substr(2)}`;
+  return `${y - 1}-${y.toString().substr(2)}`;
+}
+
+function recalculateAttendanceStats(logs) {
+  if (!Array.isArray(logs)) return { classAttendance: {}, busAttendance: {} };
+  const classAttendance = {};
+  const busAttendance = {};
+  
+  const activeYear = getActiveAcademicYear();
+
+  logs.forEach(log => {
+    const studentId = log.studentId;
+    if (!studentId) return;
+
+    if (log.type === 'class') {
+      if (log.present) {
+        const logYear = getAcademicYearOfDate(log.date);
+        if (logYear === activeYear) {
+          if (!classAttendance[studentId]) {
+            classAttendance[studentId] = { year: activeYear, presentCount: 0 };
+          }
+          classAttendance[studentId].presentCount++;
+        }
+      }
+    } else if (log.type === 'bus' || log.type.startsWith('bus-')) {
+      if (log.present) {
+        const month = log.date.substring(0, 7); // YYYY-MM
+        if (!busAttendance[studentId]) busAttendance[studentId] = {};
+        if (!busAttendance[studentId][month]) busAttendance[studentId][month] = 0;
+        busAttendance[studentId][month]++;
+      }
+    }
+  });
+
+  return { classAttendance, busAttendance };
+}
+
 
 // Background sync: writes session cache changes to Supabase asynchronously
 // Background sync error helper
@@ -365,6 +422,50 @@ function triggerBackgroundSync(key, value, oldValue) {
     })();
   }
 
+  else if (key === 'subjects' || key === 'subjectMaxMarks') {
+    return (async () => {
+      try {
+        const subjectsObj = LOCAL.get('subjects') || {};
+        const maxMarksObj = LOCAL.get('subjectMaxMarks') || {};
+        
+        const newRows = [];
+        for (const cId in subjectsObj) {
+          const classSubs = subjectsObj[cId] || [];
+          classSubs.forEach(sub => {
+            const maxM = (maxMarksObj[cId] && maxMarksObj[cId][sub] !== undefined) ? maxMarksObj[cId][sub] : 100;
+            newRows.push({ class_id: cId, subject: sub, max_marks: maxM });
+          });
+        }
+        
+        const { data: existingRows, error: fetchErr } = await client.from('class_subjects').select('*');
+        if (fetchErr) {
+          console.warn('class_subjects table not configured on Supabase. Skipping remote push:', fetchErr.message);
+          return;
+        }
+        
+        const toDelete = [];
+        existingRows.forEach(oldRow => {
+          const stillExists = newRows.some(n => n.class_id === oldRow.class_id && n.subject === oldRow.subject);
+          if (!stillExists) toDelete.push(oldRow);
+        });
+        
+        for (const row of toDelete) {
+          await client.from('class_subjects').delete()
+            .eq('class_id', row.class_id)
+            .eq('subject', row.subject);
+        }
+        
+        if (newRows.length > 0) {
+          const { error: upsertErr } = await client.from('class_subjects').upsert(newRows, { onConflict: 'class_id,subject' });
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        handleSyncError('subjects configuration', err);
+        throw err;
+      }
+    })();
+  }
+
   else if (key === 'admissions') {
     return Promise.resolve();
   }
@@ -383,12 +484,18 @@ var DB = {
   set(key, value) {
     const oldValue = LOCAL.get(key);
     LOCAL.set(key, value);
-    return triggerBackgroundSync(key, value, oldValue);
+    triggerBackgroundSync(key, value, oldValue).catch(err => {
+      console.error('Background sync failed:', err);
+    });
+    return Promise.resolve();
   },
   remove(key) {
     const oldValue = LOCAL.get(key);
     LOCAL.remove(key);
-    return triggerBackgroundSync(key, [], oldValue);
+    triggerBackgroundSync(key, [], oldValue).catch(err => {
+      console.error('Background sync failed:', err);
+    });
+    return Promise.resolve();
   },
 
   getLocal: (key) => LOCAL.get(key),
@@ -603,6 +710,13 @@ var DB = {
           academic_year: 'academicYear'
         }));
         LOCAL.set('students', mappedStudents);
+
+        // Dynamically build academicYears list from pulled students
+        const years = new Set(LOCAL.get('academicYears') || []);
+        mappedStudents.forEach(s => {
+          if (s.academicYear) years.add(s.academicYear);
+        });
+        LOCAL.set('academicYears', Array.from(years).sort());
       }
 
       // 3. Teachers
@@ -657,6 +771,31 @@ var DB = {
       // 7. Admissions - Bypassed from Supabase since table is removed / Google Form managed
       LOCAL.set('admissions', LOCAL.get('admissions') || []);
 
+      // 8. Class Subjects & Max Marks
+      try {
+        const { data: subData, error: errSub } = await client.from('class_subjects').select('*');
+        if (errSub) {
+          console.warn('class_subjects table not configured on Supabase, falling back to local defaults:', errSub.message);
+        } else if (subData) {
+          const subjectsObj = {};
+          const maxMarksObj = {};
+          
+          subData.forEach(row => {
+            const cId = row.class_id;
+            if (!subjectsObj[cId]) subjectsObj[cId] = [];
+            subjectsObj[cId].push(row.subject);
+            
+            if (!maxMarksObj[cId]) maxMarksObj[cId] = {};
+            maxMarksObj[cId][row.subject] = row.max_marks;
+          });
+          
+          LOCAL.set('subjects', subjectsObj);
+          LOCAL.set('subjectMaxMarks', maxMarksObj);
+        }
+      } catch (e) {
+        console.warn('Failed to load class_subjects from Supabase:', e);
+      }
+
       window.dispatchEvent(new Event('mss-db-sync'));
     } catch (error) {
       console.error('Supabase pullAllFromSupabase failed:', error);
@@ -672,15 +811,13 @@ window.DB = DB;
 
 // Pull fresh data from Supabase on every new browser session.
 // sessionStorage is empty at session start so this always runs.
-if (!sessionStorage.getItem('mss_session_pulled')) {
-  setTimeout(() => {
-    DB.pullAllFromSupabase()
-      .then(() => { sessionStorage.setItem('mss_session_pulled', '1'); })
-      .catch(err => {
-        console.warn('Initial Supabase pull failed:', err);
-      });
-  }, 200);
-}
+// Unconditionally pull fresh data from Supabase on every page load to guarantee real-time updates and avoid stale cache issues.
+setTimeout(() => {
+  DB.pullAllFromSupabase()
+    .catch(err => {
+      console.warn('Initial Supabase pull failed:', err);
+    });
+}, 200);
 
 // ─── SQL SCHEMA (for reference / migration) ──────────────────────────────
 /*
@@ -730,9 +867,9 @@ CREATE TABLE IF NOT EXISTS buses (
 
 CREATE TABLE IF NOT EXISTS attendance_logs (
   id BIGSERIAL PRIMARY KEY,
-  student_id TEXT REFERENCES students(id),
+  student_id TEXT REFERENCES students(id) ON DELETE CASCADE,
   date DATE NOT NULL,
-  type TEXT NOT NULL,    -- 'class' | 'bus'
+  type TEXT NOT NULL CHECK (type IN ('class', 'bus', 'bus-morning', 'bus-evening')),
   present BOOLEAN DEFAULT false,
   recorded_at TIMESTAMPTZ DEFAULT now(),
   UNIQUE(student_id, date, type)
@@ -825,4 +962,20 @@ CREATE POLICY "Admissions select" ON admission_applications FOR SELECT USING (tr
 CREATE POLICY "Admissions insert" ON admission_applications FOR INSERT WITH CHECK (true);
 CREATE POLICY "Admissions update" ON admission_applications FOR UPDATE USING (true);
 CREATE POLICY "Admissions delete" ON admission_applications FOR DELETE USING (true);
+
+-- 8. Class Subjects Schema & Policies
+-- Run this to create the class_subjects table:
+CREATE TABLE IF NOT EXISTS class_subjects (
+  class_id TEXT REFERENCES classes(id) ON DELETE CASCADE,
+  subject TEXT NOT NULL,
+  max_marks INTEGER DEFAULT 100,
+  PRIMARY KEY (class_id, subject)
+);
+
+ALTER TABLE class_subjects ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Subjects select" ON class_subjects FOR SELECT USING (true);
+CREATE POLICY "Subjects insert" ON class_subjects FOR INSERT WITH CHECK (true);
+CREATE POLICY "Subjects update" ON class_subjects FOR UPDATE USING (true);
+CREATE POLICY "Subjects delete" ON class_subjects FOR DELETE USING (true);
 */

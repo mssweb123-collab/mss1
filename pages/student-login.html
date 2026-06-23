@@ -314,6 +314,7 @@
         gap: 0.4rem;
       }
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -346,17 +347,10 @@
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Date of Birth</label>
-        <div class="dob-select-group">
-          <select id="dobDay" class="form-control" required>
-            <option value="" disabled selected>Day</option>
-          </select>
-          <select id="dobMonth" class="form-control" required>
-            <option value="" disabled selected>Month</option>
-          </select>
-          <select id="dobYear" class="form-control" required>
-            <option value="" disabled selected>Year</option>
-          </select>
+        <label class="form-label" for="dob">Date of Birth</label>
+        <div class="input-with-icon">
+          <input type="text" class="form-control" id="dob" placeholder="DD-MM-YYYY" required autocomplete="off" inputmode="numeric" maxlength="10"/>
+          <i class="bi bi-calendar-event input-icon"></i>
         </div>
       </div>
       
@@ -364,7 +358,12 @@
         <i class="bi bi-exclamation-circle-fill"></i> Invalid Roll Number or Date of Birth
       </div>
 
-      <button type="submit" class="btn btn-primary w-full btn-submit">
+      <div id="dataReadyNotice" style="background: rgba(79,70,229,0.07); border: 1px solid rgba(79,70,229,0.15); border-radius: 10px; padding: 0.65rem 1rem; margin-bottom: 1rem; font-size: 0.85rem; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+        <span style="display: inline-block; width: 14px; height: 14px; border: 2px solid var(--primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;"></span>
+        Syncing student records…
+      </div>
+
+      <button type="submit" id="loginSubmitBtn" class="btn btn-primary w-full btn-submit" disabled style="opacity:0.6; cursor: not-allowed;">
         <span>Login</span>
         <i class="bi bi-arrow-right-short"></i>
       </button>
@@ -382,44 +381,58 @@
 <script src="../js/supabase.js"></script>
 <script src="../js/app.js"></script>
 <script>
-// Populate DOB dropdowns
-const daySel = document.getElementById('dobDay');
-const monthSel = document.getElementById('dobMonth');
-const yearSel = document.getElementById('dobYear');
+// Auto-format DOB input (DD-MM-YYYY)
+const dobInput = document.getElementById('dob');
+dobInput.addEventListener('input', function(e) {
+  let val = e.target.value.replace(/\D/g, ''); // keep digits only
+  if (val.length > 8) {
+    val = val.slice(0, 8);
+  }
+  let formatted = '';
+  if (val.length > 0) {
+    formatted += val.slice(0, 2);
+    if (val.length > 2) {
+      formatted += '-' + val.slice(2, 4);
+      if (val.length > 4) {
+        formatted += '-' + val.slice(4, 8);
+      }
+    }
+  }
+  e.target.value = formatted;
+});
 
-// Populate Days (1-31)
-for (let d = 1; d <= 31; d++) {
-  const opt = document.createElement('option');
-  const val = String(d).padStart(2, '0');
-  opt.value = val;
-  opt.textContent = val;
-  daySel.appendChild(opt);
+// Enable login button once student data is ready
+function enableLoginWhenReady() {
+  const btn = document.getElementById('loginSubmitBtn');
+  const notice = document.getElementById('dataReadyNotice');
+  function activate() {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    if (notice) notice.style.display = 'none';
+  }
+  if (window._mssStudentDataReady) {
+    activate();
+  } else {
+    window.addEventListener('mss-db-sync', activate, { once: true });
+    // Fallback: if no Supabase configured, enable after 500ms
+    setTimeout(() => { if (!window._mssStudentDataReady) { window._mssStudentDataReady = true; activate(); } }, 2000);
+  }
 }
-
-// Populate Months (Jan-Dec)
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-for (let m = 1; m <= 12; m++) {
-  const opt = document.createElement('option');
-  opt.value = String(m).padStart(2, '0');
-  opt.textContent = monthNames[m - 1];
-  monthSel.appendChild(opt);
-}
-
-// Populate Years (2000 to currentYear)
-const currentYr = new Date().getFullYear();
-for (let y = currentYr; y >= 2000; y--) {
-  const opt = document.createElement('option');
-  opt.value = String(y);
-  opt.textContent = String(y);
-  yearSel.appendChild(opt);
-}
+enableLoginWhenReady();
 
 document.getElementById('studentLoginForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const rollNo = document.getElementById('rollNo').value.trim();
-  const day = document.getElementById('dobDay').value;
-  const month = document.getElementById('dobMonth').value;
-  const year = document.getElementById('dobYear').value;
+  const dobRaw = document.getElementById('dob').value;
+  const parts = dobRaw.split('-');
+  if (parts.length !== 3 || parts[2].length !== 4) {
+    showToast('Please enter date of birth in DD-MM-YYYY format.', 'error');
+    return;
+  }
+  const day = parts[0];
+  const month = parts[1];
+  const year = parts[2];
   const dob = `${year}-${month}-${day}`;
   const session = Auth.loginStudent(rollNo, dob);
   if (session) {

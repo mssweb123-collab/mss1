@@ -222,31 +222,49 @@
     let students = [];
     let buses = [];
 
-    if (session) {
+    function initTeacherSession() {
       const teachers = DB.get('teachers') || [];
       const teacher = teachers.find(t => t.id === session.id);
-      if (teacher) {
-        myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
+      if (!teacher) return false;
+
+      myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
+      if (!myClassId) {
         myClassId = myClassIds[0] || null;
-        
-        if (myClassIds.length > 1) {
-          const classes = DB.get('classes') || [];
-          const selector = document.getElementById('classSelectDropdown');
-          selector.innerHTML = classes.filter(c => myClassIds.includes(c.id)).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-          document.getElementById('classSelectorCard').style.display = 'block';
-        }
       }
       buses = DB.get('buses') || [];
       
-      loadTransport();
+      if (myClassIds.length > 1) {
+        const classes = DB.get('classes') || [];
+        const selector = document.getElementById('classSelectDropdown');
+        if (selector && selector.children.length <= 1) {
+          selector.innerHTML = classes.filter(c => myClassIds.includes(c.id)).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+          const card = document.getElementById('classSelectorCard');
+          if (card) card.style.display = 'block';
+        }
+      }
+      return true;
+    }
+
+    if (session) {
+      const initialized = initTeacherSession();
+      if (initialized) {
+        loadTransport();
+      }
 
       // Listen to database sync
-      window.addEventListener('mss-db-sync', loadTransport);
+      window.addEventListener('mss-db-sync', () => {
+        initTeacherSession();
+        loadTransport();
+      });
     }
 
     function getMyStudents() {
       const allStudents = DB.get('students') || [];
-      return allStudents.filter(s => s.classId === myClassId);
+      const activeYear = currentAcademicYear();
+      return allStudents.filter(s => 
+        s.classId === myClassId && 
+        (!activeYear || (s.academicYear || s.academic_year) === activeYear)
+      );
     }
 
     function loadTransport() {

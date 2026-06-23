@@ -530,7 +530,7 @@
           <label class="form-label">PIN</label>
           <input type="password" id="loginBusPin" class="form-control" required placeholder="Default: bus@number">
         </div>
-        <button type="submit" class="btn btn-primary w-full" style="justify-content:center;">Login</button>
+        <button type="submit" class="btn btn-primary w-full" id="busLoginBtn" style="justify-content:center;" disabled>Loading portal...</button>
       </form>
     </div>
   </div>
@@ -691,14 +691,43 @@
       return parts[0].substring(0, 2).toUpperCase();
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // Enable bus portal once database sync completes
+    window.addEventListener('mss-db-sync', () => {
       const buses = DB.get('buses') || [];
       const select = document.getElementById('loginBusNum');
-      select.innerHTML = '<option value="">Select Bus</option>' + buses.map(b => `<option value="${b.number}">${b.number}</option>`).join('');
-
+      if (select) {
+        select.innerHTML = '<option value="">Select Bus</option>' + buses.map(b => `<option value="${b.number}">${b.number}</option>`).join('');
+      }
+      
+      const btn = document.getElementById('busLoginBtn');
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Login';
+      }
+      
       const session = Auth.getSession();
       if (session && session.role === 'bus') {
         initDashboard(session);
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Fallback: enable immediately if Supabase is unconfigured
+      if (typeof isSupabaseConfigured === 'function' && !isSupabaseConfigured()) {
+        const buses = DB.get('buses') || [];
+        const select = document.getElementById('loginBusNum');
+        if (select) {
+          select.innerHTML = '<option value="">Select Bus</option>' + buses.map(b => `<option value="${b.number}">${b.number}</option>`).join('');
+        }
+        const btn = document.getElementById('busLoginBtn');
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Login';
+        }
+        const session = Auth.getSession();
+        if (session && session.role === 'bus') {
+          initDashboard(session);
+        }
       }
     });
 
