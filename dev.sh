@@ -11,7 +11,8 @@ echo "window.MSS_CONFIG = {
   SUPABASE_URL: \"$SUPABASE_URL\",
   SUPABASE_ANON_KEY: \"$SUPABASE_ANON_KEY\",
   ADMIN_USERNAME: \"${ADMIN_USERNAME:-admin}\",
-  ADMIN_PASSWORD: \"${ADMIN_PASSWORD:-}\"
+  ADMIN_PASSWORD: \"${ADMIN_PASSWORD:-}\",
+  GEMINI_API_KEY: \"$GEMINI_API_KEY\"
 };" > js/config.js
 
 echo "✔ Generated js/config.js from local .env successfully."
