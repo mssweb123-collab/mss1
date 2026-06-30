@@ -63,15 +63,11 @@
 | Name | Type | Constraints |
 |------|------|-------------|
 | `id` | `int8` | Primary |
-| `student_id` | `text` | Nullable, Foreign Key (references students.id ON DELETE CASCADE) |
+| `student_id` | `text` |  Nullable |
 | `date` | `date` |  |
-| `type` | `text` | CHECK (type IN ('class', 'bus', 'bus-morning', 'bus-evening')) |
-| `present` | `bool` | Nullable |
-| `recorded_at` | `timestamptz` | Nullable |
-
-### Constraints
-- `UNIQUE(student_id, date, type)`: Ensure a single log entry per student/date/type.
-- `CHECK(type IN ('class', 'bus', 'bus-morning', 'bus-evening'))`: Ensure log type conforms to class or bus shifts.
+| `type` | `text` |  |
+| `present` | `bool` |  Nullable |
+| `recorded_at` | `timestamptz` |  Nullable |
 
 ## Table `marks`
 
@@ -92,8 +88,85 @@
 
 | Name | Type | Constraints |
 |------|------|-------------|
-| `class_id` | `text` | Foreign key (references classes.id) |
-| `subject` | `text` |  |
-| `max_marks` | `int4` | Default 100 |
+| `class_id` | `text` | Primary |
+| `subject` | `text` | Primary |
+| `max_marks` | `int4` |  Nullable |
 
+## Table `accountants`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `text` | Primary |
+| `name` | `text` |  |
+| `username` | `text` |  Unique |
+| `password` | `text` |  |
+| `phone` | `text` |  Nullable |
+| `email` | `text` |  Nullable |
+| `created_at` | `timestamptz` |  Nullable |
+
+## Table `fee_structures`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `text` | Primary |
+| `class_id` | `text` |  Nullable |
+| `academic_year` | `text` |  |
+| `amount` | `int4` |  |
+| `created_at` | `timestamptz` |  Nullable |
+
+## Table `student_fees`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `text` | Primary |
+| `student_id` | `text` |  Nullable |
+| `academic_year` | `text` |  |
+| `yearly_fee` | `int4` |  |
+| `bus_fee` | `int4` |  |
+| `book_fee` | `int4` |  |
+| `uniform_fee` | `int4` |  |
+| `other_fee` | `int4` |  |
+| `previous_balance` | `int4` |  |
+| `discount` | `int4` |  |
+| `total_due` | `int4` |  |
+| `total_paid` | `int4` |  |
+| `status` | `text` |  |
+| `custom_fees` | `jsonb` | Nullable |
+| `created_at` | `timestamptz` |  Nullable |
+
+## Table `fee_payments`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `text` | Primary |
+| `student_id` | `text` |  Nullable |
+| `academic_year` | `text` |  |
+| `amount_paid` | `int4` |  |
+| `payment_date` | `date` |  |
+| `payment_mode` | `text` |  |
+| `receipt_no` | `text` |  Unique |
+| `notes` | `text` |  Nullable |
+| `collected_by` | `text` |  Nullable |
+| `created_at` | `timestamptz` |  Nullable |
+
+## Table `fee_logs`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `id` | `text` | Primary |
+| `action` | `text` |  |
+| `details` | `text` |  Nullable |
+| `user_id` | `text` |  Nullable |
+| `user_name` | `text` |  Nullable |
+| `created_at` | `timestamptz` |  Nullable |
 

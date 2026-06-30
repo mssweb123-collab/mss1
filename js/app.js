@@ -327,9 +327,44 @@ const Auth = {
     const buses = DB.get('buses') || [];
     const b = buses.find(b => b.number === busNumber);
     if (b) {
-      const expectedPassword = 'bus@' + b.number.replace(/\s+/g, '');
-      if (password === expectedPassword) {
+      const inputHash = sha256(password);
+      const defaultPin = 'bus@' + b.number.replace(/\s+/g, '');
+      if (b.pin === inputHash) {
         return this.login('bus', b.id, 'Bus: ' + b.number);
+      }
+      if (b.pin === password) {
+        b.pin = inputHash;
+        DB.set('buses', buses);
+        return this.login('bus', b.id, 'Bus: ' + b.number);
+      }
+      if (!b.pin) {
+        if (password === defaultPin) {
+          b.pin = sha256(defaultPin);
+          DB.set('buses', buses);
+          return this.login('bus', b.id, 'Bus: ' + b.number);
+        }
+        if (inputHash === sha256(defaultPin)) {
+          b.pin = inputHash;
+          DB.set('buses', buses);
+          return this.login('bus', b.id, 'Bus: ' + b.number);
+        }
+      }
+    }
+    return null;
+  },
+
+  loginAccountant(username, password) {
+    const accountants = DB.get('accountants') || [];
+    const a = accountants.find(acc => acc.username.toLowerCase() === username.trim().toLowerCase());
+    if (a) {
+      const inputHash = sha256(password);
+      if (a.password === inputHash) {
+        return this.login('accountant', a.id, a.name);
+      }
+      if (a.password === password) {
+        a.password = inputHash;
+        DB.set('accountants', accountants);
+        return this.login('accountant', a.id, a.name);
       }
     }
     return null;
@@ -505,6 +540,31 @@ function releaseDoubleSubmit(form) {
 
 window.preventDoubleSubmit = preventDoubleSubmit;
 window.releaseDoubleSubmit = releaseDoubleSubmit;
+
+function suggestNextRollNo(classId) {
+  if (!classId) return '';
+  const classes = DB.get('classes') || [];
+  const cls = classes.find(c => c.id === classId);
+  if (!cls) return '';
+  
+  const match = cls.name.match(/\d+/);
+  if (!match) return '';
+  const classNum = parseInt(match[0]);
+  
+  const students = DB.get('students') || [];
+  const classStudents = students.filter(s => s.classId === classId);
+  
+  const rolls = classStudents
+    .map(s => parseInt(s.rollNo || s.roll_no))
+    .filter(r => !isNaN(r) && r >= classNum * 100 && r < (classNum + 1) * 100);
+    
+  if (rolls.length > 0) {
+    return Math.max(...rolls) + 1;
+  } else {
+    return classNum * 100 + 1;
+  }
+}
+window.suggestNextRollNo = suggestNextRollNo;
 
 document.addEventListener('DOMContentLoaded', () => {
   seedData();

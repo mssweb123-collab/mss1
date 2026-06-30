@@ -1022,6 +1022,46 @@
       text-align: right;
       font-weight: 500;
     }
+    
+    /* Birthday Widget Styles */
+    .birthday-widget .widget-icon {
+      background: rgba(236, 72, 153, 0.08);
+      color: #ec4899;
+    }
+    .birthday-widget:hover .widget-icon {
+      background: #ec4899;
+      color: var(--white);
+      transform: rotate(15deg) scale(1.1);
+    }
+    .birthday-pulse {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 10px;
+      height: 10px;
+      background-color: #ec4899;
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7);
+      animation: birthday-pulse-animation 1.5s infinite;
+    }
+    @keyframes birthday-pulse-animation {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(236, 72, 153, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(236, 72, 153, 0);
+      }
+    }
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
   </style>
 </head>
 <body>
@@ -1136,12 +1176,26 @@
           <span class="widget-sub" id="widgetSubClasses" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">All managed ✓</span>
         </div>
       </div>
+
+      <!-- Today's Birthdays -->
+      <div class="widget-card birthday-widget" id="birthdayWidget" style="cursor: pointer; position: relative;" onclick="showBirthdayModal()">
+        <div class="widget-icon">
+          <i class="bi bi-cake2-fill"></i>
+        </div>
+        <div class="widget-info" style="flex: 1;">
+          <span class="widget-label">Today's Birthdays</span>
+          <h3 class="widget-value" id="widgetBirthdaysCount">0</h3>
+          <span class="widget-sub" id="widgetSubBirthdays" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">No birthdays today</span>
+        </div>
+      </div>
     </div>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('classesWise', this)">Classes</button>
       <button class="tab-btn" onclick="switchTab('students', this)">Students</button>
       <button class="tab-btn" onclick="switchTab('teachers', this)">Teachers</button>
+      <button class="tab-btn" onclick="switchTab('accountantsTab', this)">Accountants</button>
+      <button class="tab-btn" onclick="switchTab('feesDashboardTab', this)"><i class="bi bi-currency-rupee"></i> Fees Dashboard</button>
       <button class="tab-btn" onclick="switchTab('buses', this)">Buses</button>
       <button class="tab-btn" onclick="switchTab('systemSettings', this)"><i class="bi bi-gear-fill"></i> Settings & Promotion</button>
       <button class="tab-btn ai-tab-btn" onclick="switchTab('aiAssistant', this)" id="aiTabBtn"><i class="bi bi-stars"></i> AI Assistant</button>
@@ -1293,9 +1347,32 @@
       <div class="table-wrapper">
         <table>
           <thead>
-            <tr><th>Name</th><th>Username</th><th>Phone</th><th>Class</th><th>Actions</th></tr>
+            <tr><th>Name</th><th>Username</th><th>DOB</th><th>Phone</th><th>Class</th><th>Actions</th></tr>
           </thead>
           <tbody id="teachersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Accountants Tab -->
+    <div id="accountantsTab" class="tab-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.6rem; color: var(--primary-dark); margin: 0;">Manage Accountants</h2>
+          <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.92rem;">Create and manage accountant accounts who handle school fee collection.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddAccountantModal()" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; font-weight: 750; border-radius: var(--radius-full); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);">
+          <i class="bi bi-plus-circle-fill"></i> Add New Accountant
+        </button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Username</th><th>Phone</th><th>Email</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="accountantsTableBody">
+            <tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">No accountants added yet.</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -1316,6 +1393,127 @@
           <tbody id="busesTableBody"></tbody>
         </table>
       </div>
+    </div>
+
+    <!-- Fees Dashboard Tab -->
+    <div id="feesDashboardTab" class="tab-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
+        <div>
+          <h2 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.6rem; color: var(--primary-dark); margin: 0;">Fees Management & Oversight</h2>
+          <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.92rem;">Oversight of school fee collections, pending payments, discount approvals, and configurations.</p>
+        </div>
+      </div>
+
+      <!-- Fees Overview Statistics Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card" style="padding: 1.5rem; border-radius: 18px; border: 1px solid rgba(79, 70, 229, 0.1); background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 1rem;">
+          <div style="background: rgba(79, 70, 229, 0.1); color: var(--primary); width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><i class="bi bi-calculator"></i></div>
+          <div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Total Expected</span>
+            <h3 style="font-size: 1.4rem; font-weight: 850; color: var(--primary-dark); margin: 0;" id="adminExpectedFees">₹0</h3>
+          </div>
+        </div>
+        <div class="card" style="padding: 1.5rem; border-radius: 18px; border: 1px solid rgba(34, 197, 94, 0.1); background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 1rem;">
+          <div style="background: rgba(34, 197, 94, 0.1); color: #22c55e; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><i class="bi bi-cash-stack"></i></div>
+          <div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Total Collected</span>
+            <h3 style="font-size: 1.4rem; font-weight: 850; color: #15803d; margin: 0;" id="adminCollectedFees">₹0</h3>
+          </div>
+        </div>
+        <div class="card" style="padding: 1.5rem; border-radius: 18px; border: 1px solid rgba(239, 68, 68, 0.1); background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 1rem;">
+          <div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><i class="bi bi-exclamation-triangle-fill"></i></div>
+          <div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Total Pending</span>
+            <h3 style="font-size: 1.4rem; font-weight: 850; color: var(--danger); margin: 0;" id="adminPendingFees">₹0</h3>
+          </div>
+        </div>
+        <div class="card" style="padding: 1.5rem; border-radius: 18px; border: 1px solid rgba(245, 158, 11, 0.1); background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 1rem;">
+          <div style="background: rgba(245, 158, 11, 0.1); color: var(--accent); width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><i class="bi bi-percent"></i></div>
+          <div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Collection Rate</span>
+            <h3 style="font-size: 1.4rem; font-weight: 850; color: var(--primary-dark); margin: 0;" id="adminCollectionRate">0%</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab subsections for Fees: Structure Setup, Student Discounts, Class-wise collections, Logs -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; margin-bottom: 2rem;">
+        
+        <!-- Column 1: Fee Structure Setup -->
+        <div class="card" style="padding: 2rem; border-radius: 24px; background: #fff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-sliders" style="color: var(--primary);"></i> Class Fee Structures
+          </h3>
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label" style="font-weight: 750; color: var(--primary-dark); font-size: 0.85rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.3rem;">
+              <i class="bi bi-calendar3" style="color: var(--primary);"></i> Target Academic Year
+            </label>
+            <select id="adminFeeStructureYearSelect" class="form-control" style="font-weight: 700; color: var(--primary-dark); border-radius: 12px; padding: 0.65rem;" onchange="renderAdminFees()"></select>
+          </div>
+          <div id="adminFeeStructureSetup" style="display: flex; flex-direction: column; gap: 1rem; max-height: 400px; overflow-y: auto; padding-right: 0.5rem;">
+            <!-- Render Class divisions with inputs to set base fees -->
+          </div>
+          <button class="btn btn-primary w-full" onclick="saveAdminFeeStructures()" style="margin-top: 1.5rem;">Save Fee Structures & Auto-apply</button>
+        </div>
+
+        <!-- Column 2: Accountant activity logs -->
+        <div class="card" style="padding: 2rem; border-radius: 24px; background: #fff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-clock-history" style="color: var(--accent);"></i> Accountant Activity Logs
+          </h3>
+          <div style="max-height: 400px; overflow-y: auto; font-size: 0.88rem;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid rgba(0,0,0,0.05); text-align: left;"><th style="padding: 0.5rem 0.25rem;">Time</th><th style="padding: 0.5rem 0.25rem;">Accountant</th><th style="padding: 0.5rem 0.25rem;">Action</th></tr>
+              </thead>
+              <tbody id="adminFeeLogsTableBody">
+                <!-- Log rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Class-wise outstanding section -->
+      <div class="card" style="padding: 2rem; border-radius: 24px; background: #fff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin-bottom: 2rem;">
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 1.5rem;">
+          <i class="bi bi-pie-chart-fill" style="color: #22c55e;"></i> Class-Wise Outstanding Fees Summary
+        </h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Class Division</th><th>Total Students</th><th>Expected Fee</th><th>Collected Fee</th><th>Pending Fee</th><th>Pending Students</th></tr>
+            </thead>
+            <tbody id="adminClassWiseFeesTableBody">
+              <!-- Class wise table rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Student Discount / Scholarship Concessions Panel -->
+      <div class="card" style="padding: 2rem; border-radius: 24px; background: #fff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); margin: 0;">
+            <i class="bi bi-tag-fill" style="color: var(--accent);"></i> Student Fee Concessions & Scholarship Approvals
+          </h3>
+          <div style="display: flex; gap: 0.5rem; width: 300px;">
+            <input type="text" id="adminConcessionSearch" oninput="searchAdminConcessions(this.value)" placeholder="Search by name/roll..." class="form-control" style="height: 38px; font-size: 0.9rem;">
+          </div>
+        </div>
+        <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+          <table>
+            <thead>
+              <tr><th>Roll No</th><th>Student Name</th><th>Class</th><th>Base Yearly Fee</th><th>Discount/Concession</th><th>Total Due</th><th>Total Paid</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody id="adminConcessionsTableBody">
+              <!-- Concession rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 
     <!-- System Settings & Promotion Tab -->
@@ -1702,6 +1900,10 @@
             <input type="email" id="tEmail" placeholder="teacher@school.edu" class="form-control">
           </div>
           <div class="form-group">
+            <label class="form-label">Date of Birth <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
+            <input type="date" id="tDob" class="form-control">
+          </div>
+          <div class="form-group">
             <label class="form-label">Assign Class</label>
             <div id="tClassesContainer" style="background: rgba(15, 23, 42, 0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 0.85rem; max-height: 150px; overflow-y: auto;"></div>
           </div>
@@ -1763,6 +1965,66 @@
     </div>
   </div>
 
+  <!-- Add Accountant Modal -->
+  <div id="addAccountantModal" class="modal-overlay" onclick="if(event.target === this) closeAddAccountantModal();">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add New Accountant</h3>
+        <button class="modal-close-btn" onclick="closeAddAccountantModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="addAccountantForm">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="accName" class="form-control" placeholder="Accountant's Full Name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="accUsername" class="form-control" placeholder="Choose username" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="accPassword" class="form-control" placeholder="Enter secure password" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
+            <input type="tel" id="accPhone" class="form-control" placeholder="e.g. +91 98765 43210">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
+            <input type="email" id="accEmail" class="form-control" placeholder="accountant@school.com">
+          </div>
+          <button type="submit" class="btn btn-primary w-full" style="margin-top: 1.5rem; font-weight: 700;">Add Accountant</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Concession Modal -->
+  <div id="concessionModal" class="modal-overlay" onclick="if(event.target === this) closeConcessionModal();">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Edit Student Fee Concession</h3>
+        <button class="modal-close-btn" onclick="closeConcessionModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="concessionForm">
+          <input type="hidden" id="concessionStudentFeeId">
+          <div style="margin-bottom: 1.25rem; font-size: 0.95rem; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 0.75rem;">
+            <p style="margin: 0 0 0.25rem 0;">Student: <strong id="concessionStudentName">-</strong></p>
+            <p style="margin: 0 0 0.25rem 0;">Class: <span id="concessionStudentClass">-</span></p>
+            <p style="margin: 0;">Base Fee: <strong>₹<span id="concessionBaseFee">0</span></strong></p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Concession / Discount Amount (₹)</label>
+            <input type="number" id="concessionAmount" class="form-control" min="0" required placeholder="Enter discount amount">
+          </div>
+          <button type="submit" class="btn btn-primary w-full" style="margin-top: 1.5rem; font-weight: 700;">Approve Concession</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- BLOCKING ACADEMIC YEAR OVERLAY -->
   <div id="academicYearSetupOverlay" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(20px); background: rgba(10, 11, 28, 0.85);">
     <div class="card" style="max-width: 420px; width: 90%; padding: 2.5rem; border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.96); box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6); text-align: center;">
@@ -1781,6 +2043,27 @@
           Create & Start Portal 🚀
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- Today's Birthdays Modal -->
+  <div id="birthdayModal" class="modal-overlay" onclick="if(event.target === this) closeBirthdayModal();">
+    <div class="modal-card" style="text-align: center; overflow: hidden; background: linear-gradient(135deg, #ffffff 0%, #fff5f7 100%);">
+      <div class="modal-header" style="border-bottom: none; margin-bottom: 0.5rem; justify-content: center; position: relative;">
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 850; color: #db2777; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <i class="bi bi-gift-fill"></i> Today's Celebrations
+        </h3>
+        <button class="modal-close-btn" onclick="closeBirthdayModal()" style="position: absolute; right: 1rem; top: 1rem;">✕</button>
+      </div>
+      <div class="modal-body" style="padding-top: 0.5rem;">
+        <div style="font-size: 3.5rem; margin-bottom: 1rem; animation: floatIcon 2s ease-in-out infinite;">🎉</div>
+        <div id="birthdayModalList" style="max-height: 300px; overflow-y: auto; margin: 1.5rem 0; text-align: left; padding: 0.5rem;">
+          <!-- Celebration items go here -->
+        </div>
+        <button class="btn btn-primary" onclick="closeBirthdayModal()" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); border: none; font-weight: 700; border-radius: var(--radius-full); padding: 0.65rem 2rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3); margin-top: 0.5rem;">
+          Send Best Wishes! 🎂
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1919,6 +2202,8 @@
       
       if (tabId === 'classesWise') {
         renderClassesWise();
+      } else if (tabId === 'feesDashboardTab') {
+        renderAdminFees();
       } else if (tabId === 'aiAssistant') {
         if (typeof updateAiStatusUi === 'function') updateAiStatusUi();
         if (typeof checkDatabaseState === 'function') checkDatabaseState();
@@ -2297,6 +2582,12 @@
       document.getElementById('classesGridLayout').style.display = 'none';
       document.getElementById('classDetailsPane').style.display = 'block';
       document.getElementById('classDetailsPane').scrollIntoView({ behavior: 'smooth' });
+
+      // Auto-suggest next roll number in quick enroll form
+      const peRollNoEl = document.getElementById('peRollNo');
+      if (peRollNoEl) {
+        peRollNoEl.value = suggestNextRollNo(classId);
+      }
     }
 
     window.assignTeacherToClass = function(teacherId) {
@@ -2445,6 +2736,10 @@
           <input type="email" id="editTEmail" value="${t.email || ''}" placeholder="teacher@school.edu" class="form-control">
         </div>
         <div class="form-group">
+          <label class="form-label">Date of Birth <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
+          <input type="date" id="editTDob" value="${t.dob || ''}" class="form-control">
+        </div>
+        <div class="form-group">
           <label class="form-label">Assigned Class</label>
           <select id="editTClass" class="form-control" required>${classOpts}</select>
         </div>
@@ -2554,6 +2849,93 @@
 
     window.activeClassId = null;
 
+    // ── Birthday Helpers ──────────────────────────────────────────────────────
+    function getBirthdaysToday(students, teachers) {
+      const now = new Date();
+      const todayMonth = now.getMonth() + 1; // 1-12
+      const todayDay  = now.getDate();        // 1-31
+
+      function isBirthday(dob) {
+        if (!dob) return false;
+        const parts = dob.split('-'); // "YYYY-MM-DD"
+        if (parts.length < 3) return false;
+        return parseInt(parts[1], 10) === todayMonth && parseInt(parts[2], 10) === todayDay;
+      }
+
+      const bdayStudents = (students || [])
+        .filter(s => isBirthday(s.dob))
+        .map(s => ({ name: s.name, role: 'student', dob: s.dob, meta: `Roll No: ${s.rollNo || s.roll_no || ''}` }));
+
+      const bdayTeachers = (teachers || [])
+        .filter(t => isBirthday(t.dob))
+        .map(t => ({ name: t.name, role: 'teacher', dob: t.dob, meta: t.phone || '' }));
+
+      return [...bdayTeachers, ...bdayStudents];
+    }
+
+    window.showBirthdayModal = function() {
+      const students = DB.get('students') || [];
+      const teachers = DB.get('teachers') || [];
+      const people = getBirthdaysToday(students, teachers);
+
+      const listEl = document.getElementById('birthdayModalList');
+      if (people.length === 0) {
+        listEl.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+            <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">😊</div>
+            <p style="font-weight: 600; margin: 0;">No birthdays today!</p>
+            <p style="font-size: 0.85rem; margin-top: 0.5rem;">Everyone's special day is just around the corner.</p>
+          </div>
+        `;
+      } else {
+        const teacherPeople = people.filter(p => p.role === 'teacher');
+        const studentPeople = people.filter(p => p.role === 'student');
+
+        let html = '';
+        if (teacherPeople.length > 0) {
+          html += `<div style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #db2777; margin-bottom: 0.5rem; margin-top: 0.5rem;">👩‍🏫 Teachers</div>`;
+          teacherPeople.forEach(p => {
+            html += `
+              <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.85rem; border-radius: 12px; background: rgba(236, 72, 153, 0.06); border: 1px solid rgba(236, 72, 153, 0.15); margin-bottom: 0.6rem;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #ec4899, #db2777); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1rem; flex-shrink: 0;">
+                  ${p.name.charAt(0).toUpperCase()}
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-weight: 750; color: var(--primary-dark); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
+                  <div style="font-size: 0.78rem; color: var(--text-secondary);">${p.meta || 'Teacher'}</div>
+                </div>
+                <div style="font-size: 1.3rem;">🎂</div>
+              </div>
+            `;
+          });
+        }
+        if (studentPeople.length > 0) {
+          html += `<div style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #7c3aed; margin-bottom: 0.5rem; margin-top: ${teacherPeople.length > 0 ? '1rem' : '0.5rem'};">🎓 Students</div>`;
+          studentPeople.forEach(p => {
+            html += `
+              <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.85rem; border-radius: 12px; background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.12); margin-bottom: 0.6rem;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #7c3aed); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1rem; flex-shrink: 0;">
+                  ${p.name.charAt(0).toUpperCase()}
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-weight: 750; color: var(--primary-dark); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
+                  <div style="font-size: 0.78rem; color: var(--text-secondary);">${p.meta}</div>
+                </div>
+                <div style="font-size: 1.3rem;">🎉</div>
+              </div>
+            `;
+          });
+        }
+        listEl.innerHTML = html;
+      }
+
+      document.getElementById('birthdayModal').classList.add('show');
+    };
+
+    window.closeBirthdayModal = function() {
+      document.getElementById('birthdayModal').classList.remove('show');
+    };
+
     function updateSchoolStats() {
       const students = DB.get('students') || [];
       const teachers = DB.get('teachers') || [];
@@ -2602,6 +2984,26 @@
       // Average classes managed per teacher
       const activeManagers = teachers.filter(t => t.classId && (Array.isArray(t.classId) ? t.classId.length > 0 : true)).length;
       document.getElementById('widgetSubTeachers').textContent = `${activeManagers} Managing classes`;
+
+      // ── Birthday Widget ──────────────────────────────────────────────────
+      const bdayPeople = getBirthdaysToday(students, teachers);
+      const bdayCount = bdayPeople.length;
+      document.getElementById('widgetBirthdaysCount').textContent = bdayCount;
+      if (bdayCount === 0) {
+        document.getElementById('widgetSubBirthdays').textContent = 'No birthdays today';
+        // Remove pulse dot if it exists
+        const existingPulse = document.querySelector('#birthdayWidget .birthday-pulse');
+        if (existingPulse) existingPulse.remove();
+      } else {
+        const names = bdayPeople.map(p => p.name.split(' ')[0]).join(', ');
+        document.getElementById('widgetSubBirthdays').textContent = `🎂 ${names}`;
+        // Add pulse dot if not already present
+        if (!document.querySelector('#birthdayWidget .birthday-pulse')) {
+          const pulse = document.createElement('div');
+          pulse.className = 'birthday-pulse';
+          document.getElementById('birthdayWidget').appendChild(pulse);
+        }
+      }
     }
 
     window.openAddStudentModal = function() {
@@ -2653,6 +3055,12 @@
       // Populate selects
       const sClassSelect = document.getElementById('sClass');
       sClassSelect.innerHTML = '<option value="">Select Class</option>' + classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      sClassSelect.onchange = function() {
+        const sRollNoEl = document.getElementById('sRollNo');
+        if (sRollNoEl) {
+          sRollNoEl.value = suggestNextRollNo(this.value);
+        }
+      };
       
       const tClassesContainer = document.getElementById('tClassesContainer');
       if (tClassesContainer) {
@@ -2687,7 +3095,7 @@
         const assignedClassIds = Array.isArray(t.classId) ? t.classId : (t.classId ? [t.classId] : []);
         const cls = classes.filter(c => assignedClassIds.includes(c.id)).map(c => c.name).join(', ') || 'None';
         return `<tr>
-          <td>${t.name}</td><td>${t.username}</td><td>${t.phone || '-'}</td><td>${cls}</td>
+          <td>${t.name}</td><td>${t.username}</td><td>${formatDate(t.dob)}</td><td>${t.phone || '-'}</td><td>${cls}</td>
           <td>
             <div style="display: flex; gap: 0.4rem;">
               <button class="action-btn btn-primary btn-sm" onclick="startEditTeacher('${t.id}')"><i class="bi bi-pencil"></i> Edit</button>
@@ -2699,18 +3107,41 @@
 
       // Populate Buses Table
       const bBody = document.getElementById('busesTableBody');
-      bBody.innerHTML = buses.map(b => `<tr>
-        <td>${b.number}</td><td>${b.route}</td><td>${b.driver || '-'}</td><td>${b.phone || '-'}</td>
-        <td style="font-family:monospace; color:var(--text-secondary);">${b.pin ? '***' : 'Default'}</td>
-        <td>
-          <div style="display: flex; gap: 0.4rem;">
-            <button class="action-btn btn-primary btn-sm" onclick="startEditBus('${b.id}')"><i class="bi bi-pencil"></i> Edit</button>
-            <button class="action-btn btn-danger btn-sm" onclick="deleteBus('${b.id}')"><i class="bi bi-trash"></i> Delete</button>
-          </div>
-        </td>
-      </tr>`).join('');
-    }
+      if (bBody) {
+        bBody.innerHTML = buses.map(b => `<tr>
+          <td>Bus #${b.number}</td><td>${b.route}</td><td>${b.driver || '-'}</td><td>${b.phone || '-'}</td>
+          <td><span class="badge badge-success" style="display: inline-flex; align-items: center; gap: 0.25rem;"><i class="bi bi-shield-lock-fill"></i> Secure</span></td>
+          <td>
+            <div style="display: flex; gap: 0.4rem;">
+              <button class="action-btn btn-primary btn-sm" onclick="startEditBus('${b.id}')"><i class="bi bi-pencil"></i> Edit</button>
+              <button class="action-btn btn-danger btn-sm" onclick="deleteBus('${b.id}')"><i class="bi bi-trash"></i> Delete</button>
+            </div>
+          </td>
+        </tr>`).join('');
+      }
 
+      // Populate Accountants Table
+      const accountants = DB.get('accountants') || [];
+      const accBody = document.getElementById('accountantsTableBody');
+      if (accBody) {
+        if (accountants.length === 0) {
+          accBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">No accountants added yet.</td></tr>`;
+        } else {
+          accBody.innerHTML = accountants.map(a => `<tr>
+            <td>${a.name}</td>
+            <td>${a.username}</td>
+            <td>${a.phone || '-'}</td>
+            <td>${a.email || '-'}</td>
+            <td>
+              <div style="display: flex; gap: 0.4rem;">
+                <button class="action-btn btn-primary btn-sm" onclick="startEditAccountant('${a.id}')"><i class="bi bi-pencil"></i> Edit</button>
+                <button class="action-btn btn-danger btn-sm" onclick="deleteAccountant('${a.id}')"><i class="bi bi-trash"></i> Delete</button>
+              </div>
+            </td>
+          </tr>`).join('');
+        }
+      }
+    }
     // Forms
     document.getElementById('editForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -2743,16 +3174,31 @@
           list[idx].username = document.getElementById('editTUsername').value;
           list[idx].phone = document.getElementById('editTPhone').value || null;
           list[idx].email = document.getElementById('editTEmail').value || null;
+          list[idx].dob = document.getElementById('editTDob').value || null;
           const newPass = document.getElementById('editTPassword').value;
           if (newPass) {
             list[idx].password = sha256(newPass);
           }
-          // The teacher edit modal was previously broken because editTClasses isn't dynamically populated properly yet
-          // Wait, the edit modal for teacher only has editTClass (single select) in my above replacement:
           list[idx].classId = document.getElementById('editTClass').value;
           
           syncPromise = DB.set('teachers', list).then(() => {
             showToast('Teacher updated successfully!', 'success');
+          });
+        }
+      } else if (type === 'accountant') {
+        const list = DB.get('accountants') || [];
+        const idx = list.findIndex(item => item.id === id);
+        if (idx !== -1) {
+          list[idx].name = document.getElementById('editAccName').value;
+          list[idx].username = document.getElementById('editAccUsername').value;
+          list[idx].phone = document.getElementById('editAccPhone').value || null;
+          list[idx].email = document.getElementById('editAccEmail').value || null;
+          const newPass = document.getElementById('editAccPassword').value;
+          if (newPass) {
+            list[idx].password = sha256(newPass);
+          }
+          syncPromise = DB.set('accountants', list).then(() => {
+            showToast('Accountant details updated successfully!', 'success');
           });
         }
       } else if (type === 'bus') {
@@ -2765,7 +3211,7 @@
           list[idx].phone = document.getElementById('editBPhone').value || null;
           const newPin = document.getElementById('editBPin').value;
           if (newPin) {
-            list[idx].pin = newPin;
+            list[idx].pin = sha256(newPin);
           }
           syncPromise = DB.set('buses', list).then(() => {
             showToast('Bus details updated successfully!', 'success');
@@ -2916,7 +3362,8 @@
         username: username, password: sha256(document.getElementById('tPassword').value),
         classId: Array.from(document.querySelectorAll('input[name="addTClasses"]:checked')).map(cb => cb.value),
         phone: document.getElementById('tPhone').value || null,
-        email: document.getElementById('tEmail').value || null
+        email: document.getElementById('tEmail').value || null,
+        dob: document.getElementById('tDob').value || null
       });
       DB.set('teachers', teachers).then(() => {
         e.target.reset();
@@ -2939,11 +3386,12 @@
         return;
       }
 
+      const rawPin = document.getElementById('bPin').value.trim() || ('bus@' + number.replace(/\s+/g, ''));
       buses.push({
         id: genId('b'), number: number, route: document.getElementById('bRoute').value,
         driver: document.getElementById('bDriver').value || null,
         phone: document.getElementById('bPhone').value || null,
-        pin: document.getElementById('bPin').value || null
+        pin: sha256(rawPin)
       });
       DB.set('buses', buses).then(() => {
         e.target.reset();
@@ -3105,14 +3553,58 @@
       const yearsList = DB.get('academicYears') || [];
       if (!yearsList.includes(nextYear)) {
         yearsList.push(nextYear);
-        DB.set('academicYears', yearsList);
+        await DB.setLocal('academicYears', yearsList);
       }
 
-      DB.set('students', updatedStudents);
-      DB.set('attendanceLogs', []);
-      DB.set('marks', {});
-      DB.set('classAttendance', {});
-      DB.set('busAttendance', {});
+      // Auto assign student fees for promoted students carrying over balances
+      const feeStructures = DB.get('feeStructures') || [];
+      const studentFees = DB.get('studentFees') || [];
+      updatedStudents.forEach(s => {
+        if (s.classId && s.classId !== 'graduated') {
+          const struct = feeStructures.find(fs => fs.classId === s.classId && fs.academicYear === nextYear);
+          const baseAmount = struct ? struct.amount : 0;
+          
+          // Find previous year's fee card to carry over balance
+          const prevSf = studentFees.find(f => f.studentId === s.id && f.academicYear === currentYear);
+          let outstanding = 0;
+          if (prevSf) {
+            let customSum = 0;
+            if (Array.isArray(prevSf.customFees)) {
+              prevSf.customFees.forEach(cf => {
+                customSum += (Number(cf.amount) || 0);
+              });
+            }
+            const prevTotalDue = (Number(prevSf.yearlyFee) || 0) + (Number(prevSf.busFee) || 0) + (Number(prevSf.bookFee) || 0) + (Number(prevSf.uniformFee) || 0) + (Number(prevSf.otherFee) || 0) + (Number(prevSf.previousBalance) || 0) + customSum - (Number(prevSf.discount) || 0);
+            const prevPaid = Number(prevSf.totalPaid) || 0;
+            outstanding = Math.max(0, prevTotalDue - prevPaid);
+          }
+
+          studentFees.push({
+            id: genId('sf'),
+            studentId: s.id,
+            academicYear: nextYear,
+            yearlyFee: baseAmount,
+            busFee: 0,
+            bookFee: 0,
+            uniformFee: 0,
+            otherFee: 0,
+            previousBalance: outstanding,
+            discount: 0,
+            customFees: [],
+            totalDue: baseAmount + outstanding,
+            totalPaid: 0,
+            status: (baseAmount + outstanding) > 0 ? 'Pending' : 'Paid'
+          });
+        }
+      });
+
+      // Wait for all DB writes to complete locally and sync to Supabase
+      await DB.setLocal('studentFees', studentFees);
+      await DB.setLocal('students', updatedStudents);
+      await DB.setLocal('attendanceLogs', []);
+      await DB.setLocal('marks', {});
+      await DB.setLocal('classAttendance', {});
+      await DB.setLocal('busAttendance', {});
       
       // 4. Save to Supabase (if configured)
       const configured = typeof isSupabaseConfigured === 'function' && isSupabaseConfigured();
@@ -3124,14 +3616,6 @@
           // Delete live attendance logs and marks on remote database
           await client.from('attendance_logs').delete().neq('id', 0);
           await client.from('marks').delete().neq('id', 0);
-          
-          // Update student classes and academic year on remote database
-          for (const s of updatedStudents) {
-            await client.from('students').update({
-              class_id: s.classId,
-              academic_year: s.academicYear
-            }).eq('id', s.id);
-          }
           
           showToast('Supabase database sync complete!', 'success');
         } catch (e) {
@@ -3505,6 +3989,420 @@
         showToast('Failed to restore backup.', 'danger');
       }
     };
+
+    // ==========================================
+    // ACCOUNTANT AND FEES MANAGEMENT HELPERS
+    // ==========================================
+    window.openAddAccountantModal = function() {
+      document.getElementById('addAccountantModal').classList.add('show');
+    };
+    window.closeAddAccountantModal = function() {
+      document.getElementById('addAccountantModal').classList.remove('show');
+      document.getElementById('addAccountantForm').reset();
+    };
+    
+    document.getElementById('addAccountantForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (preventDoubleSubmit(e)) return;
+
+      const username = document.getElementById('accUsername').value.trim();
+      const list = DB.get('accountants') || [];
+      if (list.some(a => a.username.trim().toLowerCase() === username.toLowerCase())) {
+        showToast(`Accountant username '${username}' already exists!`, 'warning');
+        releaseDoubleSubmit(e.target);
+        return;
+      }
+
+      list.push({
+        id: genId('acc'), name: document.getElementById('accName').value,
+        username: username, password: sha256(document.getElementById('accPassword').value),
+        phone: document.getElementById('accPhone').value || null,
+        email: document.getElementById('accEmail').value || null
+      });
+      DB.set('accountants', list).then(() => {
+        e.target.reset();
+        releaseDoubleSubmit(e.target);
+        closeAddAccountantModal();
+        loadData();
+        showToast('Accountant added successfully', 'success');
+      });
+    });
+
+    window.startEditAccountant = function(id) {
+      const accountants = DB.get('accountants') || [];
+      const a = accountants.find(item => item.id === id);
+      if (!a) return;
+
+      const html = `
+        <input type="hidden" id="editId" value="${a.id}">
+        <input type="hidden" id="editType" value="accountant">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="editAccName" value="${a.name}" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="editAccUsername" value="${a.username}" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="editAccPassword" placeholder="Enter new password or keep existing" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
+          <input type="tel" id="editAccPhone" value="${a.phone || ''}" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
+          <input type="email" id="editAccEmail" value="${a.email || ''}" class="form-control">
+        </div>
+      `;
+      document.getElementById('modalTitle').textContent = 'Edit Accountant Details';
+      document.getElementById('editFormFields').innerHTML = html;
+      openEditModal();
+    };
+
+    window.deleteAccountant = (id) => {
+      mssConfirm('Delete Accountant?', 'This action cannot be undone.', 'danger').then(confirmed => {
+        if(!confirmed) return;
+        DB.set('accountants', DB.get('accountants').filter(a => a.id !== id)).then(() => {
+          loadData();
+          showToast('Accountant deleted successfully', 'success');
+        });
+      }).catch(()=>{});
+    };
+
+    window.renderAdminFees = function() {
+      const activeYear = currentAcademicYear();
+      const students = DB.get('students') || [];
+      const classes = DB.get('classes') || [];
+      const studentFees = DB.get('studentFees') || [];
+      const feeLogs = DB.get('feeLogs') || [];
+      const feeStructures = DB.get('feeStructures') || [];
+
+      // Populate adminFeeStructureYearSelect dropdown preserving the selected option
+      const yearSelect = document.getElementById('adminFeeStructureYearSelect');
+      if (yearSelect) {
+        const currentVal = yearSelect.value || activeYear;
+        const years = DB.get('academicYears') || [];
+        yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+        if (years.includes(currentVal)) {
+          yearSelect.value = currentVal;
+        } else {
+          yearSelect.value = activeYear;
+        }
+      }
+      const selectedYear = yearSelect ? (yearSelect.value || activeYear) : activeYear;
+
+      // Calculate totals for activeYear
+      const activeFees = studentFees.filter(sf => sf.academicYear === activeYear);
+      let expected = 0;
+      let collected = 0;
+      let pending = 0;
+
+      activeFees.forEach(sf => {
+        expected += Number(sf.totalDue) || 0;
+        collected += Number(sf.totalPaid) || 0;
+      });
+      pending = expected - collected;
+      const rate = expected > 0 ? Math.round((collected / expected) * 100) : 0;
+
+      document.getElementById('adminExpectedFees').textContent = '₹' + expected.toLocaleString('en-IN');
+      document.getElementById('adminCollectedFees').textContent = '₹' + collected.toLocaleString('en-IN');
+      document.getElementById('adminPendingFees').textContent = '₹' + pending.toLocaleString('en-IN');
+      document.getElementById('adminCollectionRate').textContent = rate + '%';
+
+      // Render Fee Structure Setup
+      const structureContainer = document.getElementById('adminFeeStructureSetup');
+      if (structureContainer) {
+        structureContainer.innerHTML = classes.map(c => {
+          const struct = feeStructures.find(fs => fs.classId === c.id && fs.academicYear === selectedYear);
+          const currentAmount = struct ? struct.amount : '';
+          return `
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid rgba(0,0,0,0.04); padding-bottom: 0.5rem;">
+              <span style="font-weight: 700; color: var(--text-main);">${c.name}</span>
+              <div style="display: flex; align-items: center; gap: 0.5rem; width: 150px;">
+                <span style="color: var(--text-secondary); font-weight: 600;">₹</span>
+                <input type="number" data-class-id="${c.id}" value="${currentAmount}" placeholder="0" class="form-control class-fee-input" style="height: 36px; padding: 0.25rem 0.5rem; font-size: 0.9rem; font-weight: 700; text-align: right;">
+              </div>
+            </div>
+          `;
+        }).join('') || '<p style="color: var(--text-secondary); margin:0;">No classes configured.</p>';
+      }
+
+      // Render Logs
+      const logsBody = document.getElementById('adminFeeLogsTableBody');
+      if (logsBody) {
+        const sortedLogs = [...feeLogs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 15);
+        logsBody.innerHTML = sortedLogs.map(l => `
+          <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+            <td style="padding: 0.5rem 0.25rem; font-size: 0.8rem; color: var(--text-secondary);">${new Date(l.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+            <td style="padding: 0.5rem 0.25rem; font-weight: 700; color: var(--primary-dark);">${l.userName || 'System'}</td>
+            <td style="padding: 0.5rem 0.25rem; color: var(--text-main); font-weight: 500;">${l.details || l.action}</td>
+          </tr>
+        `).join('') || `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 1rem;">No recent activity logs.</td></tr>`;
+      }
+
+      // Render Class-wise Outstanding Summary
+      const classWiseBody = document.getElementById('adminClassWiseFeesTableBody');
+      if (classWiseBody) {
+        classWiseBody.innerHTML = classes.map(c => {
+          const classStudents = students.filter(s => s.classId === c.id && s.academicYear === activeYear);
+          let cExpected = 0;
+          let cCollected = 0;
+          let cPendingCount = 0;
+
+          classStudents.forEach(s => {
+            const sf = activeFees.find(f => f.studentId === s.id);
+            if (sf) {
+              cExpected += sf.totalDue;
+              cCollected += sf.totalPaid;
+              if (sf.status !== 'Paid') {
+                cPendingCount++;
+              }
+            }
+          });
+          const cPending = cExpected - cCollected;
+
+          return `
+            <tr>
+              <td style="font-weight:700;">${c.name}</td>
+              <td>${classStudents.length}</td>
+              <td style="font-weight:600; color:var(--text-main);">₹${cExpected.toLocaleString('en-IN')}</td>
+              <td style="font-weight:600; color:#15803d;">₹${cCollected.toLocaleString('en-IN')}</td>
+              <td style="font-weight:600; color:var(--danger);">₹${cPending.toLocaleString('en-IN')}</td>
+              <td><span class="badge ${cPendingCount > 0 ? 'badge-danger' : 'badge-success'}">${cPendingCount} Students</span></td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Render Concessions
+      window.searchAdminConcessions(document.getElementById('adminConcessionSearch')?.value || '');
+    };
+
+    window.searchAdminConcessions = function(query) {
+      const activeYear = currentAcademicYear();
+      const students = DB.get('students') || [];
+      const classes = DB.get('classes') || [];
+      const studentFees = DB.get('studentFees') || [];
+
+      const concessionsBody = document.getElementById('adminConcessionsTableBody');
+      if (!concessionsBody) return;
+
+      const activeFees = studentFees.filter(sf => sf.academicYear === activeYear);
+      const filtered = students.filter(s => {
+        if (s.academicYear !== activeYear) return false;
+        if (!query) return true;
+        const q = query.toLowerCase();
+        return s.name.toLowerCase().includes(q) || (s.rollNo || '').toLowerCase().includes(q);
+      });
+
+      concessionsBody.innerHTML = filtered.map(s => {
+        const cls = classes.find(c => c.id === s.classId)?.name || 'Unassigned';
+        const sf = activeFees.find(f => f.studentId === s.id) || {
+          id: '',
+          yearlyFee: 0,
+          discount: 0,
+          totalDue: 0,
+          totalPaid: 0,
+          status: 'Pending'
+        };
+
+        const statusClass = sf.status === 'Paid' ? 'badge-success' : (sf.status === 'Partial' ? 'badge-warning' : 'badge-danger');
+
+        return `
+          <tr>
+            <td style="font-weight:750; font-family:monospace; color:var(--primary-dark);">${s.rollNo || '-'}</td>
+            <td style="font-weight:600; color:var(--text-main);">${s.name}</td>
+            <td>${cls}</td>
+            <td>₹${(sf.yearlyFee || 0).toLocaleString('en-IN')}</td>
+            <td style="color:var(--accent); font-weight:700;">₹${(sf.discount || 0).toLocaleString('en-IN')}</td>
+            <td style="font-weight:700;">₹${(sf.totalDue || 0).toLocaleString('en-IN')}</td>
+            <td style="color:#15803d; font-weight:700;">₹${(sf.totalPaid || 0).toLocaleString('en-IN')}</td>
+            <td><span class="badge ${statusClass}">${sf.status}</span></td>
+            <td>
+              <button class="action-btn btn-primary btn-sm" onclick="startEditConcession('${s.id}')"><i class="bi bi-tag-fill"></i> Concession</button>
+            </td>
+          </tr>
+        `;
+      }).join('') || `<tr><td colspan="9" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">No matching students found.</td></tr>`;
+    };
+
+    window.saveAdminFeeStructures = function() {
+      const yearSelect = document.getElementById('adminFeeStructureYearSelect');
+      const targetYear = yearSelect ? (yearSelect.value || currentAcademicYear()) : currentAcademicYear();
+      const feeStructures = DB.get('feeStructures') || [];
+      const inputs = document.querySelectorAll('.class-fee-input');
+      let changed = false;
+
+      inputs.forEach(input => {
+        const classId = input.getAttribute('data-class-id');
+        const amount = Number(input.value) || 0;
+
+        let struct = feeStructures.find(fs => fs.classId === classId && fs.academicYear === targetYear);
+        if (struct) {
+          if (struct.amount !== amount) {
+            struct.amount = amount;
+            changed = true;
+          }
+        } else {
+          feeStructures.push({
+            id: genId('fs'),
+            classId: classId,
+            academicYear: targetYear,
+            amount: amount
+          });
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        DB.set('feeStructures', feeStructures).then(() => {
+          // Log it
+          const feeLogs = DB.get('feeLogs') || [];
+          feeLogs.push({
+            id: genId('fl'),
+            action: 'Structures Saved',
+            details: `Admin updated fee structures for academic year ${targetYear}`,
+            userId: 'admin',
+            userName: 'Principal Admin',
+            createdAt: new Date().toISOString()
+          });
+          DB.set('feeLogs', feeLogs);
+
+          // Now let's automatically assign/update these yearly fees to all active students in their respective classes for that academic year!
+          const students = DB.get('students') || [];
+          const studentFees = DB.get('studentFees') || [];
+          let updatedCount = 0;
+
+          students.forEach(s => {
+            if (s.academicYear !== targetYear) return;
+            const struct = feeStructures.find(fs => fs.classId === s.classId && fs.academicYear === targetYear);
+            if (!struct) return;
+
+            let sf = studentFees.find(f => f.studentId === s.id && f.academicYear === targetYear);
+            if (sf) {
+              if (sf.totalPaid === 0 && sf.yearlyFee !== struct.amount) {
+                sf.yearlyFee = struct.amount;
+                sf.totalDue = sf.yearlyFee + sf.busFee - sf.discount;
+                sf.status = sf.totalPaid >= sf.totalDue ? 'Paid' : (sf.totalPaid > 0 ? 'Partial' : 'Pending');
+                updatedCount++;
+              }
+            } else {
+              studentFees.push({
+                id: genId('sf'),
+                studentId: s.id,
+                academicYear: targetYear,
+                yearlyFee: struct.amount,
+                busFee: 0,
+                discount: 0,
+                totalDue: struct.amount,
+                totalPaid: 0,
+                status: 'Pending'
+              });
+              updatedCount++;
+            }
+          });
+
+          if (updatedCount > 0) {
+            DB.set('studentFees', studentFees).then(() => {
+              showToast(`Saved. Fee structures auto-assigned to ${updatedCount} students in Year ${targetYear}.`, 'success');
+              renderAdminFees();
+            });
+          } else {
+            showToast(`Fee structures for Year ${targetYear} updated successfully!`, 'success');
+            renderAdminFees();
+          }
+        });
+      } else {
+        showToast('No changes in fee structures detected.', 'info');
+      }
+    };
+
+    window.startEditConcession = function(studentId) {
+      const activeYear = currentAcademicYear();
+      const students = DB.get('students') || [];
+      const classes = DB.get('classes') || [];
+      const studentFees = DB.get('studentFees') || [];
+
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+
+      const cls = classes.find(c => c.id === student.classId)?.name || 'Unassigned';
+      
+      let sf = studentFees.find(f => f.studentId === studentId && f.academicYear === activeYear);
+      if (!sf) {
+        const feeStructures = DB.get('feeStructures') || [];
+        const struct = feeStructures.find(fs => fs.classId === student.classId && fs.academicYear === activeYear);
+        const baseAmount = struct ? struct.amount : 0;
+        sf = {
+          id: genId('sf'),
+          studentId: studentId,
+          academicYear: activeYear,
+          yearlyFee: baseAmount,
+          busFee: 0,
+          discount: 0,
+          totalDue: baseAmount,
+          totalPaid: 0,
+          status: 'Pending'
+        };
+        studentFees.push(sf);
+        DB.set('studentFees', studentFees);
+      }
+
+      document.getElementById('concessionStudentFeeId').value = sf.id;
+      document.getElementById('concessionStudentName').textContent = student.name;
+      document.getElementById('concessionStudentClass').textContent = cls;
+      document.getElementById('concessionBaseFee').textContent = sf.yearlyFee;
+      document.getElementById('concessionAmount').value = sf.discount;
+
+      document.getElementById('concessionModal').classList.add('show');
+    };
+
+    window.closeConcessionModal = function() {
+      document.getElementById('concessionModal').classList.remove('show');
+      document.getElementById('concessionForm').reset();
+    };
+
+    document.getElementById('concessionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const sfId = document.getElementById('concessionStudentFeeId').value;
+      const discountVal = Number(document.getElementById('concessionAmount').value) || 0;
+
+      const studentFees = DB.get('studentFees') || [];
+      const sfIdx = studentFees.findIndex(f => f.id === sfId);
+      if (sfIdx === -1) {
+        showToast('Fee record not found.', 'danger');
+        return;
+      }
+
+      const sf = studentFees[sfIdx];
+      const students = DB.get('students') || [];
+      const student = students.find(s => s.id === sf.studentId);
+      const studentName = student ? student.name : 'Unknown';
+
+      sf.discount = discountVal;
+      sf.totalDue = sf.yearlyFee + sf.busFee - sf.discount;
+      sf.status = sf.totalPaid >= sf.totalDue ? 'Paid' : (sf.totalPaid > 0 ? 'Partial' : 'Pending');
+
+      DB.set('studentFees', studentFees).then(() => {
+        const feeLogs = DB.get('feeLogs') || [];
+        feeLogs.push({
+          id: genId('fl'),
+          action: 'Concession Approved',
+          details: `Admin approved concession of ₹${discountVal} for student ${studentName}`,
+          userId: 'admin',
+          userName: 'Principal Admin',
+          createdAt: new Date().toISOString()
+        });
+        DB.set('feeLogs', feeLogs);
+
+        showToast(`Concession of ₹${discountVal} approved for ${studentName}`, 'success');
+        closeConcessionModal();
+        renderAdminFees();
+      });
+    });
 
   </script>
 </body>

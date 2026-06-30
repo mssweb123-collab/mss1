@@ -1508,11 +1508,30 @@
       .bus-month-card {
         padding: 0.6rem 0.25rem;
       }
-      .month-name {
-        font-size: 0.65rem;
+    }
+    
+    /* Printable receipt styles */
+    #receiptPrintArea {
+      display: none;
+      background: white;
+      padding: 2.5rem;
+      color: #1e293b;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
       }
-      .month-count {
-        font-size: 0.85rem;
+      #receiptPrintArea, #receiptPrintArea * {
+        visibility: visible;
+      }
+      #receiptPrintArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: block !important;
       }
     }
   </style>
@@ -1764,7 +1783,153 @@
       </div>
     </div>
 
+    <!-- Fees Portal Card -->
+    <div class="panel-card" style="margin-top: 2rem;">
+      <div class="panel-title flex-between">
+        <span><i class="bi bi-wallet2 icon-accent"></i> My Fee & Payment Status</span>
+        <span class="badge" id="studentFeeStatusBadge">Status: -</span>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: rgba(15, 23, 42, 0.02); padding: 1.25rem; border-radius: 18px; border: 1px solid rgba(0,0,0,0.03); text-align: center;">
+          <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; display: block; margin-bottom: 0.25rem;">Total Net Fee Due</span>
+          <strong style="font-size: 1.4rem; color: var(--primary-dark);" id="lblNetDue">₹0</strong>
+        </div>
+        <div style="background: rgba(34, 197, 94, 0.04); padding: 1.25rem; border-radius: 18px; border: 1px solid rgba(34, 197, 94, 0.1); text-align: center;">
+          <span style="font-size: 0.8rem; color: #166534; font-weight: 600; display: block; margin-bottom: 0.25rem;">Amount Paid</span>
+          <strong style="font-size: 1.4rem; color: #15803d;" id="lblAmountPaid">₹0</strong>
+        </div>
+        <div style="background: rgba(239, 68, 68, 0.04); padding: 1.25rem; border-radius: 18px; border: 1px solid rgba(239, 68, 68, 0.1); text-align: center;">
+          <span style="font-size: 0.8rem; color: #991b1b; font-weight: 600; display: block; margin-bottom: 0.25rem;">Outstanding Balance</span>
+          <strong style="font-size: 1.4rem; color: var(--danger);" id="lblAmountPending">₹0</strong>
+        </div>
+        <div style="background: rgba(124, 58, 237, 0.04); padding: 1.25rem; border-radius: 18px; border: 1px solid rgba(124, 58, 237, 0.1); text-align: center;">
+          <span style="font-size: 0.8rem; color: #6b21a8; font-weight: 600; display: block; margin-bottom: 0.25rem;">Last Payment Date</span>
+          <strong style="font-size: 1.1rem; color: var(--primary-dark); display: block; margin-top: 0.25rem;" id="lblLastPaymentDate">-</strong>
+        </div>
+      </div>
+
+      <!-- Fee Breakdown Details -->
+      <details style="margin-bottom: 1.5rem; border: 1px solid rgba(0,0,0,0.07); border-radius: 16px; background: #f8fafc; overflow: hidden;">
+        <summary style="font-size: 0.88rem; font-weight: 700; color: var(--primary); padding: 0.75rem 1rem; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 0.5rem; background: rgba(79, 70, 229, 0.04);">
+          <i class="bi bi-receipt-cutoff"></i> View Fee Breakdown
+        </summary>
+        <div style="padding: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1rem; border-top: 1px solid rgba(0,0,0,0.06);">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(0,0,0,0.04);"><span style="font-size:0.82rem; color:var(--text-secondary);"><i class="bi bi-mortarboard-fill" style="color:#4f46e5;"></i> Academic Fee</span><strong id="feeBreakAcademic" style="font-size:0.88rem;">₹0</strong></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(0,0,0,0.04);"><span style="font-size:0.82rem; color:var(--text-secondary);"><i class="bi bi-bus-front-fill" style="color:#0891b2;"></i> Bus Fee</span><strong id="feeBreakBus" style="font-size:0.88rem;">₹0</strong></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(0,0,0,0.04);"><span style="font-size:0.82rem; color:var(--text-secondary);"><i class="bi bi-book-fill" style="color:#06b6d4;"></i> Book Fee</span><strong id="feeBreakBook" style="font-size:0.88rem;">₹0</strong></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(0,0,0,0.04);"><span style="font-size:0.82rem; color:var(--text-secondary);"><i class="bi bi-person-badge-fill" style="color:#a855f7;"></i> Uniform Fee</span><strong id="feeBreakUniform" style="font-size:0.88rem;">₹0</strong></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(0,0,0,0.04);"><span style="font-size:0.82rem; color:var(--text-secondary);"><i class="bi bi-plus-circle-fill" style="color:#64748b;"></i> Other Fee</span><strong id="feeBreakOther" style="font-size:0.88rem;">₹0</strong></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(0,0,0,0.04);"><span style="font-size:0.82rem; color:var(--text-secondary);"><i class="bi bi-arrow-counterclockwise" style="color:#ef4444;"></i> Prev. Balance</span><strong id="feeBreakPrevBal" style="font-size:0.88rem; color:#ef4444;">₹0</strong></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0;"><span style="font-size:0.82rem; color:var(--text-secondary);"><i class="bi bi-tag-fill" style="color:#16a34a;"></i> Concession</span><strong id="feeBreakDiscount" style="font-size:0.88rem; color:#16a34a;">-₹0</strong></div>
+          <div id="studentCustomFeesContainer" style="display: contents;"></div>
+        </div>
+      </details>
+
+      <!-- 10-Month Installments Status -->
+      <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--primary-dark); margin-top: 2rem; margin-bottom: 1rem;"><i class="bi bi-calendar3"></i> 10-Month Installments Status</h4>
+      <div id="studentMonthsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.6rem; margin-bottom: 2.2rem;">
+        <!-- Populated dynamically -->
+      </div>
+
+      <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 1rem;"><i class="bi bi-clock-history"></i> Payment History & Receipts</h4>
+      <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%;">
+        <table class="marks-table" style="min-width: 480px;">
+          <thead>
+            <tr>
+              <th>Receipt No</th>
+              <th>Date Paid</th>
+              <th>Amount Paid</th>
+              <th>Payment Mode</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="studentReceiptsBody">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </main>
+
+  <!-- RECEIPT WRAPPER FOR PRINTING -->
+  <div id="receiptPrintArea">
+    <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 1.5rem; margin-bottom: 2rem;">
+      <h2 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 0; font-weight: 850;">MSS MATRICULATION SCHOOL</h2>
+      <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem;">Uppatty, Pandalur Taluk, The Nilgiris, Tamil Nadu - 643241</p>
+      <h3 style="margin: 1rem 0 0 0; font-size: 1.15rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; color: #475569;">FEE PAYMENT RECEIPT</h3>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.6;">
+      <div>
+        <p style="margin: 0;"><strong>Receipt No:</strong> <span id="rRcptNo">-</span></p>
+        <p style="margin: 0;"><strong>Payment Date:</strong> <span id="rRcptDate">-</span></p>
+        <p style="margin: 0;"><strong>Payment Mode:</strong> <span id="rRcptMode">-</span></p>
+      </div>
+      <div style="text-align: right;">
+        <p style="margin: 0;"><strong>Student Name:</strong> <span id="rStudentName">-</span></p>
+        <p style="margin: 0;"><strong>Roll Number:</strong> <span id="rStudentRoll">-</span></p>
+        <p style="margin: 0;"><strong>Class:</strong> <span id="rStudentClass">-</span></p>
+      </div>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.95rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid #0f172a; text-align: left; font-weight: 700;">
+          <th style="padding: 0.75rem 0;">Fee Description</th>
+          <th style="padding: 0.75rem 0; text-align: right;">Total Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 0.75rem 0;">Base Academic Yearly Fee</td>
+          <td style="padding: 0.75rem 0; text-align: right;" id="rBaseFee">₹0</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 0.75rem 0;">Bus Transport Fee</td>
+          <td style="padding: 0.75rem 0; text-align: right;" id="rBusFee">₹0</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 0.75rem 0;">Book Fee</td>
+          <td style="padding: 0.75rem 0; text-align: right;" id="rBookFee">₹0</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 0.75rem 0;">Uniform Fee</td>
+          <td style="padding: 0.75rem 0; text-align: right;" id="rUniformFee">₹0</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 0.75rem 0;">Other Fee</td>
+          <td style="padding: 0.75rem 0; text-align: right;" id="rOtherFee">₹0</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 0.75rem 0;">Previous Year Balance</td>
+          <td style="padding: 0.75rem 0; text-align: right;" id="rPrevBalance">₹0</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 0.75rem 0; color: #64748b;">Less: Concession / Scholarship</td>
+          <td style="padding: 0.75rem 0; text-align: right; color: #dc2626;" id="rDiscount">-₹0</td>
+        </tr>
+        <tr style="border-bottom: 2px solid #0f172a; font-weight: 700; font-size: 1.05rem;">
+          <td style="padding: 1rem 0;">Amount Paid Now</td>
+          <td style="padding: 1rem 0; text-align: right; color: #16a34a;" id="rAmountPaid">₹0</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: start; font-size: 0.9rem;">
+      <div>
+        <p style="margin: 0; font-size: 0.85rem; color: #64748b;"><strong>Notes:</strong> <span id="rRemarks">-</span></p>
+        <p style="margin: 0.5rem 0 0 0; font-size: 0.95rem; font-weight: 700; color: #991b1b;">Remaining Balance Due: <span id="rRemainingBalance">₹0</span></p>
+      </div>
+      <div style="text-align: right; margin-top: 2rem;">
+        <div style="width: 180px; border-top: 1px solid #0f172a; display: inline-block; padding-top: 0.5rem; text-align: center;">
+          <p style="margin: 0; font-weight: 700; font-size: 0.85rem;">Authorized Signature</p>
+          <p style="margin: 0; font-size: 0.75rem; color: #64748b;">MSS Accountant Office</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="toast-container"></div>
   <script>
@@ -1944,6 +2109,9 @@
 
       // Render animation
       renderAnimation(student);
+
+      // Render fees portal details
+      renderStudentFees(student);
     }
 
     function renderCheckpoints(student) {
@@ -2367,6 +2535,223 @@
         wrapper.style.display = 'none';
         btn.innerHTML = '<i class="bi bi-chevron-down"></i> View Monthly Details';
       }
+    }
+
+    function renderStudentFees(student) {
+      const studentFees = DB.get('studentFees') || [];
+      const activeYear = currentAcademicYear() || student.academicYear || student.academic_year || 'N/A';
+      
+      const sf = studentFees.find(f => f.studentId === student.id && f.academicYear === activeYear);
+      
+      const lblNetDue = document.getElementById('lblNetDue');
+      const lblAmountPaid = document.getElementById('lblAmountPaid');
+      const lblAmountPending = document.getElementById('lblAmountPending');
+      const lblLastPaymentDate = document.getElementById('lblLastPaymentDate');
+      const statusBadge = document.getElementById('studentFeeStatusBadge');
+      
+      if (!sf) {
+        lblNetDue.textContent = '₹0';
+        lblAmountPaid.textContent = '₹0';
+        lblAmountPending.textContent = '₹0';
+        lblLastPaymentDate.textContent = 'N/A';
+        statusBadge.textContent = 'Pending Setup';
+        statusBadge.className = 'badge badge-warning';
+        document.getElementById('studentReceiptsBody').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-secondary);">No fee structure set up yet by the accounts office.</td></tr>';
+        
+        const monthsGrid = document.getElementById('studentMonthsGrid');
+        if (monthsGrid) {
+          monthsGrid.innerHTML = '';
+          const months = ['June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
+          months.forEach((m) => {
+            const item = document.createElement('div');
+            item.style = 'text-align: center; padding: 0.6rem 0.5rem; border-radius: 12px; font-size: 0.82rem; font-weight: 700; background: #fee2e2; color: #ef4444; border: 1px solid #fecaca;';
+            item.innerHTML = `<div>${m}</div><div style="font-size: 0.68rem; font-weight: 800; margin-top: 0.2rem;">Pending</div>`;
+            monthsGrid.appendChild(item);
+          });
+        }
+        return;
+      }
+
+      // Normalize all fee fields
+      sf.yearlyFee = Number(sf.yearlyFee) || 0;
+      sf.busFee = Number(sf.busFee) || 0;
+      sf.bookFee = Number(sf.bookFee) || 0;
+      sf.uniformFee = Number(sf.uniformFee) || 0;
+      sf.otherFee = Number(sf.otherFee) || 0;
+      sf.previousBalance = Number(sf.previousBalance) || 0;
+      sf.discount = Number(sf.discount) || 0;
+      sf.customFees = sf.customFees || [];
+
+      // Calculate custom fees sum
+      let customSum = 0;
+      sf.customFees.forEach(cf => {
+        customSum += (Number(cf.amount) || 0);
+      });
+
+      const netDue = sf.yearlyFee + sf.busFee + sf.bookFee + sf.uniformFee + sf.otherFee + sf.previousBalance + customSum - sf.discount;
+      const pending = Math.max(0, netDue - sf.totalPaid);
+
+      // Populate fee breakdown section
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      set('feeBreakAcademic', '₹' + sf.yearlyFee.toLocaleString('en-IN'));
+      set('feeBreakBus', '₹' + sf.busFee.toLocaleString('en-IN'));
+      set('feeBreakBook', '₹' + sf.bookFee.toLocaleString('en-IN'));
+      set('feeBreakUniform', '₹' + sf.uniformFee.toLocaleString('en-IN'));
+      set('feeBreakOther', '₹' + sf.otherFee.toLocaleString('en-IN'));
+      set('feeBreakPrevBal', '₹' + sf.previousBalance.toLocaleString('en-IN'));
+      set('feeBreakDiscount', '-₹' + sf.discount.toLocaleString('en-IN'));
+
+      // Render custom fees breakdown row list
+      const customContainer = document.getElementById('studentCustomFeesContainer');
+      if (customContainer) {
+        customContainer.innerHTML = sf.customFees.map(cf => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(0,0,0,0.04);">
+            <span style="font-size:0.82rem; color:var(--text-secondary);">
+              <i class="bi bi-plus-circle-dotted" style="color:#0284c7;"></i> ${cf.label}
+            </span>
+            <strong style="font-size:0.88rem;">₹${Number(cf.amount).toLocaleString('en-IN')}</strong>
+          </div>
+        `).join('');
+      }
+
+      lblNetDue.textContent = '₹' + netDue.toLocaleString('en-IN');
+      lblAmountPaid.textContent = '₹' + sf.totalPaid.toLocaleString('en-IN');
+      lblAmountPending.textContent = '₹' + pending.toLocaleString('en-IN');
+      
+      statusBadge.textContent = sf.status;
+      statusBadge.className = 'badge ' + (sf.status === 'Paid' ? 'badge-success' : (sf.status === 'Partial' ? 'badge-warning' : 'badge-danger'));
+
+      // Render 10-Month Installments Status Grid
+      const monthsGrid = document.getElementById('studentMonthsGrid');
+      if (monthsGrid) {
+        monthsGrid.innerHTML = '';
+        const months = ['June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
+        const M = netDue / 10;
+        
+        months.forEach((m, index) => {
+          const cumulativeTarget = M * (index + 1);
+          let statusText = 'Pending';
+          let badgeStyle = 'background: #fee2e2; color: #ef4444; border: 1px solid #fecaca;';
+          
+          if (sf.totalPaid >= cumulativeTarget) {
+            statusText = 'Paid';
+            badgeStyle = 'background: #dcfce7; color: #22c55e; border: 1px solid #bbf7d0;';
+          } else if (sf.totalPaid > M * index) {
+            statusText = 'Partial';
+            badgeStyle = 'background: #fef9c3; color: #eab308; border: 1px solid #fef08a;';
+          }
+          
+          const item = document.createElement('div');
+          item.style = `text-align: center; padding: 0.6rem 0.5rem; border-radius: 12px; font-size: 0.82rem; font-weight: 700; ${badgeStyle}`;
+          item.innerHTML = `<div>${m}</div><div style="font-size: 0.68rem; font-weight: 800; margin-top: 0.2rem;">${statusText}</div>`;
+          monthsGrid.appendChild(item);
+        });
+      }
+
+      // Render payment history & receipt list
+      const payments = DB.get('feePayments') || [];
+      const hist = payments.filter(p => p.studentId === student.id && p.academicYear === activeYear);
+      
+      const tbody = document.getElementById('studentReceiptsBody');
+      if (hist.length === 0) {
+        lblLastPaymentDate.textContent = 'No payments recorded';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-secondary);">No payments recorded for this academic year.</td></tr>';
+        return;
+      }
+
+      // Sort chronological descending
+      const sorted = [...hist].sort((a,b) => new Date(b.paymentDate) - new Date(a.paymentDate));
+      lblLastPaymentDate.textContent = formatDate(sorted[0].paymentDate);
+
+      tbody.innerHTML = sorted.map(p => `
+        <tr style="border-bottom:1px solid rgba(0,0,0,0.03)">
+          <td style="font-weight:700;">${p.receiptNo}</td>
+          <td>${formatDate(p.paymentDate)}</td>
+          <td style="font-weight:750; color:#15803d;">₹${p.amountPaid.toLocaleString('en-IN')}</td>
+          <td><span class="badge badge-info">${p.paymentMode}</span></td>
+          <td>
+            <button class="action-btn btn-primary btn-sm" onclick="printPaymentReceipt('${p.id}')"><i class="bi bi-printer"></i> Print</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function printPaymentReceipt(paymentId) {
+      const payments = DB.get('feePayments') || [];
+      const p = payments.find(item => item.id === paymentId);
+      if (!p) return;
+
+      const students = DB.get('students') || [];
+      const classes = DB.get('classes') || [];
+      const studentFees = DB.get('studentFees') || [];
+
+      const stud = students.find(s => s.id === p.studentId);
+      const name = stud ? stud.name : 'Unknown';
+      const roll = stud ? (stud.rollNo || '-') : '-';
+      const cName = stud ? (classes.find(c => c.id === stud.classId)?.name || 'Unassigned') : 'Unassigned';
+
+      const rawSf = studentFees.find(f => f.studentId === p.studentId && f.academicYear === p.academicYear) || {};
+      const sf = {
+        yearlyFee:       Number(rawSf.yearlyFee) || 0,
+        busFee:          Number(rawSf.busFee) || 0,
+        bookFee:         Number(rawSf.bookFee) || 0,
+        uniformFee:      Number(rawSf.uniformFee) || 0,
+        otherFee:        Number(rawSf.otherFee) || 0,
+        previousBalance: Number(rawSf.previousBalance) || 0,
+        discount:        Number(rawSf.discount) || 0,
+        totalPaid:       Number(rawSf.totalPaid) || 0,
+        customFees:      rawSf.customFees || []
+      };
+
+      let customSum = 0;
+      sf.customFees.forEach(cf => {
+        customSum += (Number(cf.amount) || 0);
+      });
+
+      const totalNetDue = sf.yearlyFee + sf.busFee + sf.bookFee + sf.uniformFee + sf.otherFee + sf.previousBalance + customSum - sf.discount;
+      const remainingBalance = Math.max(0, totalNetDue - sf.totalPaid);
+
+      // Populate print area elements
+      document.getElementById('rRcptNo').textContent = p.receiptNo;
+      document.getElementById('rRcptDate').textContent = formatDate(p.paymentDate);
+      document.getElementById('rRcptMode').textContent = p.paymentMode;
+      document.getElementById('rStudentName').textContent = name;
+      document.getElementById('rStudentRoll').textContent = roll;
+      document.getElementById('rStudentClass').textContent = cName;
+
+      document.getElementById('rBaseFee').textContent = '₹' + sf.yearlyFee.toLocaleString('en-IN');
+      document.getElementById('rBusFee').textContent = '₹' + sf.busFee.toLocaleString('en-IN');
+      const rBook = document.getElementById('rBookFee'); if (rBook) rBook.textContent = '₹' + sf.bookFee.toLocaleString('en-IN');
+      const rUnif = document.getElementById('rUniformFee'); if (rUnif) rUnif.textContent = '₹' + sf.uniformFee.toLocaleString('en-IN');
+      const rOther = document.getElementById('rOtherFee'); if (rOther) rOther.textContent = '₹' + sf.otherFee.toLocaleString('en-IN');
+      const rPrev = document.getElementById('rPrevBalance'); if (rPrev) rPrev.textContent = '₹' + sf.previousBalance.toLocaleString('en-IN');
+      document.getElementById('rDiscount').textContent = '-₹' + sf.discount.toLocaleString('en-IN');
+      document.getElementById('rAmountPaid').textContent = '₹' + p.amountPaid.toLocaleString('en-IN');
+      document.getElementById('rRemarks').textContent = p.remarks || 'None';
+      document.getElementById('rRemainingBalance').textContent = '₹' + remainingBalance.toLocaleString('en-IN');
+
+      // Clear and populate custom fee rows dynamically
+      const tbody = document.querySelector('#receiptPrintArea tbody');
+      if (tbody) {
+        const customRows = tbody.querySelectorAll('.r-custom-fee-row');
+        customRows.forEach(r => r.remove());
+        
+        const discountRow = document.getElementById('rDiscount').closest('tr');
+        if (Array.isArray(sf.customFees) && sf.customFees.length > 0) {
+          sf.customFees.forEach(cf => {
+            const tr = document.createElement('tr');
+            tr.className = 'r-custom-fee-row';
+            tr.style.borderBottom = '1px solid #e2e8f0';
+            tr.innerHTML = `
+              <td style="padding: 0.75rem 0;">${cf.label}</td>
+              <td style="padding: 0.75rem 0; text-align: right;">₹${(Number(cf.amount) || 0).toLocaleString('en-IN')}</td>
+            `;
+            tbody.insertBefore(tr, discountRow);
+          });
+        }
+      }
+
+      window.print();
     }
   </script>
 </body>

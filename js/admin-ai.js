@@ -361,6 +361,7 @@ function compileSystemContext(userPrompt) {
     classes: classesWithNames,
     teachers: teachers.map(t => ({
       name: t.name,
+      dob: t.dob || 'Not set',
       assignedClasses: Array.isArray(t.classId) 
         ? t.classId.map(cId => classes.find(c => c.id === cId)?.grade + '-' + classes.find(c => c.id === cId)?.section).filter(Boolean).join(', ')
         : (classes.find(c => c.id === t.classId)?.grade + '-' + classes.find(c => c.id === t.classId)?.section || 'None')

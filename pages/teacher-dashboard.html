@@ -446,6 +446,19 @@
       background: rgba(239, 68, 68, 0.1);
       color: var(--danger);
     }
+    
+    /* Tabs styling */
+    .tab-btn {
+      color: var(--text-secondary);
+    }
+    .tab-btn:hover {
+      color: var(--primary);
+    }
+    .tab-btn.active {
+      background: var(--white) !important;
+      color: var(--primary-dark) !important;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+    }
   </style>
 </head>
 <body>
@@ -531,8 +544,18 @@
 
 
 
+    <!-- Tabs Switcher -->
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; background: rgba(15, 23, 42, 0.03); padding: 0.35rem; border-radius: var(--radius-full); width: fit-content; border: 1px solid rgba(0,0,0,0.02);">
+      <button id="btnTabDirectory" class="tab-btn active" onclick="switchTeacherTab('directory')" style="border: none; background: transparent; padding: 0.55rem 1.35rem; border-radius: var(--radius-full); font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.25s ease;">
+        <i class="bi bi-person-lines-fill"></i> Class Directory
+      </button>
+      <button id="btnTabFees" class="tab-btn" onclick="switchTeacherTab('fees')" style="border: none; background: transparent; padding: 0.55rem 1.35rem; border-radius: var(--radius-full); font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.25s ease;">
+        <i class="bi bi-wallet2"></i> Student Fees Status
+      </button>
+    </div>
+
     <!-- Student Directory -->
-    <div class="directory-panel">
+    <div class="directory-panel" id="panelDirectory">
       <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; width: 100%;">
         <span><i class="bi bi-person-lines-fill icon-accent"></i> My Class Directory</span>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -548,6 +571,46 @@
         <input type="text" id="searchBar" class="form-control" placeholder="Search student name or roll no..." oninput="filterDirectory()"/>
       </div>
       <div class="directory-grid" id="directoryGrid"></div>
+    </div>
+
+    <!-- Student Fees Status Panel -->
+    <div class="directory-panel" id="panelFees" style="display: none;">
+      <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; width: 100%;">
+        <span><i class="bi bi-wallet2 icon-accent"></i> Classroom Fee Status</span>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+          <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary);">Filter Status:</label>
+          <select id="feeFilterStatus" class="form-control" onchange="filterFeesLedger()" style="padding: 0.4rem 0.8rem; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 700; width: auto; background: var(--white); border: 1px solid rgba(0,0,0,0.08);">
+            <option value="all">All Statuses</option>
+            <option value="Paid">Paid ✅</option>
+            <option value="Partial">Partial 🟡</option>
+            <option value="Pending">Pending 🔴</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <input type="text" id="searchFeesBar" class="form-control" placeholder="Search fee record by student name or roll no..." oninput="filterFeesLedger()"/>
+      </div>
+
+      <div style="overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; border: 1px solid rgba(0,0,0,0.06); border-radius: 16px; background: rgba(255,255,255,0.7);">
+        <table style="width: 100%; font-size: 0.88rem; border-collapse: collapse; min-width: 720px;">
+          <thead>
+            <tr style="background: rgba(15, 23, 42, 0.04); border-bottom: 2px solid rgba(15, 23, 42, 0.08);">
+              <th style="padding: 0.75rem; text-align: left; color: var(--primary-dark); font-weight: 700; background: none; font-size: 0.82rem;">Roll No</th>
+              <th style="padding: 0.75rem; text-align: left; color: var(--primary-dark); font-weight: 700; background: none; font-size: 0.82rem;">Student Name</th>
+              <th style="padding: 0.75rem; text-align: center; color: var(--primary-dark); font-weight: 700; background: none; font-size: 0.82rem;">Transport</th>
+              <th style="padding: 0.75rem; text-align: right; color: var(--primary-dark); font-weight: 700; background: none; font-size: 0.82rem;">Net Expected</th>
+              <th style="padding: 0.75rem; text-align: right; color: var(--primary-dark); font-weight: 700; background: none; font-size: 0.82rem;">Paid</th>
+              <th style="padding: 0.75rem; text-align: right; color: var(--primary-dark); font-weight: 700; background: none; font-size: 0.82rem;">Pending</th>
+              <th style="padding: 0.75rem; text-align: center; color: var(--primary-dark); font-weight: 700; background: none; font-size: 0.82rem;">Status</th>
+              <th style="padding: 0.75rem; text-align: center; color: var(--primary-dark); font-weight: 700; background: none; font-size: 0.82rem;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="classFeesTableBody">
+            <!-- Injected via JS -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </main>
@@ -1296,6 +1359,134 @@
         showToast('Student added successfully', 'success');
       });
     });
+
+    function switchTeacherTab(tab) {
+      const btnDir = document.getElementById('btnTabDirectory');
+      const btnFees = document.getElementById('btnTabFees');
+      const panelDir = document.getElementById('panelDirectory');
+      const panelFees = document.getElementById('panelFees');
+      
+      if (tab === 'directory') {
+        btnDir.classList.add('active');
+        btnFees.classList.remove('active');
+        panelDir.style.display = 'block';
+        panelFees.style.display = 'none';
+        renderDirectory(cachedStudents);
+      } else {
+        btnDir.classList.remove('active');
+        btnFees.classList.add('active');
+        panelDir.style.display = 'none';
+        panelFees.style.display = 'block';
+        renderFeesLedger();
+      }
+    }
+
+    function renderFeesLedger() {
+      const students = getMyStudents();
+      const studentFees = DB.get('studentFees') || [];
+      const activeYear = currentAcademicYear();
+      
+      const tbody = document.getElementById('classFeesTableBody');
+      const filterStatus = document.getElementById('feeFilterStatus').value;
+      const searchQuery = document.getElementById('searchFeesBar').value.trim().toLowerCase();
+
+      let filtered = students.map(s => {
+        const fee = studentFees.find(f => f.studentId === s.id && f.academicYear === activeYear) || {
+          yearlyFee: 0,
+          busFee: 0,
+          discount: 0,
+          totalPaid: 0,
+          status: 'Pending Setup'
+        };
+        const netExpected = fee.yearlyFee + fee.busFee - fee.discount;
+        const pending = netExpected - fee.totalPaid;
+        return {
+          student: s,
+          fee: fee,
+          netExpected,
+          pending
+        };
+      });
+
+      // Filter by status
+      if (filterStatus !== 'all') {
+        filtered = filtered.filter(item => item.fee.status === filterStatus);
+      }
+
+      // Filter by search query
+      if (searchQuery) {
+        filtered = filtered.filter(item => 
+          item.student.name.toLowerCase().includes(searchQuery) ||
+          item.student.rollNo.toLowerCase().includes(searchQuery)
+        );
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:2rem; color:var(--text-secondary); font-weight: 600;">No student fee records match the filters.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        const s = item.student;
+        const sf = item.fee;
+        const statusClass = sf.status === 'Paid' ? 'badge-success' : (sf.status === 'Partial' ? 'badge-warning' : 'badge-danger');
+        const isBus = s.type === 'bus';
+
+        return `
+          <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+            <td style="padding: 0.75rem; font-weight:700;">${s.rollNo}</td>
+            <td style="padding: 0.75rem; font-weight:750; color: var(--primary-dark);">${s.name}</td>
+            <td style="padding: 0.75rem; text-align:center;">
+              <span class="badge ${isBus ? 'badge-warning' : 'badge-success'}" style="font-size:0.75rem; border: none; padding: 0.35rem 0.75rem;">
+                <i class="bi ${isBus ? 'bi-bus-front' : 'bi-person-walking'}"></i> ${isBus ? 'Bus' : 'Walk'}
+              </span>
+            </td>
+            <td style="padding: 0.75rem; text-align:right; font-weight:700;">₹${item.netExpected.toLocaleString('en-IN')}</td>
+            <td style="padding: 0.75rem; text-align:right; font-weight:700; color:#16a34a;">₹${sf.totalPaid.toLocaleString('en-IN')}</td>
+            <td style="padding: 0.75rem; text-align:right; font-weight:700; color:var(--danger);">₹${item.pending.toLocaleString('en-IN')}</td>
+            <td style="padding: 0.75rem; text-align:center;">
+              <span class="badge ${statusClass}" style="border: none; padding: 0.35rem 0.75rem;">${sf.status}</span>
+            </td>
+            <td style="padding: 0.75rem; text-align:center;">
+              ${sf.status !== 'Paid' ? `
+                <button class="action-btn btn-primary btn-sm" onclick="sendPaymentReminderRequest('${s.id}', '${s.name}')" style="padding:0.35rem 0.75rem; font-size:0.78rem; background: linear-gradient(135deg, var(--accent), var(--accent-light)); border:none; color:var(--primary-dark); font-weight:700; border-radius: var(--radius-full); cursor: pointer;">
+                  <i class="bi bi-bell-fill"></i> Remind Admin
+                </button>
+              ` : `
+                <span style="font-size:0.8rem; color:#16a34a; font-weight:700;"><i class="bi bi-check-circle-fill"></i> Cleared</span>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterFeesLedger() {
+      renderFeesLedger();
+    }
+
+    function sendPaymentReminderRequest(studentId, studentName) {
+      const teachers = DB.get('teachers') || [];
+      const teacher = teachers.find(t => t.id === session.id);
+      const teacherName = teacher ? teacher.name : 'Class Teacher';
+
+      // Log reminder in feeLogs
+      const feeLogs = DB.get('feeLogs') || [];
+      const logEntry = {
+        id: 'FLOG-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+        action: 'Reminder Requested',
+        details: `Payment reminder requested for student ${studentName} by Class Teacher ${teacherName}.`,
+        userId: session.id,
+        userName: teacherName,
+        createdAt: new Date().toISOString()
+      };
+      
+      feeLogs.push(logEntry);
+      DB.set('feeLogs', feeLogs).then(() => {
+        showToast(`Reminder request for ${studentName} sent successfully to Accounts office!`, 'success');
+        renderFeesLedger();
+      });
+    }
   </script>
 </body>
 </html>

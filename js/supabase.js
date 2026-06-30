@@ -212,7 +212,8 @@ function triggerBackgroundSync(key, value, oldValue) {
                  old.password !== t.password ||
                  JSON.stringify(old.classId) !== JSON.stringify(t.classId) ||
                  old.phone !== t.phone ||
-                 old.email !== t.email;
+                 old.email !== t.email ||
+                 old.dob !== t.dob;
         });
 
         if (toUpsert.length > 0) {
@@ -223,10 +224,20 @@ function triggerBackgroundSync(key, value, oldValue) {
             password: t.password || '',
             class_id: Array.isArray(t.classId) ? JSON.stringify(t.classId) : (t.classId || null),
             phone: t.phone || null,
-            email: t.email || null
+            email: t.email || null,
+            dob: t.dob || null
           }));
           const { error: upsertErr } = await client.from('teachers').upsert(rows);
-          if (upsertErr) throw upsertErr;
+          if (upsertErr) {
+            if (upsertErr.code === '42703' || (upsertErr.message && (upsertErr.message.includes('dob') || upsertErr.message.includes('column')))) {
+              console.warn("Supabase 'teachers' table doesn't have 'dob' column. Retrying sync without 'dob'.");
+              const rowsWithoutDob = rows.map(({ dob, ...rest }) => rest);
+              const { error: retryErr } = await client.from('teachers').upsert(rowsWithoutDob);
+              if (retryErr) throw retryErr;
+            } else {
+              throw upsertErr;
+            }
+          }
         }
       } catch (err) {
         handleSyncError('teachers', err);
@@ -469,6 +480,273 @@ function triggerBackgroundSync(key, value, oldValue) {
   else if (key === 'admissions') {
     return Promise.resolve();
   }
+
+  else if (key === 'accountants') {
+    return (async () => {
+      try {
+        const oldArray = oldValue || [];
+        const oldIds = oldArray.map(a => a.id);
+        const newIds = value.map(a => a.id);
+
+        const toDelete = oldIds.filter(id => !newIds.includes(id));
+        if (toDelete.length > 0) {
+          await client.from('accountants').delete().in('id', toDelete);
+        }
+
+        const toUpsert = value.filter(a => {
+          const old = oldArray.find(o => o.id === a.id);
+          if (!old) return true;
+          return old.name !== a.name ||
+                 old.username !== a.username ||
+                 old.password !== a.password ||
+                 old.phone !== a.phone ||
+                 old.email !== a.email;
+        });
+
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(a => ({
+            id: a.id,
+            name: a.name || '',
+            username: a.username || '',
+            password: a.password || '',
+            phone: a.phone || null,
+            email: a.email || null
+          }));
+          const { error: upsertErr } = await client.from('accountants').upsert(rows);
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        handleSyncError('accountants', err);
+        throw err;
+      }
+    })();
+  }
+
+  else if (key === 'feeStructures') {
+    return (async () => {
+      try {
+        const oldArray = oldValue || [];
+        const oldIds = oldArray.map(fs => fs.id);
+        const newIds = value.map(fs => fs.id);
+
+        const toDelete = oldIds.filter(id => !newIds.includes(id));
+        if (toDelete.length > 0) {
+          await client.from('fee_structures').delete().in('id', toDelete);
+        }
+
+        const toUpsert = value.filter(fs => {
+          const old = oldArray.find(o => o.id === fs.id);
+          if (!old) return true;
+          return old.classId !== fs.classId ||
+                 old.academicYear !== fs.academicYear ||
+                 old.amount !== fs.amount ||
+                 old.bookFee !== fs.bookFee ||
+                 old.uniformFee !== fs.uniformFee;
+        });
+
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(fs => ({
+            id: fs.id,
+            class_id: fs.classId || null,
+            academic_year: fs.academicYear || '',
+            amount: Number(fs.amount) || 0,
+            book_fee: Number(fs.bookFee) || 0,
+            uniform_fee: Number(fs.uniformFee) || 0
+          }));
+          const { error: upsertErr } = await client.from('fee_structures').upsert(rows);
+          if (upsertErr) {
+            console.warn('Failed to upsert fee_structures with new columns, retrying with base amount only:', upsertErr.message);
+            const fallbackRows = rows.map(({ book_fee, uniform_fee, ...rest }) => rest);
+            const { error: fallbackErr } = await client.from('fee_structures').upsert(fallbackRows);
+            if (fallbackErr) throw fallbackErr;
+          }
+        }
+      } catch (err) {
+        handleSyncError('fee structures', err);
+        throw err;
+      }
+    })();
+  }
+
+  else if (key === 'busStops') {
+    return (async () => {
+      try {
+        const oldArray = oldValue || [];
+        const oldIds = oldArray.map(bs => bs.id);
+        const newIds = value.map(bs => bs.id);
+
+        const toDelete = oldIds.filter(id => !newIds.includes(id));
+        if (toDelete.length > 0) {
+          // Try to delete from bus_stops table; skip gracefully if table doesn't exist
+          try { await client.from('bus_stops').delete().in('id', toDelete); } catch(e) {}
+        }
+
+        const toUpsert = value.filter(bs => {
+          const old = oldArray.find(o => o.id === bs.id);
+          if (!old) return true;
+          return old.name !== bs.name || old.fee !== bs.fee || old.busId !== bs.busId;
+        });
+
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(bs => ({
+            id: bs.id,
+            name: bs.name || '',
+            fee: Number(bs.fee) || 0,
+            bus_id: bs.busId || null
+          }));
+          try { await client.from('bus_stops').upsert(rows); } catch(e) { console.warn('bus_stops table may not exist yet:', e.message); }
+        }
+      } catch (err) {
+        console.warn('busStops sync skipped (table may not exist):', err.message);
+      }
+    })();
+  }
+
+  else if (key === 'studentFees') {
+    return (async () => {
+      try {
+        const oldArray = oldValue || [];
+        const oldIds = oldArray.map(sf => sf.id);
+        const newIds = value.map(sf => sf.id);
+
+        const toDelete = oldIds.filter(id => !newIds.includes(id));
+        if (toDelete.length > 0) {
+          await client.from('student_fees').delete().in('id', toDelete);
+        }
+
+        const toUpsert = value.filter(sf => {
+          const old = oldArray.find(o => o.id === sf.id);
+          if (!old) return true;
+          return old.studentId !== sf.studentId ||
+                 old.academicYear !== sf.academicYear ||
+                 old.yearlyFee !== sf.yearlyFee ||
+                 old.busFee !== sf.busFee ||
+                 old.bookFee !== sf.bookFee ||
+                 old.uniformFee !== sf.uniformFee ||
+                 old.otherFee !== sf.otherFee ||
+                 old.previousBalance !== sf.previousBalance ||
+                 old.discount !== sf.discount ||
+                 old.totalDue !== sf.totalDue ||
+                 old.totalPaid !== sf.totalPaid ||
+                 old.status !== sf.status ||
+                 JSON.stringify(old.customFees || []) !== JSON.stringify(sf.customFees || []);
+        });
+
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(sf => ({
+            id: sf.id,
+            student_id: sf.studentId || null,
+            academic_year: sf.academicYear || '',
+            yearly_fee: Number(sf.yearlyFee) || 0,
+            bus_fee: Number(sf.busFee) || 0,
+            book_fee: Number(sf.bookFee) || 0,
+            uniform_fee: Number(sf.uniformFee) || 0,
+            other_fee: Number(sf.otherFee) || 0,
+            previous_balance: Number(sf.previousBalance) || 0,
+            discount: Number(sf.discount) || 0,
+            total_due: Number(sf.totalDue) || 0,
+            total_paid: Number(sf.totalPaid) || 0,
+            status: sf.status || 'Pending',
+            custom_fees: Array.isArray(sf.customFees) ? sf.customFees : []
+          }));
+          const { error: upsertErr } = await client.from('student_fees').upsert(rows);
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        handleSyncError('student fees', err);
+        throw err;
+      }
+    })();
+  }
+
+  else if (key === 'feePayments') {
+    return (async () => {
+      try {
+        const oldArray = oldValue || [];
+        const oldIds = oldArray.map(fp => fp.id);
+        const newIds = value.map(fp => fp.id);
+
+        const toDelete = oldIds.filter(id => !newIds.includes(id));
+        if (toDelete.length > 0) {
+          await client.from('fee_payments').delete().in('id', toDelete);
+        }
+
+        const toUpsert = value.filter(fp => {
+          const old = oldArray.find(o => o.id === fp.id);
+          if (!old) return true;
+          return old.studentId !== fp.studentId ||
+                 old.academicYear !== fp.academicYear ||
+                 old.amountPaid !== fp.amountPaid ||
+                 old.paymentDate !== fp.paymentDate ||
+                 old.paymentMode !== fp.paymentMode ||
+                 old.receiptNo !== fp.receiptNo ||
+                 (old.notes !== fp.notes && old.remarks !== fp.remarks) ||
+                 old.collectedBy !== fp.collectedBy;
+        });
+
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(fp => ({
+            id: fp.id,
+            student_id: fp.studentId || null,
+            academic_year: fp.academicYear || '',
+            amount_paid: Number(fp.amountPaid) || 0,
+            payment_date: fp.paymentDate || null,
+            payment_mode: fp.paymentMode || '',
+            receipt_no: fp.receiptNo || '',
+            notes: fp.notes || fp.remarks || null,
+            collected_by: fp.collectedBy || null
+          }));
+          const { error: upsertErr } = await client.from('fee_payments').upsert(rows);
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        handleSyncError('fee payments', err);
+        throw err;
+      }
+    })();
+  }
+
+  else if (key === 'feeLogs') {
+    return (async () => {
+      try {
+        const oldArray = oldValue || [];
+        const oldIds = oldArray.map(fl => fl.id);
+        const newIds = value.map(fl => fl.id);
+
+        const toDelete = oldIds.filter(id => !newIds.includes(id));
+        if (toDelete.length > 0) {
+          await client.from('fee_logs').delete().in('id', toDelete);
+        }
+
+        const toUpsert = value.filter(fl => {
+          const old = oldArray.find(o => o.id === fl.id);
+          if (!old) return true;
+          return old.action !== fl.action ||
+                 old.details !== fl.details ||
+                 old.userId !== fl.userId ||
+                 old.userName !== fl.userName ||
+                 old.createdAt !== fl.createdAt;
+        });
+
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(fl => ({
+            id: fl.id,
+            action: fl.action || '',
+            details: fl.details || null,
+            user_id: fl.userId || null,
+            user_name: fl.userName || null,
+            created_at: fl.createdAt || new Date().toISOString()
+          }));
+          const { error: upsertErr } = await client.from('fee_logs').upsert(rows);
+          if (upsertErr) throw upsertErr;
+        }
+      } catch (err) {
+        handleSyncError('fee logs', err);
+        throw err;
+      }
+    })();
+  }
+
   return Promise.resolve();
 }
 
@@ -796,6 +1074,120 @@ var DB = {
         console.warn('Failed to load class_subjects from Supabase:', e);
       }
 
+      // 9. Accountants
+      try {
+        const { data: accountants, error: errAccountants } = await client.from('accountants').select('*');
+        if (errAccountants) throw errAccountants;
+        if (accountants) LOCAL.set('accountants', accountants);
+      } catch (e) {
+        console.warn('Failed to load accountants from Supabase, using local:', e);
+      }
+
+      // 10. Fee Structures
+      try {
+        const { data: feeStructures, error: errFeeStructures } = await client.from('fee_structures').select('*');
+        if (errFeeStructures) throw errFeeStructures;
+        if (feeStructures) {
+          const mapped = feeStructures.map(fs => {
+            const m = mapKeys(fs, {
+              class_id: 'classId',
+              academic_year: 'academicYear',
+              book_fee: 'bookFee',
+              uniform_fee: 'uniformFee'
+            });
+            m.bookFee = Number(m.bookFee) || 0;
+            m.uniformFee = Number(m.uniformFee) || 0;
+            return m;
+          });
+          LOCAL.set('feeStructures', mapped);
+        }
+      } catch (e) {
+        console.warn('Failed to load fee_structures from Supabase, using local:', e);
+      }
+
+      // 11. Student Fees
+      try {
+        const { data: studentFees, error: errStudentFees } = await client.from('student_fees').select('*');
+        if (errStudentFees) throw errStudentFees;
+        if (studentFees) {
+          const mapped = studentFees.map(sf => mapKeys(sf, {
+            student_id: 'studentId',
+            academic_year: 'academicYear',
+            yearly_fee: 'yearlyFee',
+            bus_fee: 'busFee',
+            book_fee: 'bookFee',
+            uniform_fee: 'uniformFee',
+            other_fee: 'otherFee',
+            previous_balance: 'previousBalance',
+            custom_fees: 'customFees',
+            total_due: 'totalDue',
+            total_paid: 'totalPaid'
+          }));
+          // Ensure numeric defaults and arrays for new fields
+          mapped.forEach(sf => {
+            sf.bookFee = Number(sf.bookFee) || 0;
+            sf.uniformFee = Number(sf.uniformFee) || 0;
+            sf.otherFee = Number(sf.otherFee) || 0;
+            sf.previousBalance = Number(sf.previousBalance) || 0;
+            sf.customFees = Array.isArray(sf.customFees) ? sf.customFees : [];
+          });
+          LOCAL.set('studentFees', mapped);
+        }
+      } catch (e) {
+        console.warn('Failed to load student_fees from Supabase, using local:', e);
+      }
+
+      // 11b. Bus Stops
+      try {
+        const { data: busStops, error: errBusStops } = await client.from('bus_stops').select('*');
+        if (!errBusStops && busStops) {
+          const mapped = busStops.map(bs => mapKeys(bs, { bus_id: 'busId' }));
+          LOCAL.set('busStops', mapped);
+        }
+      } catch (e) {
+        console.warn('bus_stops table not found on Supabase (optional), using local:', e.message);
+      }
+
+      // 12. Fee Payments
+      try {
+        const { data: feePayments, error: errFeePayments } = await client.from('fee_payments').select('*');
+        if (errFeePayments) throw errFeePayments;
+        if (feePayments) {
+          const mapped = feePayments.map(fp => {
+            const m = mapKeys(fp, {
+              student_id: 'studentId',
+              academic_year: 'academicYear',
+              amount_paid: 'amountPaid',
+              payment_date: 'paymentDate',
+              payment_mode: 'paymentMode',
+              receipt_no: 'receiptNo',
+              collected_by: 'collectedBy'
+            });
+            m.remarks = m.notes || '';
+            return m;
+          });
+          LOCAL.set('feePayments', mapped);
+        }
+      } catch (e) {
+        console.warn('Failed to load fee_payments from Supabase, using local:', e);
+      }
+
+      // 13. Fee Logs
+      try {
+        const { data: feeLogs, error: errFeeLogs } = await client.from('fee_logs').select('*');
+        if (errFeeLogs) throw errFeeLogs;
+        if (feeLogs) {
+          const mapped = feeLogs.map(fl => mapKeys(fl, {
+            user_id: 'userId',
+            user_name: 'userName',
+            created_at: 'createdAt'
+          }));
+          LOCAL.set('feeLogs', mapped);
+        }
+      } catch (e) {
+        console.warn('Failed to load fee_logs from Supabase, using local:', e);
+      }
+
       window.dispatchEvent(new Event('mss-db-sync'));
     } catch (error) {
       console.error('Supabase pullAllFromSupabase failed:', error);
@@ -852,8 +1244,10 @@ CREATE TABLE IF NOT EXISTS teachers (
   class_id TEXT REFERENCES classes(id),
   phone TEXT,
   email TEXT,
+  dob DATE, -- Added for teacher birthdays
   created_at TIMESTAMPTZ DEFAULT now()
 );
+-- To apply to existing tables: ALTER TABLE teachers ADD COLUMN dob DATE;
 
 CREATE TABLE IF NOT EXISTS buses (
   id TEXT PRIMARY KEY,
@@ -978,4 +1372,114 @@ CREATE POLICY "Subjects select" ON class_subjects FOR SELECT USING (true);
 CREATE POLICY "Subjects insert" ON class_subjects FOR INSERT WITH CHECK (true);
 CREATE POLICY "Subjects update" ON class_subjects FOR UPDATE USING (true);
 CREATE POLICY "Subjects delete" ON class_subjects FOR DELETE USING (true);
+
+-- 9. Accountants table & policies
+CREATE TABLE IF NOT EXISTS accountants (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  phone TEXT,
+  email TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+ALTER TABLE accountants ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Accountants select" ON accountants FOR SELECT USING (true);
+CREATE POLICY "Accountants insert" ON accountants FOR INSERT WITH CHECK (true);
+CREATE POLICY "Accountants update" ON accountants FOR UPDATE USING (true);
+CREATE POLICY "Accountants delete" ON accountants FOR DELETE USING (true);
+
+-- 10. Fee Structures table & policies
+CREATE TABLE IF NOT EXISTS fee_structures (
+  id TEXT PRIMARY KEY,
+  class_id TEXT REFERENCES classes(id) ON DELETE CASCADE,
+  academic_year TEXT NOT NULL,
+  amount INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(class_id, academic_year)
+);
+ALTER TABLE fee_structures ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Structures select" ON fee_structures FOR SELECT USING (true);
+CREATE POLICY "Structures insert" ON fee_structures FOR INSERT WITH CHECK (true);
+CREATE POLICY "Structures update" ON fee_structures FOR UPDATE USING (true);
+CREATE POLICY "Structures delete" ON fee_structures FOR DELETE USING (true);
+
+-- 11. Student Fees table & policies
+CREATE TABLE IF NOT EXISTS student_fees (
+  id TEXT PRIMARY KEY,
+  student_id TEXT REFERENCES students(id) ON DELETE CASCADE,
+  academic_year TEXT NOT NULL,
+  yearly_fee INTEGER NOT NULL DEFAULT 0,
+  bus_fee INTEGER NOT NULL DEFAULT 0,
+  book_fee INTEGER NOT NULL DEFAULT 0,
+  uniform_fee INTEGER NOT NULL DEFAULT 0,
+  other_fee INTEGER NOT NULL DEFAULT 0,
+  previous_balance INTEGER NOT NULL DEFAULT 0,
+  discount INTEGER NOT NULL DEFAULT 0,
+  total_due INTEGER NOT NULL DEFAULT 0,
+  total_paid INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'Pending',
+  custom_fees JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(student_id, academic_year)
+);
+-- Migration for existing databases:
+-- ALTER TABLE student_fees ADD COLUMN IF NOT EXISTS book_fee INTEGER NOT NULL DEFAULT 0;
+-- ALTER TABLE student_fees ADD COLUMN IF NOT EXISTS uniform_fee INTEGER NOT NULL DEFAULT 0;
+-- ALTER TABLE student_fees ADD COLUMN IF NOT EXISTS other_fee INTEGER NOT NULL DEFAULT 0;
+-- ALTER TABLE student_fees ADD COLUMN IF NOT EXISTS previous_balance INTEGER NOT NULL DEFAULT 0;
+-- ALTER TABLE student_fees ADD COLUMN IF NOT EXISTS custom_fees JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE student_fees ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "StudentFees select" ON student_fees FOR SELECT USING (true);
+CREATE POLICY "StudentFees insert" ON student_fees FOR INSERT WITH CHECK (true);
+CREATE POLICY "StudentFees update" ON student_fees FOR UPDATE USING (true);
+CREATE POLICY "StudentFees delete" ON student_fees FOR DELETE USING (true);
+
+-- 14. Bus Stops table & policies (optional: for per-place bus fee management)
+CREATE TABLE IF NOT EXISTS bus_stops (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  fee INTEGER NOT NULL DEFAULT 0,
+  bus_id TEXT REFERENCES buses(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+ALTER TABLE bus_stops ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "BusStops select" ON bus_stops FOR SELECT USING (true);
+CREATE POLICY "BusStops insert" ON bus_stops FOR INSERT WITH CHECK (true);
+CREATE POLICY "BusStops update" ON bus_stops FOR UPDATE USING (true);
+CREATE POLICY "BusStops delete" ON bus_stops FOR DELETE USING (true);
+
+-- 12. Fee Payments table & policies
+CREATE TABLE IF NOT EXISTS fee_payments (
+  id TEXT PRIMARY KEY,
+  student_id TEXT REFERENCES students(id) ON DELETE CASCADE,
+  academic_year TEXT NOT NULL,
+  amount_paid INTEGER NOT NULL,
+  payment_date DATE NOT NULL,
+  payment_mode TEXT NOT NULL,
+  receipt_no TEXT NOT NULL UNIQUE,
+  notes TEXT,
+  collected_by TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+ALTER TABLE fee_payments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Payments select" ON fee_payments FOR SELECT USING (true);
+CREATE POLICY "Payments insert" ON fee_payments FOR INSERT WITH CHECK (true);
+CREATE POLICY "Payments update" ON fee_payments FOR UPDATE USING (true);
+CREATE POLICY "Payments delete" ON fee_payments FOR DELETE USING (true);
+
+-- 13. Fee Logs table & policies
+CREATE TABLE IF NOT EXISTS fee_logs (
+  id TEXT PRIMARY KEY,
+  action TEXT NOT NULL,
+  details TEXT,
+  user_id TEXT,
+  user_name TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+ALTER TABLE fee_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "FeeLogs select" ON fee_logs FOR SELECT USING (true);
+CREATE POLICY "FeeLogs insert" ON fee_logs FOR INSERT WITH CHECK (true);
+CREATE POLICY "FeeLogs update" ON fee_logs FOR UPDATE USING (true);
+CREATE POLICY "FeeLogs delete" ON fee_logs FOR DELETE USING (true);
 */
