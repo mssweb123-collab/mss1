@@ -10,6 +10,9 @@
   <title>Teacher Portal – MSS School</title>
   <link rel="stylesheet" href="../css/style.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
     :root {
@@ -20,7 +23,7 @@
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --background: #f8fafc;
+      --background: radial-gradient(circle at top left, #f8fafc, #eff6ff);
       --surface: #ffffff;
       --text: #1e293b;
       --text-secondary: #64748b;
@@ -36,12 +39,16 @@
     }
     
     body {
-      background: #f1f5f9;
-      min-height: 100vh;
-      font-family: 'Plus Jakarta Sans', sans-serif;
       margin: 0;
       padding: 0;
+      background: var(--background);
+      background-attachment: fixed;
       color: var(--text);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
     }
     
     /* Layout Structure */
@@ -57,50 +64,50 @@
     
     .bottom-nav {
       position: fixed;
-      bottom: 1rem;
-      left: 0.85rem;
-      right: 0.85rem;
-      height: 66px;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.8);
+      bottom: 1.25rem;
+      left: 1.25rem;
+      right: 1.25rem;
+      height: 72px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
       align-items: center;
       z-index: 1000;
-      border-radius: 28px;
-      box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(79, 70, 229, 0.08);
-      padding: 0 0.5rem;
+      border-radius: 36px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+      padding: 0 0.75rem;
     }
     
     .nav-item {
-      flex: 1;
-      height: 52px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      color: #64748b;
-      font-size: 0.72rem;
-      font-weight: 750;
-      padding: 0.25rem;
+      color: #94a3b8;
+      font-size: 0.65rem;
+      font-weight: 700;
+      height: 56px;
+      width: 60px;
       border-radius: 20px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      background: none;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background: transparent;
       border: none;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      gap: 3px;
       position: relative;
-      margin: 0 2px;
     }
     
     .nav-item i {
       font-size: 1.35rem;
-      margin-bottom: 0;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+      margin-bottom: 3px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .nav-item:active {
@@ -108,25 +115,14 @@
     }
 
     .nav-item.active {
-      color: #4f46e5;
-      font-weight: 850;
-      background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(124, 58, 237, 0.06));
-    }
-
-    .nav-item.active i {
-      transform: translateY(-2px) scale(1.15);
-      color: #4f46e5;
+      color: var(--primary);
+      background: rgba(79, 70, 229, 0.08);
+      transform: translateY(-4px);
     }
     
-    .nav-item.active::after {
-      content: '';
-      position: absolute;
-      bottom: 4px;
-      width: 16px;
-      height: 3px;
-      background: #4f46e5;
-      border-radius: 99px;
-      box-shadow: 0 0 8px rgba(79, 70, 229, 0.6);
+    .nav-item.active i {
+      transform: scale(1.15);
+      color: var(--primary);
     }
     
     .main-content {
@@ -137,106 +133,156 @@
     }
 
     /* Headers */
-    .dashboard-header {
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-      padding: 1rem 1.25rem;
+    .dashboard-header, .app-header-bar {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+      padding: 1.25rem 1.5rem;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 4px 30px rgba(15, 23, 42, 0.03);
+    }
+    
+    .hdr-top, .hdr-row, .app-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .dashboard-header h1, .header-title, .hdr-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    #classNameDisplay, .header-sub, .hdr-sub {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      font-weight: 750;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      padding: 0.45rem 1.1rem;
+      border-radius: var(--radius-full);
+      font-weight: 800;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.05);
+    }
+    
+    .logout-btn:hover {
+      background: var(--danger);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(239, 68, 68, 0.25);
     }
 
-    .teacher-avatar-badge {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-      color: #ffffff;
-      font-weight: 900;
-      font-size: 1.25rem;
+    .back-btn-nav {
+      background: rgba(79, 70, 229, 0.08);
+      border: none;
+      color: var(--primary);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 6px 16px -2px rgba(79, 70, 229, 0.35);
-      border: 2px solid #ffffff;
+      font-size: 1.1rem;
+      cursor: pointer;
       flex-shrink: 0;
+      margin-right: 0.5rem;
+      transition: background 0.2s;
+    }
+    .back-btn-nav:hover {
+      background: rgba(79, 70, 229, 0.15);
     }
 
-    .class-pill-badge {
-      font-size: 0.8rem;
-      font-weight: 800;
-      color: #7c3aed;
-      background: rgba(124, 58, 237, 0.08);
-      border: 1px solid rgba(124, 58, 237, 0.15);
-      padding: 0.2rem 0.65rem;
-      border-radius: 99px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
+    /* Stats strip */
     .summary-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-      padding: 1rem 1.25rem 0.5rem 1.25rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      padding: 1.25rem;
+      background: transparent;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 480px) {
       .summary-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr 1fr;
       }
       .summary-card:last-child {
         grid-column: 1 / -1;
       }
     }
     
-    .summary-card {
-      background: #ffffff;
-      border: 1px solid rgba(15, 23, 42, 0.05);
-      border-radius: 20px;
-      padding: 0.9rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    .summary-grid::-webkit-scrollbar {
+      display: none;
     }
     
-    .summary-card:active {
-      transform: scale(0.98);
+    .summary-card {
+      background: #fff;
+      border: 1px solid rgba(15, 23, 42, 0.04);
+      border-radius: 24px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      min-width: 140px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255,255,255,0.8);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .summary-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255,255,255,0.8);
     }
     
     .summary-icon {
-      width: 42px;
-      height: 42px;
+      font-size: 1.25rem;
+      width: 44px;
+      height: 44px;
       border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
       flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
     }
     
-    .icon-students { background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(99, 102, 241, 0.08)); color: #4f46e5; }
-    .icon-attendance { background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.08)); color: #10b981; }
-    .icon-transport { background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.08)); color: #f59e0b; }
+    .icon-students { background: linear-gradient(135deg, rgba(79,70,229,0.15), rgba(79,70,229,0.05)); color: var(--primary); }
+    .icon-attendance { background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05)); color: var(--success); }
+    .icon-transport { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05)); color: var(--warning); }
     
     .summary-info h3 {
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      font-weight: 800;
+      font-weight: 700;
       margin: 0 0 2px 0;
     }
     
     .summary-info p {
-      font-size: 1.2rem;
-      font-weight: 900;
+      font-size: 1.15rem;
+      font-weight: 800;
       color: var(--text);
       margin: 0;
     }
@@ -252,10 +298,12 @@
     }
     
     .directory-panel {
-      background: #fff;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: 28px;
       padding: 1.5rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255,255,255,0.8);
       border: 1px solid rgba(15, 23, 42, 0.04);
     }
     
@@ -280,14 +328,20 @@
     
     .student-card {
       background: #fff;
-      border: 1.5px solid rgba(15, 23, 42, 0.05);
+      border: 1px solid rgba(15, 23, 42, 0.04);
       border-radius: 24px;
       padding: 1.25rem;
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    
+    .student-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+      border-color: rgba(79, 70, 229, 0.15);
     }
     
     .student-avatar {
@@ -1343,19 +1397,14 @@
       <div id="view-dashboard" class="view-panel" style="display: none;">
         <header class="dashboard-header">
           <div class="hdr-top">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <div class="teacher-avatar-badge" id="teacherAvatarBadge">T</div>
-              <div>
-                <h1 style="margin: 0; font-size: 1.25rem; font-weight: 850; color: var(--primary-dark); display: flex; align-items: center; gap: 0.4rem;">
-                  <span id="teacherNameHeader">Teacher</span>
-                </h1>
-                <div style="margin-top: 3px;">
-                  <span id="classNameDisplay" class="class-pill-badge"><i class="bi bi-mortarboard-fill"></i> Class</span>
-                </div>
-              </div>
+            <div>
+              <h1 style="display: flex; align-items: baseline; gap: 0.5rem;">
+                <span id="teacherNameHeader" style="font-size: 1.4rem;">Teacher</span>
+                <span id="classNameDisplay" style="font-size: 0.85rem; color: var(--accent); background: rgba(124, 58, 237, 0.08); padding: 0.15rem 0.6rem; border-radius: 8px; font-weight: 800;">Class</span>
+              </h1>
             </div>
             <button class="logout-btn" onclick="Auth.logout();window.location.reload()">
-              <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+              <i class="bi bi-box-arrow-right"></i> Logout
             </button>
           </div>
         </header>
@@ -1370,7 +1419,7 @@
             </div>
           </div>
           <div class="summary-card">
-            <div class="summary-icon icon-attendance"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="summary-icon icon-attendance"><i class="bi bi-check-all"></i></div>
             <div class="summary-info">
               <h3>Present Today</h3>
               <p id="statPresentToday">0/0</p>
@@ -1388,15 +1437,14 @@
         <main class="dashboard-content page-enter">
           <div class="directory-panel" id="panelDirectory">
             <div class="panel-title">
-              <span style="display:flex;align-items:center;gap:.4rem;"><i class="bi bi-person-vcard-fill" style="color:var(--primary);"></i> My Class Students</span>
+              <span>📋 My Class Students</span>
               <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-                <button onclick="openAddStudentModal()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#ffffff;font-weight:800;font-size:.78rem;padding:.5rem 1rem;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;box-shadow:0 4px 12px rgba(245,158,11,0.25);-webkit-tap-highlight-color:transparent;"><i class="bi bi-person-plus-fill"></i>Add Student</button>
-                <button onclick="downloadAllProgressCards()" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);border:none;color:#ffffff;font-weight:800;font-size:.78rem;padding:.5rem 1rem;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;box-shadow:0 4px 12px rgba(79,70,229,0.25);-webkit-tap-highlight-color:transparent;"><i class="bi bi-file-earmark-pdf-fill"></i>Download All Cards</button>
+                <button onclick="openAddStudentModal()" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);border:none;color:#1e293b;font-weight:800;font-size:.78rem;padding:.45rem .9rem;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;-webkit-tap-highlight-color:transparent;"><i class="bi bi-person-plus-fill"></i>Add Student</button>
+                <button onclick="downloadAllProgressCards()" style="background:linear-gradient(135deg,#4f46e5,#6366f1);border:none;color:#fff;font-weight:800;font-size:.78rem;padding:.45rem .9rem;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;-webkit-tap-highlight-color:transparent;"><i class="bi bi-file-earmark-pdf-fill"></i>Download All Cards</button>
               </div>
             </div>
-            <div class="search-input-wrap" style="position:relative;margin-bottom:1.25rem;">
-              <input type="text" id="searchBarDashboard" placeholder="Search student by name or roll number…" oninput="filterDirectory()" style="width:100%;height:48px;padding:0.65rem 1rem 0.65rem 2.8rem;background:#f8fafc;border:1.5px solid rgba(15,23,42,0.08);border-radius:99px;font-size:0.9rem;font-weight:600;outline:none;"/>
-              <i class="bi bi-search" style="position:absolute;left:1.1rem;top:50%;transform:translateY(-50%);font-size:1.05rem;color:#94a3b8;pointer-events:none;"></i>
+            <div class="search-input-wrap">
+              <input type="text" id="searchBarDashboard" placeholder="Search student by name or roll number…" oninput="filterDirectory()"/>
             </div>
             <div class="directory-grid" id="directoryGrid"></div>
           </div>
@@ -1567,24 +1615,19 @@
     <!-- Mobile Bottom Navigation Bar -->
     <nav class="bottom-nav">
       <button class="nav-item" id="nav-btn-dashboard" onclick="window.location.hash = '#dashboard'">
-        <i class="bi bi-house-door-fill"></i>
-        <span>Home</span>
+        <i class="bi bi-house-fill"></i>Home
       </button>
       <button class="nav-item" id="nav-btn-attendance" onclick="window.location.hash = '#attendance'">
-        <i class="bi bi-calendar-check-fill"></i>
-        <span>Attendance</span>
+        <i class="bi bi-calendar-check-fill"></i>Attendance
       </button>
       <button class="nav-item" id="nav-btn-marks" onclick="window.location.hash = '#marks'">
-        <i class="bi bi-pencil-square"></i>
-        <span>Marks</span>
+        <i class="bi bi-pencil-square"></i>Marks
       </button>
       <button class="nav-item" id="nav-btn-subjects" onclick="window.location.hash = '#subjects'">
-        <i class="bi bi-book-half"></i>
-        <span>Subjects</span>
+        <i class="bi bi-book-half"></i>Subjects
       </button>
       <button class="nav-item" id="nav-btn-transport" onclick="window.location.hash = '#transport'">
-        <i class="bi bi-bus-front-fill"></i>
-        <span>Bus</span>
+        <i class="bi bi-bus-front-fill"></i>Bus
       </button>
     </nav>
   </div>
@@ -1663,14 +1706,7 @@
       const teacher = teachers.find(t => t.id === session.id);
       if (!teacher) return false;
 
-      const firstName = teacher.name.split(' ')[0];
-      document.getElementById('teacherNameHeader').textContent = firstName;
-
-      const avatarEl = document.getElementById('teacherAvatarBadge');
-      if (avatarEl) {
-        avatarEl.textContent = firstName.charAt(0).toUpperCase();
-      }
-
+      document.getElementById('teacherNameHeader').textContent = teacher.name.split(' ')[0];
       window.myClassIds = Array.isArray(teacher.classId) ? teacher.classId : (teacher.classId ? [teacher.classId] : []);
       
       if (!myClassId) {
