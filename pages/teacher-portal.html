@@ -463,17 +463,19 @@
     }
     .prog-bar-wrap {
       flex: 1;
-      background: var(--border);
-      height: 8px;
+      background: rgba(226, 232, 240, 0.8);
+      height: 10px;
       border-radius: 99px;
       overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
     }
     .prog-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--success), #059669);
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
       border-radius: 99px;
-      transition: width 0.35s ease;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       width: 0%;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.35);
     }
     .prog-text {
       font-size: 0.82rem;
@@ -2693,16 +2695,41 @@
       // Update progress bar stats
       let marked = 0;
       let presentCount = 0;
+      let absentCount = 0;
+      const total = students.length;
+
       students.forEach(s => {
         const att = bulkLog.find(l => l.studentId === s.id);
-        if (att && (att.present === true || att.present === false)) {
+        if (att && att.present === true) {
           marked++;
-          if (att.present) presentCount++;
+          presentCount++;
+        } else if (att && att.present === false) {
+          marked++;
+          absentCount++;
         }
       });
-      const pct = students.length > 0 ? (marked / students.length) * 100 : 0;
-      document.getElementById('progFill').style.width = `${pct}%`;
-      document.getElementById('progText').textContent = `${presentCount} present · ${students.length - presentCount} absent`;
+
+      const unmarkedCount = total - marked;
+      const presentPct = total > 0 ? Math.round((presentCount / total) * 100) : 0;
+      
+      const fillEl = document.getElementById('progFill');
+      const textEl = document.getElementById('progText');
+
+      if (fillEl) {
+        // Fill width corresponds to present percentage (or marked percentage if presentCount is 0 but marked > 0)
+        const fillWidth = total > 0 ? (presentCount / total) * 100 : 0;
+        fillEl.style.width = `${fillWidth}%`;
+      }
+
+      if (textEl) {
+        if (total === 0) {
+          textEl.textContent = 'No students in class';
+        } else if (unmarkedCount > 0) {
+          textEl.textContent = `${presentCount} Present · ${absentCount} Absent · ${unmarkedCount} Unmarked (${presentPct}%)`;
+        } else {
+          textEl.textContent = `${presentCount} / ${total} Present (${presentPct}%)`;
+        }
+      }
 
       const filtered = students.filter(s =>
         s.name.toLowerCase().includes(query) ||
