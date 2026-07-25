@@ -266,8 +266,7 @@ function triggerBackgroundSync(key, value, oldValue) {
           return old.number !== b.number ||
                  old.route !== b.route ||
                  old.driver !== b.driver ||
-                 old.phone !== b.phone ||
-                 old.capacity !== b.capacity;
+                 old.phone !== b.phone;
         });
 
         if (toUpsert.length > 0) {
@@ -276,8 +275,7 @@ function triggerBackgroundSync(key, value, oldValue) {
             number: b.number || '',
             route: b.route || '',
             driver: b.driver || null,
-            phone: b.phone || null,
-            capacity: Number(b.capacity) || 40
+            phone: b.phone || null
           }));
           const { error: upsertErr } = await client.from('buses').upsert(rows);
           if (upsertErr) throw upsertErr;
@@ -316,7 +314,7 @@ function triggerBackgroundSync(key, value, oldValue) {
             id: c.id,
             name: c.name || '',
             section: c.section || '',
-            grade: Number(c.grade) || 0
+            grade: c.grade === 'LKG' ? -2 : c.grade === 'UKG' ? -1 : (Number(c.grade) || 0)
           }));
           const { error: upsertErr } = await client.from('classes').upsert(rows);
           if (upsertErr) throw upsertErr;
@@ -387,7 +385,18 @@ function triggerBackgroundSync(key, value, oldValue) {
           for (const sId in obj) {
             for (const sub in obj[sId]) {
               for (const exam in obj[sId][sub]) {
-                arr.push({ studentId: sId, subject: sub, exam: exam, val: obj[sId][sub][exam] });
+                const val = obj[sId][sub][exam];
+                if (val !== null && typeof val === 'object') {
+                  for (const key in val) {
+                    if (key === 'Total' || key === 'GRADE') {
+                      arr.push({ studentId: sId, subject: sub, exam: exam, val: val[key] });
+                    } else {
+                      arr.push({ studentId: sId, subject: `${sub}_${key}`, exam: exam, val: val[key] });
+                    }
+                  }
+                } else {
+                  arr.push({ studentId: sId, subject: sub, exam: exam, val: val });
+                }
               }
             }
           }
@@ -481,88 +490,56 @@ function triggerBackgroundSync(key, value, oldValue) {
     return Promise.resolve();
   }
 
-  else if (key === 'accountants') {
+  else if (key === 'studentBilling') {
     return (async () => {
       try {
-        const oldArray = oldValue || [];
-        const oldIds = oldArray.map(a => a.id);
-        const newIds = value.map(a => a.id);
+        const arr = Array.isArray(value) ? value : [];
+        if (arr.length === 0) return;
 
-        const toDelete = oldIds.filter(id => !newIds.includes(id));
-        if (toDelete.length > 0) {
-          await client.from('accountants').delete().in('id', toDelete);
-        }
-
-        const toUpsert = value.filter(a => {
-          const old = oldArray.find(o => o.id === a.id);
+        // Determine changed records vs old value
+        const oldArr = Array.isArray(oldValue) ? oldValue : [];
+        const toUpsert = arr.filter(b => {
+          const old = oldArr.find(o => o.studentId === b.studentId);
           if (!old) return true;
-          return old.name !== a.name ||
-                 old.username !== a.username ||
-                 old.password !== a.password ||
-                 old.phone !== a.phone ||
-                 old.email !== a.email;
+          return (
+            old.totalFee !== b.totalFee ||
+            old.totalFeePaid !== b.totalFeePaid ||
+            old.currentMonthStatus !== b.currentMonthStatus ||
+            old.paidMonths !== b.paidMonths ||
+            old.lastPaidDate !== b.lastPaidDate ||
+            old.admissionFee !== b.admissionFee ||
+            old.busFee !== b.busFee
+          );
         });
 
-        if (toUpsert.length > 0) {
-          const rows = toUpsert.map(a => ({
-            id: a.id,
-            name: a.name || '',
-            username: a.username || '',
-            password: a.password || '',
-            phone: a.phone || null,
-            email: a.email || null
-          }));
-          const { error: upsertErr } = await client.from('accountants').upsert(rows);
-          if (upsertErr) throw upsertErr;
+        if (toUpsert.length === 0) return;
+
+        const rows = toUpsert.map(b => ({
+          student_id: b.studentId,
+          student_name: b.studentName || '',
+          total_fee: Number(b.totalFee) || 0,
+          total_fee_paid: Number(b.totalFeePaid) || 0,
+          balance_fee: Number(b.balanceFee !== undefined ? b.balanceFee : (b.totalFee - b.totalFeePaid)) || 0,
+          current_month_status: b.currentMonthStatus || 'unpaid',
+          paid_months: typeof b.paidMonths === 'object' ? JSON.stringify(b.paidMonths) : (b.paidMonths || null),
+          last_paid_date: b.lastPaidDate || null,
+          bus_fee: Number(b.busFee) || 0,
+          admission_fee: Number(b.admissionFee) || 0
+        }));
+
+        const { error: upsertErr } = await client
+          .from('student_billing')
+          .upsert(rows, { onConflict: 'student_id' });
+        if (upsertErr) {
+          // Fallback: try without optional columns that may not exist yet
+          const rowsBase = rows.map(({ bus_fee, admission_fee, ...rest }) => rest);
+          const { error: retryErr } = await client
+            .from('student_billing')
+            .upsert(rowsBase, { onConflict: 'student_id' });
+          if (retryErr) throw retryErr;
         }
       } catch (err) {
-        handleSyncError('accountants', err);
-        throw err;
-      }
-    })();
-  }
-
-  else if (key === 'feeStructures') {
-    return (async () => {
-      try {
-        const oldArray = oldValue || [];
-        const oldIds = oldArray.map(fs => fs.id);
-        const newIds = value.map(fs => fs.id);
-
-        const toDelete = oldIds.filter(id => !newIds.includes(id));
-        if (toDelete.length > 0) {
-          await client.from('fee_structures').delete().in('id', toDelete);
-        }
-
-        const toUpsert = value.filter(fs => {
-          const old = oldArray.find(o => o.id === fs.id);
-          if (!old) return true;
-          return old.classId !== fs.classId ||
-                 old.academicYear !== fs.academicYear ||
-                 old.amount !== fs.amount ||
-                 old.bookFee !== fs.bookFee ||
-                 old.uniformFee !== fs.uniformFee;
-        });
-
-        if (toUpsert.length > 0) {
-          const rows = toUpsert.map(fs => ({
-            id: fs.id,
-            class_id: fs.classId || null,
-            academic_year: fs.academicYear || '',
-            amount: Number(fs.amount) || 0,
-            book_fee: Number(fs.bookFee) || 0,
-            uniform_fee: Number(fs.uniformFee) || 0
-          }));
-          const { error: upsertErr } = await client.from('fee_structures').upsert(rows);
-          if (upsertErr) {
-            console.warn('Failed to upsert fee_structures with new columns, retrying with base amount only:', upsertErr.message);
-            const fallbackRows = rows.map(({ book_fee, uniform_fee, ...rest }) => rest);
-            const { error: fallbackErr } = await client.from('fee_structures').upsert(fallbackRows);
-            if (fallbackErr) throw fallbackErr;
-          }
-        }
-      } catch (err) {
-        handleSyncError('fee structures', err);
+        handleSyncError('student billing', err);
         throw err;
       }
     })();
@@ -602,152 +579,70 @@ function triggerBackgroundSync(key, value, oldValue) {
     })();
   }
 
-  else if (key === 'studentFees') {
-    return (async () => {
-      try {
-        const oldArray = oldValue || [];
-        const oldIds = oldArray.map(sf => sf.id);
-        const newIds = value.map(sf => sf.id);
-
-        const toDelete = oldIds.filter(id => !newIds.includes(id));
-        if (toDelete.length > 0) {
-          await client.from('student_fees').delete().in('id', toDelete);
-        }
-
-        const toUpsert = value.filter(sf => {
-          const old = oldArray.find(o => o.id === sf.id);
-          if (!old) return true;
-          return old.studentId !== sf.studentId ||
-                 old.academicYear !== sf.academicYear ||
-                 old.yearlyFee !== sf.yearlyFee ||
-                 old.busFee !== sf.busFee ||
-                 old.bookFee !== sf.bookFee ||
-                 old.uniformFee !== sf.uniformFee ||
-                 old.otherFee !== sf.otherFee ||
-                 old.previousBalance !== sf.previousBalance ||
-                 old.discount !== sf.discount ||
-                 old.totalDue !== sf.totalDue ||
-                 old.totalPaid !== sf.totalPaid ||
-                 old.status !== sf.status ||
-                 JSON.stringify(old.customFees || []) !== JSON.stringify(sf.customFees || []);
-        });
-
-        if (toUpsert.length > 0) {
-          const rows = toUpsert.map(sf => ({
-            id: sf.id,
-            student_id: sf.studentId || null,
-            academic_year: sf.academicYear || '',
-            yearly_fee: Number(sf.yearlyFee) || 0,
-            bus_fee: Number(sf.busFee) || 0,
-            book_fee: Number(sf.bookFee) || 0,
-            uniform_fee: Number(sf.uniformFee) || 0,
-            other_fee: Number(sf.otherFee) || 0,
-            previous_balance: Number(sf.previousBalance) || 0,
-            discount: Number(sf.discount) || 0,
-            total_due: Number(sf.totalDue) || 0,
-            total_paid: Number(sf.totalPaid) || 0,
-            status: sf.status || 'Pending',
-            custom_fees: Array.isArray(sf.customFees) ? sf.customFees : []
-          }));
-          const { error: upsertErr } = await client.from('student_fees').upsert(rows);
-          if (upsertErr) throw upsertErr;
-        }
-      } catch (err) {
-        handleSyncError('student fees', err);
-        throw err;
-      }
-    })();
-  }
-
-  else if (key === 'feePayments') {
-    return (async () => {
-      try {
-        const oldArray = oldValue || [];
-        const oldIds = oldArray.map(fp => fp.id);
-        const newIds = value.map(fp => fp.id);
-
-        const toDelete = oldIds.filter(id => !newIds.includes(id));
-        if (toDelete.length > 0) {
-          await client.from('fee_payments').delete().in('id', toDelete);
-        }
-
-        const toUpsert = value.filter(fp => {
-          const old = oldArray.find(o => o.id === fp.id);
-          if (!old) return true;
-          return old.studentId !== fp.studentId ||
-                 old.academicYear !== fp.academicYear ||
-                 old.amountPaid !== fp.amountPaid ||
-                 old.paymentDate !== fp.paymentDate ||
-                 old.paymentMode !== fp.paymentMode ||
-                 old.receiptNo !== fp.receiptNo ||
-                 (old.notes !== fp.notes && old.remarks !== fp.remarks) ||
-                 old.collectedBy !== fp.collectedBy;
-        });
-
-        if (toUpsert.length > 0) {
-          const rows = toUpsert.map(fp => ({
-            id: fp.id,
-            student_id: fp.studentId || null,
-            academic_year: fp.academicYear || '',
-            amount_paid: Number(fp.amountPaid) || 0,
-            payment_date: fp.paymentDate || null,
-            payment_mode: fp.paymentMode || '',
-            receipt_no: fp.receiptNo || '',
-            notes: fp.notes || fp.remarks || null,
-            collected_by: fp.collectedBy || null
-          }));
-          const { error: upsertErr } = await client.from('fee_payments').upsert(rows);
-          if (upsertErr) throw upsertErr;
-        }
-      } catch (err) {
-        handleSyncError('fee payments', err);
-        throw err;
-      }
-    })();
-  }
-
-  else if (key === 'feeLogs') {
-    return (async () => {
-      try {
-        const oldArray = oldValue || [];
-        const oldIds = oldArray.map(fl => fl.id);
-        const newIds = value.map(fl => fl.id);
-
-        const toDelete = oldIds.filter(id => !newIds.includes(id));
-        if (toDelete.length > 0) {
-          await client.from('fee_logs').delete().in('id', toDelete);
-        }
-
-        const toUpsert = value.filter(fl => {
-          const old = oldArray.find(o => o.id === fl.id);
-          if (!old) return true;
-          return old.action !== fl.action ||
-                 old.details !== fl.details ||
-                 old.userId !== fl.userId ||
-                 old.userName !== fl.userName ||
-                 old.createdAt !== fl.createdAt;
-        });
-
-        if (toUpsert.length > 0) {
-          const rows = toUpsert.map(fl => ({
-            id: fl.id,
-            action: fl.action || '',
-            details: fl.details || null,
-            user_id: fl.userId || null,
-            user_name: fl.userName || null,
-            created_at: fl.createdAt || new Date().toISOString()
-          }));
-          const { error: upsertErr } = await client.from('fee_logs').upsert(rows);
-          if (upsertErr) throw upsertErr;
-        }
-      } catch (err) {
-        handleSyncError('fee logs', err);
-        throw err;
-      }
-    })();
-  }
-
   return Promise.resolve();
+}
+
+// Helper to reconstruct flat db rows into student-specific subject/exam marks object
+function reconstructStudentMarks(rows) {
+  const sMarks = {};
+  rows.forEach(m => {
+    const parts = m.subject.split('_');
+    if (parts.length > 1) {
+      const baseSub = parts[0];
+      const subcol = parts[1];
+      if (!sMarks[baseSub]) sMarks[baseSub] = {};
+      if (!sMarks[baseSub][m.exam]) sMarks[baseSub][m.exam] = {};
+      
+      if (typeof sMarks[baseSub][m.exam] !== 'object' || sMarks[baseSub][m.exam] === null) {
+        const prevVal = sMarks[baseSub][m.exam];
+        sMarks[baseSub][m.exam] = { Total: prevVal, GRADE: prevVal };
+      }
+      sMarks[baseSub][m.exam][subcol] = m.marks_obtained;
+    } else {
+      if (!sMarks[m.subject]) sMarks[m.subject] = {};
+      const existing = sMarks[m.subject][m.exam];
+      if (existing !== undefined && typeof existing === 'object' && existing !== null) {
+        existing.Total = m.marks_obtained;
+        existing.GRADE = m.marks_obtained;
+      } else {
+        sMarks[m.subject][m.exam] = m.marks_obtained;
+      }
+    }
+  });
+  return sMarks;
+}
+
+// Helper to reconstruct flat db rows into all student marks cache object
+function reconstructAllMarks(rows) {
+  const marksObj = {};
+  rows.forEach(m => {
+    const sId = m.student_id;
+    if (!marksObj[sId]) marksObj[sId] = {};
+    
+    const parts = m.subject.split('_');
+    if (parts.length > 1) {
+      const baseSub = parts[0];
+      const subcol = parts[1];
+      if (!marksObj[sId][baseSub]) marksObj[sId][baseSub] = {};
+      if (!marksObj[sId][baseSub][m.exam]) marksObj[sId][baseSub][m.exam] = {};
+      
+      if (typeof marksObj[sId][baseSub][m.exam] !== 'object' || marksObj[sId][baseSub][m.exam] === null) {
+        const prevVal = marksObj[sId][baseSub][m.exam];
+        marksObj[sId][baseSub][m.exam] = { Total: prevVal, GRADE: prevVal };
+      }
+      marksObj[sId][baseSub][m.exam][subcol] = m.marks_obtained;
+    } else {
+      if (!marksObj[sId][m.subject]) marksObj[sId][m.subject] = {};
+      const existing = marksObj[sId][m.subject][m.exam];
+      if (existing !== undefined && typeof existing === 'object' && existing !== null) {
+        existing.Total = m.marks_obtained;
+        existing.GRADE = m.marks_obtained;
+      } else {
+        marksObj[sId][m.subject][m.exam] = m.marks_obtained;
+      }
+    }
+  });
+  return marksObj;
 }
 
 // ─── UNIFIED DB LAYER ────────────────────────────────────────────────────
@@ -911,12 +806,73 @@ var DB = {
     }
     const { data, error } = await getSupabase().from('marks').select('*').eq('student_id', studentId);
     if (error) return {};
-    // Transform flat rows → subject-keyed object
-    return data.reduce((acc, row) => {
-      if (!acc[row.subject]) acc[row.subject] = {};
-      acc[row.subject][row.exam] = row.marks_obtained;
-      return acc;
-    }, {});
+    return reconstructStudentMarks(data);
+  },
+
+  // ── Billing convenience methods ─────────────────────────────────────
+  /**
+   * setBilling – upserts a single student's billing record.
+   * Updates local cache and triggers Supabase background sync.
+   */
+  setBilling(studentId, updates) {
+    const list = LOCAL.get('studentBilling') || [];
+    const oldList = JSON.parse(JSON.stringify(list));
+    const idx = list.findIndex(b => b.studentId === studentId);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...updates, studentId };
+    } else {
+      list.push({ studentId, ...updates });
+    }
+    LOCAL.set('studentBilling', list);
+    return triggerBackgroundSync('studentBilling', list, oldList).catch(err => {
+      console.error('Billing sync failed:', err);
+    });
+  },
+
+  /**
+   * getBillingAll – returns all billing records, preferring Supabase.
+   */
+  async getBillingAll() {
+    if (!SUPABASE_CONFIGURED) return LOCAL.get('studentBilling') || [];
+    const { data, error } = await getSupabase().from('student_billing').select('*');
+    if (error) {
+      console.error('Supabase getBillingAll:', error);
+      return LOCAL.get('studentBilling') || [];
+    }
+    // If Supabase returned rows, map and cache them.
+    // If empty (new install / RLS / not synced yet), preserve the local cache
+    // so that locally-entered billing data is NOT destroyed.
+    if (!data || data.length === 0) {
+      return LOCAL.get('studentBilling') || [];
+    }
+    const mapped = data.map(b => ({
+      id: b.id,
+      studentId: b.student_id,
+      studentName: b.student_name,
+      totalFee: Number(b.total_fee) || 0,
+      totalFeePaid: Number(b.total_fee_paid) || 0,
+      balanceFee: Number(b.balance_fee) || 0,
+      currentMonthStatus: b.current_month_status || 'unpaid',
+      paidMonths: (() => {
+        try {
+          if (!b.paid_months) return {};
+          if (typeof b.paid_months === 'object') return b.paid_months;
+          return JSON.parse(b.paid_months);
+        } catch { return {}; }
+      })(),
+      lastPaidDate: b.last_paid_date,
+      admissionFee: Number(b.admission_fee) || 0,
+      busFee: Number(b.bus_fee) || 0,
+      updatedAt: b.updated_at
+    }));
+    // Merge: Supabase rows take priority, but keep any local-only rows
+    // (studentId not yet in Supabase) so offline data is preserved.
+    const localList = LOCAL.get('studentBilling') || [];
+    const supabaseIds = new Set(mapped.map(b => b.studentId));
+    const localOnly = localList.filter(b => !supabaseIds.has(b.studentId));
+    const merged = [...mapped, ...localOnly];
+    LOCAL.set('studentBilling', merged);
+    return merged;
   },
 
   async upsertMark(record) {
@@ -928,9 +884,25 @@ var DB = {
       LOCAL.set('marks', allMarks);
       return { error: null };
     }
+    const val = record.marksObtained;
+    if (val !== null && typeof val === 'object') {
+      const promises = [];
+      for (const key in val) {
+        const subName = (key === 'Total' || key === 'GRADE') ? record.subject : `${record.subject}_${key}`;
+        promises.push(
+          getSupabase().from('marks').upsert([{
+            student_id: record.studentId, subject: subName,
+            exam: record.exam, marks_obtained: Number(val[key]) || 0
+          }], { onConflict: 'student_id,subject,exam' })
+        );
+      }
+      const results = await Promise.all(promises);
+      const firstErr = results.find(r => r.error);
+      return firstErr ? { error: firstErr.error } : { error: null };
+    }
     return await getSupabase().from('marks').upsert([{
       student_id: record.studentId, subject: record.subject,
-      exam: record.exam, marks_obtained: record.marksObtained
+      exam: record.exam, marks_obtained: Number(record.marksObtained) || 0
     }], { onConflict: 'student_id,subject,exam' });
   },
 
@@ -1022,31 +994,7 @@ var DB = {
         LOCAL.set('buses', buses);
       }
 
-      // 5. Attendance logs
-      const { data: logs, error: errLogs } = await client.from('attendance_logs').select('*');
-      if (errLogs) throw errLogs;
-      if (logs) {
-        const mappedLogs = logs.map(l => mapKeys(l, {
-          student_id: 'studentId'
-        }));
-        LOCAL.set('attendanceLogs', mappedLogs);
-      }
-
-      // 6. Marks
-      const { data: marks, error: errMarks } = await client.from('marks').select('*');
-      if (errMarks) throw errMarks;
-      if (marks) {
-        const marksObj = {};
-        marks.forEach(m => {
-          const sId = m.student_id;
-          if (!marksObj[sId]) marksObj[sId] = {};
-          if (!marksObj[sId][m.subject]) marksObj[sId][m.subject] = {};
-          marksObj[sId][m.subject][m.exam] = m.marks_obtained;
-        });
-        LOCAL.set('marks', marksObj);
-      }
-
-      // 7. Admissions - Bypassed from Supabase since table is removed / Google Form managed
+      // 5. Admissions - Bypassed from Supabase since table is removed / Google Form managed
       LOCAL.set('admissions', LOCAL.get('admissions') || []);
 
       // 8. Class Subjects & Max Marks
@@ -1074,69 +1022,6 @@ var DB = {
         console.warn('Failed to load class_subjects from Supabase:', e);
       }
 
-      // 9. Accountants
-      try {
-        const { data: accountants, error: errAccountants } = await client.from('accountants').select('*');
-        if (errAccountants) throw errAccountants;
-        if (accountants) LOCAL.set('accountants', accountants);
-      } catch (e) {
-        console.warn('Failed to load accountants from Supabase, using local:', e);
-      }
-
-      // 10. Fee Structures
-      try {
-        const { data: feeStructures, error: errFeeStructures } = await client.from('fee_structures').select('*');
-        if (errFeeStructures) throw errFeeStructures;
-        if (feeStructures) {
-          const mapped = feeStructures.map(fs => {
-            const m = mapKeys(fs, {
-              class_id: 'classId',
-              academic_year: 'academicYear',
-              book_fee: 'bookFee',
-              uniform_fee: 'uniformFee'
-            });
-            m.bookFee = Number(m.bookFee) || 0;
-            m.uniformFee = Number(m.uniformFee) || 0;
-            return m;
-          });
-          LOCAL.set('feeStructures', mapped);
-        }
-      } catch (e) {
-        console.warn('Failed to load fee_structures from Supabase, using local:', e);
-      }
-
-      // 11. Student Fees
-      try {
-        const { data: studentFees, error: errStudentFees } = await client.from('student_fees').select('*');
-        if (errStudentFees) throw errStudentFees;
-        if (studentFees) {
-          const mapped = studentFees.map(sf => mapKeys(sf, {
-            student_id: 'studentId',
-            academic_year: 'academicYear',
-            yearly_fee: 'yearlyFee',
-            bus_fee: 'busFee',
-            book_fee: 'bookFee',
-            uniform_fee: 'uniformFee',
-            other_fee: 'otherFee',
-            previous_balance: 'previousBalance',
-            custom_fees: 'customFees',
-            total_due: 'totalDue',
-            total_paid: 'totalPaid'
-          }));
-          // Ensure numeric defaults and arrays for new fields
-          mapped.forEach(sf => {
-            sf.bookFee = Number(sf.bookFee) || 0;
-            sf.uniformFee = Number(sf.uniformFee) || 0;
-            sf.otherFee = Number(sf.otherFee) || 0;
-            sf.previousBalance = Number(sf.previousBalance) || 0;
-            sf.customFees = Array.isArray(sf.customFees) ? sf.customFees : [];
-          });
-          LOCAL.set('studentFees', mapped);
-        }
-      } catch (e) {
-        console.warn('Failed to load student_fees from Supabase, using local:', e);
-      }
-
       // 11b. Bus Stops
       try {
         const { data: busStops, error: errBusStops } = await client.from('bus_stops').select('*');
@@ -1148,46 +1033,6 @@ var DB = {
         console.warn('bus_stops table not found on Supabase (optional), using local:', e.message);
       }
 
-      // 12. Fee Payments
-      try {
-        const { data: feePayments, error: errFeePayments } = await client.from('fee_payments').select('*');
-        if (errFeePayments) throw errFeePayments;
-        if (feePayments) {
-          const mapped = feePayments.map(fp => {
-            const m = mapKeys(fp, {
-              student_id: 'studentId',
-              academic_year: 'academicYear',
-              amount_paid: 'amountPaid',
-              payment_date: 'paymentDate',
-              payment_mode: 'paymentMode',
-              receipt_no: 'receiptNo',
-              collected_by: 'collectedBy'
-            });
-            m.remarks = m.notes || '';
-            return m;
-          });
-          LOCAL.set('feePayments', mapped);
-        }
-      } catch (e) {
-        console.warn('Failed to load fee_payments from Supabase, using local:', e);
-      }
-
-      // 13. Fee Logs
-      try {
-        const { data: feeLogs, error: errFeeLogs } = await client.from('fee_logs').select('*');
-        if (errFeeLogs) throw errFeeLogs;
-        if (feeLogs) {
-          const mapped = feeLogs.map(fl => mapKeys(fl, {
-            user_id: 'userId',
-            user_name: 'userName',
-            created_at: 'createdAt'
-          }));
-          LOCAL.set('feeLogs', mapped);
-        }
-      } catch (e) {
-        console.warn('Failed to load fee_logs from Supabase, using local:', e);
-      }
-
       window.dispatchEvent(new Event('mss-db-sync'));
     } catch (error) {
       console.error('Supabase pullAllFromSupabase failed:', error);
@@ -1195,6 +1040,155 @@ var DB = {
         showToast('Failed to load data from Supabase. Verify database tables and RLS permissions.', 'danger', 5000);
       }
       throw error;
+    }
+  },
+
+  /**
+   * fetchStudentData – lightweight per-student fetch.
+   * Pulls attendance logs, marks, and billing for ONE student only.
+   * Designed for 500+ student scale on Vercel free tier.
+   */
+  async fetchStudentData(studentId) {
+    const activeYear = getActiveAcademicYear();
+    const y = parseInt(activeYear.split('-')[0], 10);
+    const yearStart = y + '-06-01';
+    const yearEnd = (y + 1) + '-05-31';
+
+    try {
+      const client = getSupabase();
+
+      const { data: logs, error: logsErr } = await client.from('attendance_logs')
+        .select('*')
+        .eq('student_id', studentId)
+        .gte('date', yearStart)
+        .lte('date', yearEnd);
+      if (logsErr) throw logsErr;
+      if (logs) {
+        const mappedLogs = logs.map(l => ({
+          studentId: l.student_id,
+          date: l.date,
+          type: l.type,
+          present: l.present,
+          recordedAt: l.recorded_at
+        }));
+        LOCAL.set('attendanceLogs', mappedLogs);
+      }
+
+      const { data: marks, error: marksErr } = await client.from('marks')
+        .select('*')
+        .eq('student_id', studentId);
+      if (marksErr) throw marksErr;
+      if (marks) {
+        const currentMarksObj = LOCAL.get('marks') || {};
+        currentMarksObj[studentId] = reconstructStudentMarks(marks);
+        LOCAL.set('marks', currentMarksObj);
+      }
+
+      const { data: billing, error: billErr } = await client.from('student_billing')
+        .select('*')
+        .eq('student_id', studentId);
+      if (!billErr && billing) {
+        const mapped = billing.map(b => ({
+          id: b.id,
+          studentId: b.student_id,
+          studentName: b.student_name,
+          totalFee: b.total_fee,
+          totalFeePaid: b.total_fee_paid,
+          balanceFee: b.balance_fee,
+          currentMonthStatus: b.current_month_status,
+          paidMonths: b.paid_months || null,
+          lastPaidDate: b.last_paid_date,
+          updatedAt: b.updated_at
+        }));
+        LOCAL.set('studentBilling', mapped);
+      } else if (billErr) {
+        console.warn('student_billing fetch error:', billErr.message);
+      }
+
+      return true;
+    } catch (err) {
+      console.error('fetchStudentData failed:', err);
+      if (typeof showToast === 'function') {
+        showToast('Failed to load your data. Please try again.', 'danger');
+      }
+      return false;
+    }
+  },
+
+  /**
+   * fetchAllExtendedData – bulk fetch for admin/teacher dashboards.
+   * Pulls attendance logs, marks, and billing for ALL students (current academic year only).
+   * Intentionally NOT called from pullAllFromSupabase to keep portal lightweight.
+   */
+  async fetchAllExtendedData() {
+    const activeYear = getActiveAcademicYear();
+    const y = parseInt(activeYear.split('-')[0], 10);
+    const yearStart = y + '-06-01';
+    const yearEnd = (y + 1) + '-05-31';
+
+    try {
+      const client = getSupabase();
+
+      const { data: logs, error: logsErr } = await client.from('attendance_logs')
+        .select('*')
+        .gte('date', yearStart)
+        .lte('date', yearEnd);
+      if (logsErr) throw logsErr;
+      if (logs) {
+        const mappedLogs = logs.map(l => ({
+          studentId: l.student_id,
+          date: l.date,
+          type: l.type,
+          present: l.present,
+          recordedAt: l.recorded_at
+        }));
+        LOCAL.set('attendanceLogs', mappedLogs);
+      }
+
+      const { data: marks, error: marksErr } = await client.from('marks').select('*');
+      if (marksErr) throw marksErr;
+      if (marks) {
+        LOCAL.set('marks', reconstructAllMarks(marks));
+      }
+
+      const { data: billing, error: billErr } = await client.from('student_billing').select('*');
+      if (billErr) {
+        console.warn('student_billing fetch error:', billErr.message);
+        // Preserve existing local cache on error
+      } else if (billing && billing.length > 0) {
+        // Only update cache when Supabase actually has rows.
+        // An empty result (new install / not yet synced) must NOT wipe local data.
+        const mapped = billing.map(b => ({
+          id: b.id,
+          studentId: b.student_id,
+          studentName: b.student_name,
+          totalFee: Number(b.total_fee) || 0,
+          totalFeePaid: Number(b.total_fee_paid) || 0,
+          balanceFee: Number(b.balance_fee) || 0,
+          currentMonthStatus: b.current_month_status || 'unpaid',
+          paidMonths: (() => {
+            try {
+              if (!b.paid_months) return {};
+              if (typeof b.paid_months === 'object') return b.paid_months;
+              return JSON.parse(b.paid_months);
+            } catch { return {}; }
+          })(),
+          lastPaidDate: b.last_paid_date,
+          admissionFee: Number(b.admission_fee) || 0,
+          busFee: Number(b.bus_fee) || 0,
+          updatedAt: b.updated_at
+        }));
+        // Merge with local-only records so offline data is preserved
+        const localList = LOCAL.get('studentBilling') || [];
+        const supabaseIds = new Set(mapped.map(b => b.studentId));
+        const localOnly = localList.filter(b => !supabaseIds.has(b.studentId));
+        LOCAL.set('studentBilling', [...mapped, ...localOnly]);
+      }
+
+      return true;
+    } catch (err) {
+      console.error('fetchAllExtendedData failed:', err);
+      return false;
     }
   }
 };
@@ -1204,10 +1198,16 @@ window.DB = DB;
 // Pull fresh data from Supabase on every new browser session.
 // sessionStorage is empty at session start so this always runs.
 // Unconditionally pull fresh data from Supabase on every page load to guarantee real-time updates and avoid stale cache issues.
+// Pull fresh data from Supabase on every new browser session.
+// sessionStorage is empty at session start so this always runs.
+// Unconditionally pull fresh data from Supabase on every page load to guarantee real-time updates and avoid stale cache issues.
 setTimeout(() => {
   DB.pullAllFromSupabase()
     .catch(err => {
-      console.warn('Initial Supabase pull failed:', err);
+      console.warn('Initial Supabase pull failed (using local cache):', err);
+      // CRITICAL: dispatch sync event even on failure so login buttons enable
+      // and pages can function with locally cached data (offline mode).
+      window.dispatchEvent(new Event('mss-db-sync'));
     });
 }, 200);
 
@@ -1373,69 +1373,7 @@ CREATE POLICY "Subjects insert" ON class_subjects FOR INSERT WITH CHECK (true);
 CREATE POLICY "Subjects update" ON class_subjects FOR UPDATE USING (true);
 CREATE POLICY "Subjects delete" ON class_subjects FOR DELETE USING (true);
 
--- 9. Accountants table & policies
-CREATE TABLE IF NOT EXISTS accountants (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL,
-  phone TEXT,
-  email TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-ALTER TABLE accountants ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Accountants select" ON accountants FOR SELECT USING (true);
-CREATE POLICY "Accountants insert" ON accountants FOR INSERT WITH CHECK (true);
-CREATE POLICY "Accountants update" ON accountants FOR UPDATE USING (true);
-CREATE POLICY "Accountants delete" ON accountants FOR DELETE USING (true);
-
--- 10. Fee Structures table & policies
-CREATE TABLE IF NOT EXISTS fee_structures (
-  id TEXT PRIMARY KEY,
-  class_id TEXT REFERENCES classes(id) ON DELETE CASCADE,
-  academic_year TEXT NOT NULL,
-  amount INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(class_id, academic_year)
-);
-ALTER TABLE fee_structures ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Structures select" ON fee_structures FOR SELECT USING (true);
-CREATE POLICY "Structures insert" ON fee_structures FOR INSERT WITH CHECK (true);
-CREATE POLICY "Structures update" ON fee_structures FOR UPDATE USING (true);
-CREATE POLICY "Structures delete" ON fee_structures FOR DELETE USING (true);
-
--- 11. Student Fees table & policies
-CREATE TABLE IF NOT EXISTS student_fees (
-  id TEXT PRIMARY KEY,
-  student_id TEXT REFERENCES students(id) ON DELETE CASCADE,
-  academic_year TEXT NOT NULL,
-  yearly_fee INTEGER NOT NULL DEFAULT 0,
-  bus_fee INTEGER NOT NULL DEFAULT 0,
-  book_fee INTEGER NOT NULL DEFAULT 0,
-  uniform_fee INTEGER NOT NULL DEFAULT 0,
-  other_fee INTEGER NOT NULL DEFAULT 0,
-  previous_balance INTEGER NOT NULL DEFAULT 0,
-  discount INTEGER NOT NULL DEFAULT 0,
-  total_due INTEGER NOT NULL DEFAULT 0,
-  total_paid INTEGER NOT NULL DEFAULT 0,
-  status TEXT NOT NULL DEFAULT 'Pending',
-  custom_fees JSONB DEFAULT '[]'::jsonb,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(student_id, academic_year)
-);
--- Migration for existing databases:
--- ALTER TABLE student_fees ADD COLUMN IF NOT EXISTS book_fee INTEGER NOT NULL DEFAULT 0;
--- ALTER TABLE student_fees ADD COLUMN IF NOT EXISTS uniform_fee INTEGER NOT NULL DEFAULT 0;
--- ALTER TABLE student_fees ADD COLUMN IF NOT EXISTS other_fee INTEGER NOT NULL DEFAULT 0;
--- ALTER TABLE student_fees ADD COLUMN IF NOT EXISTS previous_balance INTEGER NOT NULL DEFAULT 0;
--- ALTER TABLE student_fees ADD COLUMN IF NOT EXISTS custom_fees JSONB DEFAULT '[]'::jsonb;
-ALTER TABLE student_fees ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "StudentFees select" ON student_fees FOR SELECT USING (true);
-CREATE POLICY "StudentFees insert" ON student_fees FOR INSERT WITH CHECK (true);
-CREATE POLICY "StudentFees update" ON student_fees FOR UPDATE USING (true);
-CREATE POLICY "StudentFees delete" ON student_fees FOR DELETE USING (true);
-
--- 14. Bus Stops table & policies (optional: for per-place bus fee management)
+-- 14. Bus Stops table & policies (optional: for per-place bus stop management)
 CREATE TABLE IF NOT EXISTS bus_stops (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -1449,37 +1387,4 @@ CREATE POLICY "BusStops insert" ON bus_stops FOR INSERT WITH CHECK (true);
 CREATE POLICY "BusStops update" ON bus_stops FOR UPDATE USING (true);
 CREATE POLICY "BusStops delete" ON bus_stops FOR DELETE USING (true);
 
--- 12. Fee Payments table & policies
-CREATE TABLE IF NOT EXISTS fee_payments (
-  id TEXT PRIMARY KEY,
-  student_id TEXT REFERENCES students(id) ON DELETE CASCADE,
-  academic_year TEXT NOT NULL,
-  amount_paid INTEGER NOT NULL,
-  payment_date DATE NOT NULL,
-  payment_mode TEXT NOT NULL,
-  receipt_no TEXT NOT NULL UNIQUE,
-  notes TEXT,
-  collected_by TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-ALTER TABLE fee_payments ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Payments select" ON fee_payments FOR SELECT USING (true);
-CREATE POLICY "Payments insert" ON fee_payments FOR INSERT WITH CHECK (true);
-CREATE POLICY "Payments update" ON fee_payments FOR UPDATE USING (true);
-CREATE POLICY "Payments delete" ON fee_payments FOR DELETE USING (true);
-
--- 13. Fee Logs table & policies
-CREATE TABLE IF NOT EXISTS fee_logs (
-  id TEXT PRIMARY KEY,
-  action TEXT NOT NULL,
-  details TEXT,
-  user_id TEXT,
-  user_name TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-ALTER TABLE fee_logs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "FeeLogs select" ON fee_logs FOR SELECT USING (true);
-CREATE POLICY "FeeLogs insert" ON fee_logs FOR INSERT WITH CHECK (true);
-CREATE POLICY "FeeLogs update" ON fee_logs FOR UPDATE USING (true);
-CREATE POLICY "FeeLogs delete" ON fee_logs FOR DELETE USING (true);
 */

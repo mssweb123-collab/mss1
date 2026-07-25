@@ -353,22 +353,6 @@ const Auth = {
     return null;
   },
 
-  loginAccountant(username, password) {
-    const accountants = DB.get('accountants') || [];
-    const a = accountants.find(acc => acc.username.toLowerCase() === username.trim().toLowerCase());
-    if (a) {
-      const inputHash = sha256(password);
-      if (a.password === inputHash) {
-        return this.login('accountant', a.id, a.name);
-      }
-      if (a.password === password) {
-        a.password = inputHash;
-        DB.set('accountants', accountants);
-        return this.login('accountant', a.id, a.name);
-      }
-    }
-    return null;
-  }
 };
 
 // ============================================
@@ -498,7 +482,7 @@ function currentAcademicYear() {
   return ''; // Forced setup: return empty so the user must create/select one first.
 }
 
-// Signal that student data is ready after Supabase pull (used by student-login.html)
+// Signal that student data is ready after Supabase pull (used by student-portal.html)
 window._mssStudentDataReady = false;
 window.addEventListener('mss-db-sync', () => {
   window._mssStudentDataReady = true;
@@ -565,6 +549,174 @@ function suggestNextRollNo(classId) {
   }
 }
 window.suggestNextRollNo = suggestNextRollNo;
+
+// ============================================
+// PROGRESS REPORT CARD CONFIGURATIONS
+// ============================================
+function getProgressCardConfig(grade) {
+  const gStr = String(grade).toUpperCase().trim();
+  if (gStr === '10' || gStr === '-10' || gStr === '10TH' || gStr === 'CLASS 10') {
+    return {
+      templateId: '10th',
+      exams: [
+        { id: 'mid1', name: 'I Mid-Term' },
+        { id: 'qtr', name: 'Quarterly' },
+        { id: 'mid2', name: 'II Mid-Term' },
+        { id: 'half', name: 'Half-Yearly' },
+        { id: 'rev1', name: 'I Revision' },
+        { id: 'rev2', name: 'II Revision' },
+        { id: 'rev3_annual', name: 'III Revision / Annual Examination' }
+      ],
+      rows: [
+        { type: 'subject', name: 'Tamil' },
+        { type: 'subject', name: 'English' },
+        { type: 'subject', name: 'Mathematics' },
+        { type: 'subject', name: 'Science', sub_columns: ['P', 'T', 'Total'] },
+        { type: 'subject', name: 'Social Science' },
+        { type: 'metric', name: 'Total' },
+        { type: 'metric', name: 'Rank' },
+        { type: 'metric', name: 'Remarks' },
+        { type: 'metric', name: 'Attendance' },
+        { type: 'signature', name: "ClassTeacher's Signature" },
+        { type: 'signature', name: "Principal's Signature" },
+        { type: 'signature', name: "Parent's Signature" }
+      ]
+    };
+  } else if (gStr === '9' || gStr === '-9' || gStr === '9TH' || gStr === 'CLASS 9') {
+    return {
+      templateId: '9th',
+      exams: [
+        { id: 'mid1', name: 'Mid Term-I' },
+        { id: 'term1', name: 'TERMINAL EXAM-I', sub_columns: ['FA(40)', 'SA(60)', 'GRADE (100)'] },
+        { id: 'mid2', name: 'Mid Term-II' },
+        { id: 'term2', name: 'TERMINAL EXAM-II', sub_columns: ['FA(40)', 'SA(60)', 'GRADE (100)'] },
+        { id: 'mid3', name: 'Mid Term-III' },
+        { id: 'term3', name: 'TERMINAL EXAM-III', sub_columns: ['FA(40)', 'SA(60)', 'GRADE (100)'] }
+      ],
+      rows: [
+        { type: 'subject', name: 'Tamil' },
+        { type: 'subject', name: 'English' },
+        { type: 'subject', name: 'Maths' },
+        { type: 'subject', name: 'Science /Evs' },
+        { type: 'subject', name: 'Social Science' },
+        { type: 'subject', name: 'Computer' },
+        { type: 'subject', name: 'G.K' },
+        { type: 'subject', name: 'PET' },
+        { type: 'subject', name: 'Drawing' },
+        { type: 'subject', name: 'Hindi' },
+        { type: 'metric', name: 'Attendance' },
+        { type: 'metric', name: 'Overall Grade' },
+        { type: 'metric', name: 'Discipline' },
+        { type: 'metric', name: 'Remarks' },
+        { type: 'signature', name: "Teacher's Signature" },
+        { type: 'signature', name: "H.M. Signature" },
+        { type: 'signature', name: "Parent's Signature" }
+      ]
+    };
+  } else {
+    // LKG, UKG, 1st Std to 8th Std
+    return {
+      templateId: 'general',
+      exams: [
+        { id: 'mid1', name: 'Mid Term - I' },
+        { id: 'term1', name: 'Terminal Exam - I' },
+        { id: 'mid2', name: 'Mid Term - II' },
+        { id: 'term2', name: 'Terminal Exam - II' },
+        { id: 'mid3', name: 'Mid Term - III' },
+        { id: 'term3', name: 'Terminal Exam - III' }
+      ],
+      rows: [
+        { type: 'subject', name: 'Tamil' },
+        { type: 'subject', name: 'English' },
+        { type: 'subject', name: 'Mathemetics' },
+        { type: 'subject', name: 'Narural Study' },
+        { type: 'metric', name: 'Total' },
+        { type: 'metric', name: 'Rank' },
+        { type: 'metric', name: 'Attendance' },
+        { type: 'skill', name: 'Life skills' },
+        { type: 'skill', name: 'Co- Curicular Activities' },
+        { type: 'skill', name: 'Attitudes and Values' },
+        { type: 'skill', name: 'Communication Skill' },
+        { type: 'skill', name: 'Spot topic activity' },
+        { type: 'subject', name: 'Physical Education' },
+        { type: 'signature', name: 'Class Teacher Signature' },
+        { type: 'signature', name: 'Principal Signature' },
+        { type: 'signature', name: 'Parent Signature' },
+        { type: 'metric', name: 'Remarks' }
+      ]
+    };
+  }
+}
+
+function calculateStudentExamTotal(sId, examId, config, allMarks) {
+  const smarks = allMarks[sId] || {};
+  let total = 0;
+  let hasAny = false;
+  
+  config.rows.forEach(row => {
+    if (row.type === 'subject') {
+      const val = smarks[row.name] && smarks[row.name][examId];
+      if (val !== undefined && val !== null) {
+        if (typeof val === 'number') {
+          total += val;
+          hasAny = true;
+        } else if (typeof val === 'object') {
+          // It's a sub-column object (e.g. { P, T, Total })
+          const score = val.Total !== undefined ? val.Total : (val.GRADE || val.Total || (Number(val.P || 0) + Number(val.T || 0)) || (Number(val.FA || 0) + Number(val.SA || 0)));
+          if (!isNaN(score) && score !== '') {
+            total += Number(score);
+            hasAny = true;
+          }
+        }
+      }
+    }
+  });
+  return hasAny ? total : null;
+}
+
+function getClassProgressCardConfig(classId, grade) {
+  const config = JSON.parse(JSON.stringify(getProgressCardConfig(grade))); // Deep clone to avoid mutating standard registry
+  const subjectsStore = DB.get('subjects') || {};
+  let customSubjects = subjectsStore[classId];
+  const maxMarksStore = DB.get('subjectMaxMarks') || {};
+  let maxMarksObj = maxMarksStore[classId] || {};
+
+  // Auto-seed default subjects from the grade template if none are saved yet for this class
+  if (!Array.isArray(customSubjects) || customSubjects.length === 0) {
+    customSubjects = config.rows
+      .filter(r => r.type === 'subject')
+      .map(r => r.name);
+
+    // Persist defaults so teacher-subjects page and marks pages see them immediately
+    subjectsStore[classId] = customSubjects;
+    customSubjects.forEach(subName => {
+      if (maxMarksObj[subName] === undefined) {
+        maxMarksObj[subName] = 100;
+      }
+    });
+    maxMarksStore[classId] = maxMarksObj;
+    DB.set('subjects', subjectsStore);
+    DB.set('subjectMaxMarks', maxMarksStore);
+  }
+
+  const subjectRows = customSubjects.map(subName => {
+    const defaultRow = config.rows.find(r => r.name.toLowerCase() === subName.toLowerCase() && r.type === 'subject');
+    return {
+      type: 'subject',
+      name: subName,
+      sub_columns: defaultRow ? defaultRow.sub_columns : undefined,
+      maxMark: maxMarksObj[subName] !== undefined ? maxMarksObj[subName] : 100
+    };
+  });
+  const nonSubjectRows = config.rows.filter(r => r.type !== 'subject');
+  config.rows = [...subjectRows, ...nonSubjectRows];
+
+  return config;
+}
+
+window.getProgressCardConfig = getProgressCardConfig;
+window.getClassProgressCardConfig = getClassProgressCardConfig;
+window.calculateStudentExamTotal = calculateStudentExamTotal;
 
 document.addEventListener('DOMContentLoaded', () => {
   seedData();

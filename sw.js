@@ -1,9 +1,17 @@
-const CACHE_NAME = 'mss-pwa-cache-v2';
+const CACHE_NAME = 'mss-pwa-cache-v3';
 const urlsToCache = [
   './',
   './index.html',
   './css/style.css',
   './js/app.js',
+  './js/config.js',
+  './js/supabase.js',
+  './js/admin-ai.js',
+  './pages/admin-login.html',
+  './pages/admin-dashboard.html',
+  './pages/student-portal.html',
+  './pages/teacher-portal.html',
+  './pages/bus-attendance.html',
   './assets/logo.png',
   './assets/favicon-96x96.png',
   './assets/favicon.svg',

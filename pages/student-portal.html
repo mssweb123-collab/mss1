@@ -1,0 +1,3336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="../assets/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Student Portal | MSS Matriculation School</title>
+  <meta name="description" content="Access the student portal at MSS Matriculation School. Log in using your Roll No and Date of Birth to view academic attendance, bus routes, marks, and notifications." />
+  <meta name="keywords" content="MSS school student login, student portal, check attendance, check exam marks Uppatty" />
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#4f46e5" />
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <style>
+    /* ── Floating Glow spheres for Login Background ── */
+    .login-bg-glows {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .login-bg-glows .glow-sphere {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.15;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+    .login-bg-glows .sphere-1 {
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+      top: -10%;
+      right: -10%;
+      animation: floatSphere1 22s infinite alternate ease-in-out;
+    }
+    .login-bg-glows .sphere-2 {
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+      bottom: -5%;
+      left: -5%;
+      animation: floatSphere2 18s infinite alternate ease-in-out;
+    }
+    .login-bg-glows .sphere-3 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #f87171 0%, transparent 70%);
+      top: 40%;
+      left: 20%;
+      animation: floatSphere3 28s infinite alternate ease-in-out;
+    }
+
+    @keyframes floatSphere1 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(-50px, 30px, 0) scale(1.1); }
+    }
+    @keyframes floatSphere2 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(45px, -45px, 0) scale(1.15); }
+    }
+    @keyframes floatSphere3 {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(-30px, -30px, 0) scale(0.9); }
+    }
+
+    /* ── Back to Home Link ── */
+    .back-home {
+      position: fixed;
+      top: 2rem;
+      left: 2rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      font-weight: 600;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: var(--transition);
+    }
+    .back-home:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateX(-4px);
+    }
+
+    /* ── Login Card Enhancements ── */
+    .login-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 3.25rem 2.75rem;
+      box-shadow: 0 30px 60px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(79, 70, 229, 0.05);
+      transition: var(--transition);
+    }
+    .login-card:hover {
+      box-shadow: 0 35px 70px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(79, 70, 229, 0.08);
+    }
+
+    /* ── Login Icon & Logo ── */
+    .login-icon {
+      background: #fff;
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.15);
+      position: relative;
+      padding: 3px;
+      transition: transform 0.4s var(--ease-smooth);
+    }
+    .login-icon:hover {
+      transform: scale(1.05);
+    }
+    .login-icon::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1.5px dashed var(--primary-light);
+      animation: rotateBorder 12s linear infinite;
+    }
+    @keyframes rotateBorder {
+      to { transform: rotate(360deg); }
+    }
+    .login-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-bottom: 2.25rem;
+    }
+    .logo-wrap h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--primary-dark);
+      font-size: 1.75rem;
+      font-weight: 850;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.01em;
+    }
+    .logo-wrap p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      max-width: 280px;
+      margin: 0 auto;
+      line-height: 1.4;
+    }
+
+    /* ── Input Groups with Sibling-state Icons ── */
+    .input-with-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-with-icon .form-control {
+      padding-left: 3.25rem;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      width: 100%;
+      height: 50px;
+      font-size: 0.98rem;
+      transition: var(--transition);
+    }
+    .input-with-icon .input-icon {
+      position: absolute;
+      left: 1.25rem;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      pointer-events: none;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .input-with-icon .form-control:focus {
+      background: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+    .input-with-icon .form-control:focus + .input-icon {
+      color: var(--primary);
+      transform: scale(1.08);
+    }
+
+    /* ── Login Error Message ── */
+    .login-error-msg {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      animation: shake 0.4s var(--ease-smooth);
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    .dob-select-group {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1.5fr;
+      gap: 0.75rem;
+    }
+    .dob-select-group select.form-control {
+      appearance: none;
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.65) url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234b5563' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") no-repeat right 0.75rem center/8px 10px;
+      padding-right: 2rem;
+      padding-left: 1rem;
+      height: 50px;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      font-size: 0.98rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .dob-select-group select.form-control:focus {
+      background-color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    /* ── Login Submit Button ── */
+    .btn-submit {
+      height: 50px;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-submit i {
+      font-size: 1.15rem;
+      transition: transform 0.3s var(--ease-bounce);
+    }
+    .btn-submit:hover i {
+      transform: translateX(4px);
+    }
+
+    /* ── Login Footer ── */
+    .login-footer {
+      margin-top: 2rem;
+      text-align: center;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      padding-top: 1.5rem;
+    }
+    .login-footer a {
+      color: var(--primary);
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: var(--transition);
+    }
+    .login-footer a:hover {
+      color: var(--accent);
+      transform: translateX(-3px);
+    }
+
+    @media (max-width: 480px) {
+      .back-home {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        padding: 0.5rem 0.9rem;
+        font-size: 0.8rem;
+      }
+      .login-page {
+        padding: 4.5rem 1rem 1.5rem;
+        align-items: flex-start;
+      }
+      .login-card {
+        padding: 2.25rem 1.25rem;
+        border-radius: 20px;
+      }
+      .logo-wrap h2 {
+        font-size: 1.5rem;
+      }
+      .logo-wrap p {
+        font-size: 0.88rem;
+      }
+      .dob-select-group {
+        gap: 0.4rem;
+      }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ============================================================
+       DASHBOARD STYLES
+       ============================================================ */
+    #dashboardSection {
+      display: none;
+    }
+    #dashboardSection.active {
+      display: block;
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* ── Floating Glow spheres for Dashboard Background ── */
+    .dashboard-bg-glows {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: -2;
+      pointer-events: none;
+      opacity: 0.15;
+    }
+    .dashboard-bg-glows .glow-sphere {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      mix-blend-mode: multiply;
+      will-change: transform;
+      animation: float-sphere 12s ease-in-out infinite;
+    }
+    @keyframes float-sphere {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+    .dashboard-bg-glows .sphere-1 {
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, var(--primary-light) 0%, transparent 70%);
+      top: -5%;
+      right: -5%;
+    }
+    .dashboard-bg-glows .sphere-2 {
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+      bottom: -10%;
+      left: -5%;
+      animation-delay: -6s;
+    }
+    
+    /* ── Elegant Glassmorphic Header ── */
+    .dashboard-header {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      padding: 1rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 30px rgba(15, 23, 42, 0.02);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .dashboard-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 850;
+      font-size: 1.5rem;
+      color: var(--primary-dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .header-logo {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      border-radius: 50%;
+      border: 1.5px solid rgba(15, 23, 42, 0.08);
+      background: #fff;
+      padding: 2px;
+    }
+
+    .btn-toggle-details {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      margin: 1rem auto 0;
+      transition: all 0.3s ease;
+      padding: 0.5rem 0.8rem;
+      border-radius: var(--radius-md);
+      background: rgba(79, 70, 229, 0.05);
+      width: 100%;
+    }
+    .btn-toggle-details:hover {
+      color: var(--accent);
+      background: rgba(79, 70, 229, 0.1);
+    }
+    
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+      padding: 0.55rem 1.25rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    
+    .logout-btn:hover {
+      background: var(--danger);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Fee Modal Overrides for Better Mobile UI */
+    #feeModal {
+        z-index: 1000;
+    }
+    #billingCard {
+        max-width: 450px;
+        width: 90%;
+        margin: auto;
+    }
+    .fee-detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .fee-detail-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+    .fee-detail-value {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+    }
+    
+    .dashboard-content {
+      padding: 2.5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 2rem;
+    }
+    
+    /* ── Hero Profile Card ── */
+    .profile-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 28px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.05);
+      display: flex;
+      gap: 2.25rem;
+      align-items: center;
+      animation: pageFadeUp 0.6s var(--ease-smooth);
+    }
+    
+    .profile-avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 3.2rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      box-shadow: 0 12px 30px rgba(79, 70, 229, 0.25);
+      border: 5px solid #fff;
+    }
+    
+    .profile-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .profile-info h2 {
+      color: var(--primary-dark);
+      margin: 0;
+      font-size: 2.2rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 850;
+      letter-spacing: -0.02em;
+    }
+
+    .profile-name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-fee-status {
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.9rem;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+      transition: var(--transition);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .btn-fee-status:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+    }
+    
+    .profile-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.85rem;
+    }
+    
+    .profile-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 1px solid rgba(15, 23, 42, 0.05);
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    .profile-badge.class-pill {
+      background: rgba(79, 70, 229, 0.05);
+      color: var(--primary);
+      border-color: rgba(79, 70, 229, 0.1);
+    }
+    .profile-badge.roll-pill {
+      background: rgba(124, 58, 237, 0.05);
+      color: var(--accent);
+      border-color: rgba(124, 58, 237, 0.1);
+    }
+    .profile-badge.dob-pill {
+      background: rgba(6, 182, 212, 0.05);
+      color: var(--info);
+      border-color: rgba(6, 182, 212, 0.1);
+    }
+    .profile-badge.transport-pill.bus-mode {
+      background: rgba(245, 158, 11, 0.05);
+      color: var(--warning);
+      border-color: rgba(245, 158, 11, 0.1);
+    }
+    .profile-badge.transport-pill.walk-mode {
+      background: rgba(16, 185, 129, 0.05);
+      color: var(--success);
+      border-color: rgba(16, 185, 129, 0.1);
+    }
+    
+    .grid-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-header {
+        padding: 1rem 1.25rem;
+      }
+      .logout-btn span {
+        display: none;
+      }
+      .logout-btn {
+        padding: 0.55rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .grid-panels {
+        grid-template-columns: 1fr;
+      }
+      /* Best Mobile Compressed Design */
+      .profile-card {
+        flex-direction: row !important;
+        text-align: left !important;
+        padding: 1rem !important;
+        gap: 1rem !important;
+        border-radius: 24px !important;
+        align-items: flex-start !important;
+      }
+      .profile-avatar {
+        width: 68px !important;
+        height: 68px !important;
+        font-size: 1.8rem !important;
+        border-width: 3px !important;
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+        box-shadow: 0 8px 20px rgba(124, 58, 237, 0.15) !important;
+      }
+      .profile-info {
+        flex: 1 !important;
+        align-items: flex-start !important;
+      }
+      .profile-name-row {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-bottom: 0.5rem !important;
+        gap: 0.5rem !important;
+      }
+      .profile-info h2 {
+        font-size: 1.25rem !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 120px !important;
+      }
+      .btn-fee-status {
+        min-width: auto !important;
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.7rem !important;
+        border-radius: 10px !important;
+        box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15) !important;
+      }
+      .profile-badges {
+        justify-content: flex-start !important;
+        gap: 0.35rem !important;
+        margin-top: 0 !important;
+      }
+      .profile-badge {
+        font-size: 0.7rem !important;
+        padding: 0.2rem 0.6rem !important;
+        width: auto !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+      }
+      .profile-badge i {
+        font-size: 0.75rem !important;
+      }
+
+      /* Compact Timeline */
+      .checkpoints-wrapper {
+        gap: 0.75rem !important;
+        padding: 0.5rem 0 !important;
+      }
+      .checkpoints-wrapper::before {
+        left: 25px !important;
+      }
+      .checkpoint-step {
+        padding: 0.75rem !important;
+        gap: 0.75rem !important;
+        border-radius: 16px !important;
+      }
+      .checkpoint-icon-circle {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 0.9rem !important;
+      }
+      .checkpoint-name {
+        font-size: 0.85rem !important;
+      }
+      .checkpoint-time {
+        font-size: 0.7rem !important;
+      }
+      .checkpoint-status-badge {
+        padding: 0.2rem 0.5rem !important;
+        font-size: 0.6rem !important;
+      }
+    }
+    
+    .panel-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 28px;
+      padding: 2rem;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.03);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .panel-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 25px 55px rgba(79, 70, 229, 0.07);
+      border-color: rgba(79, 70, 229, 0.12);
+    }
+    
+    .panel-title {
+      color: var(--primary-dark);
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 1.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1.5px solid rgba(15, 23, 42, 0.05);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-accent {
+      color: var(--primary);
+      font-size: 1.35rem;
+    }
+
+    /* ── Progress Rings & Stats ── */
+    .stats-visualization {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .progress-ring-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-ring {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    .progress-ring-circle-bg {
+      stroke: rgba(15, 23, 42, 0.04);
+      stroke-width: 9px;
+    }
+
+    .progress-ring-circle {
+      stroke-width: 9px;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.8s ease-in-out;
+    }
+
+    .progress-ring-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .stat-num {
+      font-size: 1.9rem;
+      font-weight: 850;
+      color: var(--primary-dark);
+      line-height: 1;
+    }
+    
+    .stat-label {
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-weight: 750;
+      margin-top: 4px;
+      letter-spacing: 0.06em;
+    }
+
+    .stats-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .meta-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      display: inline-block;
+    }
+
+    .bg-success { background: var(--success); }
+    .bg-accent { background: var(--accent); }
+    .bg-danger { background: var(--danger); }
+    .bg-light { background: var(--text-muted); }
+
+    /* Day Scholar Card View */
+    .dayscholar-badge-container {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: rgba(15, 23, 42, 0.02);
+      border-radius: 20px;
+      border: 1px solid rgba(15, 23, 42, 0.04);
+      margin-top: 0.5rem;
+    }
+
+    .dayscholar-icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      animation: bounce 2s infinite;
+    }
+
+    .dayscholar-badge-container h4 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .dayscholar-badge-container p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* ── Exam Selector Tabs ── */
+    .exam-tabs {
+      display: inline-flex;
+      gap: 0.35rem;
+      background: rgba(79, 70, 229, 0.05);
+      border: 1px solid rgba(79, 70, 229, 0.08);
+      padding: 0.4rem;
+      border-radius: var(--radius-full);
+      margin-bottom: 1.75rem;
+    }
+
+    .exam-tab-btn {
+      padding: 0.55rem 1.25rem;
+      border: none;
+      border-radius: var(--radius-full);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .exam-tab-btn:hover {
+      color: var(--primary);
+      background: rgba(79, 70, 229, 0.04);
+    }
+
+    .exam-tab-btn.active {
+      background: var(--primary);
+      color: var(--white);
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+    }
+
+    /* ── Marks Metrics & Tables ── */
+    .marks-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+    
+    .marks-table tbody tr {
+      transition: all 0.25s ease;
+    }
+
+    .marks-table tbody tr:hover {
+      background: rgba(79, 70, 229, 0.025);
+    }
+
+    .marks-table th, .marks-table td {
+      padding: 1.1rem 1.5rem;
+      text-align: left;
+      border-bottom: 1.5px solid rgba(15, 23, 42, 0.04);
+      font-size: 0.95rem;
+    }
+    
+    .section-divider {
+      background: rgba(15, 23, 42, 0.04);
+      padding: 0.75rem 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-top: 1.5px solid rgba(15, 23, 42, 0.05);
+      border-bottom: 1.5px solid rgba(15, 23, 42, 0.05);
+    }
+    
+    .subject-tag {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(79, 70, 229, 0.05);
+      padding: 0.35rem 0.7rem;
+      border-radius: 8px;
+      border: 1px solid rgba(79, 70, 229, 0.08);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .marks-metric-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-width: 160px;
+    }
+
+    .marks-val {
+      font-size: 0.95rem;
+      font-weight: 850;
+      color: var(--text-primary);
+    }
+
+    .marks-max {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .marks-progress-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(15, 23, 42, 0.05);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .marks-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: var(--radius-full);
+      transition: width 0.8s var(--ease-smooth);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.8rem;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 750;
+    }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-info { background: #e0f2fe; color: #075985; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-accent { background: #f3e8ff; color: #6b21a8; }
+    
+    /* ── Animation Strip ── */
+    .animation-strip {
+      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+      padding: 1rem 0;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 28px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.03);
+      grid-column: 1 / -1;
+    }
+    
+    .animation-scene {
+      display: flex;
+      align-items: flex-end;
+      gap: 0;
+      position: relative;
+      height: 150px;
+    }
+    
+    .anim-road {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: linear-gradient(180deg, #334155 0%, #1e293b 45%, #0f172a 100%);
+      border-top: 3px solid #cbd5e1;
+      box-shadow: inset 0 6px 12px rgba(0,0,0,0.3);
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .anim-road::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 200%;
+      height: 2px;
+      background: repeating-linear-gradient(90deg, #fff 0, #fff 25px, transparent 25px, transparent 50px);
+      transform: translateY(-50%);
+      opacity: 0.5;
+    }
+
+    .anim-road.moving::before {
+      animation: road-scroll 0.5s linear infinite;
+    }
+
+    @keyframes road-scroll {
+      from { transform: translate3d(0, -50%, 0); }
+      to { transform: translate3d(-50px, -50%, 0); }
+    }
+    
+    .anim-sky {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 40px;
+      background: linear-gradient(180deg, #bae6fd 0%, #f0f9ff 100%);
+      overflow: hidden;
+    }
+
+    .location-label {
+      font-size: 0.72rem;
+      font-weight: 850;
+      color: var(--primary-dark);
+      background: #fff;
+      padding: 0.2rem 0.7rem;
+      border-radius: var(--radius-full);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      border: 1.5px solid var(--primary-light);
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      z-index: 10;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .anim-house-1, .anim-house-2, .anim-school {
+      position: absolute;
+      bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .house-img, .school-img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+      margin-bottom: 6px;
+      transition: all 0.3s ease;
+    }
+    .school-img {
+      width: 84px;
+      height: 84px;
+    }
+    
+    .anim-sky::before {
+      content: '';
+      position: absolute;
+      inset: auto 0 0;
+      height: 46px;
+      background:
+        linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.72)),
+        radial-gradient(ellipse at 20% 100%, rgba(16, 185, 129, 0.22), transparent 46%),
+        radial-gradient(ellipse at 78% 100%, rgba(79, 70, 229, 0.13), transparent 48%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .anim-sky::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 12% 34%, rgba(255,255,255,0.58) 0 1px, transparent 2px),
+        radial-gradient(circle at 46% 18%, rgba(255,255,255,0.46) 0 1px, transparent 2px),
+        radial-gradient(circle at 88% 42%, rgba(255,255,255,0.52) 0 1px, transparent 2px);
+      opacity: 0.85;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .mountain-range {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      z-index: 2;
+      opacity: 0.8;
+    }
+
+    .anim-sun {
+      position: absolute;
+      top: 15px;
+      right: 18%;
+      width: 28px;
+      height: 28px;
+      background: radial-gradient(circle, #fff7ad 0%, #facc15 72%, #f59e0b 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 0 9px rgba(253, 224, 71, 0.14), 0 0 28px rgba(253, 224, 71, 0.52);
+      animation: sun-pulse 4s ease-in-out infinite alternate;
+      z-index: 2;
+    }
+
+    @keyframes sun-pulse {
+      0% { transform: scale(1); box-shadow: 0 0 15px rgba(253, 224, 71, 0.4); }
+      100% { transform: scale(1.15); box-shadow: 0 0 30px rgba(253, 224, 71, 0.8); }
+    }
+    
+    .scenery-tree {
+      position: absolute;
+      bottom: 34px;
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 24px solid rgba(16, 185, 129, 0.42);
+      z-index: 2;
+      filter: drop-shadow(0 5px 6px rgba(16, 185, 129, 0.16));
+    }
+    .tree-1 { left: 24%; }
+    .tree-2 { left: 45%; border-bottom-height: 28px; opacity: 0.8; }
+    .tree-3 { left: 70%; }
+
+    .anim-cloud {
+      position: absolute;
+      left: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(239, 246, 255, 0.86));
+      border-radius: 50px;
+      box-shadow: 0 10px 24px rgba(96, 165, 250, 0.16), inset 0 -4px 10px rgba(148, 163, 184, 0.08);
+      z-index: 3;
+      opacity: 0.95;
+      will-change: transform;
+    }
+
+    .anim-cloud::before,
+    .anim-cloud::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: inherit;
+      box-shadow: inherit;
+    }
+
+    .anim-cloud::before {
+      width: 48%;
+      height: 150%;
+      left: 16%;
+      bottom: 24%;
+    }
+
+    .anim-cloud::after {
+      width: 58%;
+      height: 170%;
+      right: 12%;
+      bottom: 14%;
+    }
+
+    .cloud-1 {
+      width: 72px;
+      height: 20px;
+      top: 18px;
+      animation: float-cloud 38s linear infinite;
+    }
+    .cloud-2 {
+      width: 96px;
+      height: 26px;
+      top: 45px;
+      opacity: 0.88;
+      animation: float-cloud-reverse 32s linear infinite;
+    }
+    .cloud-3 {
+      width: 58px;
+      height: 18px;
+      top: 30px;
+      opacity: 0.8;
+      animation: float-cloud 48s linear infinite;
+    }
+    .cloud-4 {
+      width: 118px;
+      height: 30px;
+      top: 78px;
+      opacity: 0.62;
+      animation: float-cloud 58s linear infinite;
+    }
+    .cloud-5 {
+      width: 62px;
+      height: 19px;
+      top: 10px;
+      opacity: 0.72;
+      animation: float-cloud-reverse 42s linear infinite;
+    }
+
+    @keyframes float-cloud {
+      0% { transform: translate3d(-140px, 0, 0); }
+      100% { transform: translate3d(calc(100vw + 160px), 0, 0); }
+    }
+
+    @keyframes float-cloud-reverse {
+      0% { transform: translate3d(calc(100vw + 160px), 0, 0); }
+      100% { transform: translate3d(-150px, 0, 0); }
+    }
+    
+    .anim-house-1, .anim-house-2, .anim-school {
+      position: absolute;
+      bottom: 34px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 5;
+    }
+    
+    .anim-house-1 {
+      left: 4%;
+    }
+
+    .anim-house-2 {
+      left: 88%;
+      display: none;
+    }
+    
+    .anim-school {
+      left: 88%;
+      transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    
+    .house-img, .school-img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.1));
+      transition: var(--transition);
+    }
+    .school-img {
+      width: 84px;
+      height: 84px;
+    }
+    .house-img:hover, .school-img:hover {
+      transform: scale(1.08) translateY(-4px);
+    }
+    .location-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 0.15rem 0.6rem;
+      border-radius: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    .anim-bus {
+      position: absolute;
+      bottom: 34px;
+      transition: left 3s cubic-bezier(0.25, 1, 0.5, 1);
+      left: 8%;
+      z-index: 10;
+      transform-origin: 50% 100%;
+    }
+
+    .anim-bus.bus-moving {
+      animation: bus-vibrate 0.16s ease-in-out infinite alternate;
+    }
+    
+    @keyframes bus-vibrate {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-2px); }
+    }
+    
+    .bus-svg {
+      width: 124px;
+      height: 66px;
+      filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.22));
+    }
+
+    .bus-body {
+      fill: url(#busBodyGrad);
+      stroke: rgba(146, 64, 14, 0.22);
+      stroke-width: 1;
+    }
+
+    .bus-top {
+      fill: rgba(255, 247, 237, 0.5);
+    }
+
+    .bus-window {
+      fill: url(#busWindowGrad);
+      stroke: rgba(255, 255, 255, 0.72);
+      stroke-width: 0.8;
+    }
+
+    .bus-stripe {
+      fill: rgba(255, 255, 255, 0.36);
+    }
+
+    .bus-light {
+      animation: bus-light-glow 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes bus-light-glow {
+      from { opacity: 0.62; }
+      to { opacity: 1; }
+    }
+
+    .spinning-wheel {
+      animation: spin-wheel 1.2s linear infinite;
+      animation-play-state: paused;
+    }
+
+    .bus-moving .spinning-wheel {
+      animation-play-state: running;
+    }
+
+    @keyframes spin-wheel {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .headlight-beam {
+      animation: beam-pulse 0.8s infinite alternate;
+    }
+    @keyframes beam-pulse {
+      0% { opacity: 0.25; }
+      100% { opacity: 0.75; }
+    }
+    
+    .anim-label {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: var(--white);
+      padding: 0.5rem 1.5rem;
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+      z-index: 20;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .anim-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      margin-right: 8px;
+      animation: pulse 1.2s infinite;
+    }
+    
+    .dot-green {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+    
+    .dot-orange {
+      background: var(--warning);
+      box-shadow: 0 0 8px var(--warning);
+    }
+    
+    .dot-red {
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+    
+    .anim-student {
+      position: absolute;
+      bottom: 34px;
+      transition: left 3s cubic-bezier(0.25, 1, 0.5, 1);
+      left: 8%;
+      z-index: 10;
+      font-size: 2.2rem;
+      line-height: 1;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+    }
+    .anim-student.student-moving {
+      animation: student-walk 0.5s ease-in-out infinite alternate;
+    }
+    @keyframes student-walk {
+      0% { transform: translateY(0) rotate(-5deg); }
+      100% { transform: translateY(-4px) rotate(5deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .4; transform: scale(.75); }
+    }
+
+    /* ── Live Attendance Journey ── */
+    .journey-card {
+      grid-column: 1 / -1;
+      padding: 0;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(239, 246, 255, 0.8)),
+        radial-gradient(circle at 12% 8%, rgba(16, 185, 129, 0.14), transparent 30%),
+        radial-gradient(circle at 88% 12%, rgba(124, 58, 237, 0.14), transparent 30%);
+      border: 1px solid rgba(79, 70, 229, 0.12);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.07);
+    }
+
+    .journey-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.62), transparent 34%, rgba(255, 255, 255, 0.38)),
+        repeating-linear-gradient(135deg, rgba(79, 70, 229, 0.045) 0 1px, transparent 1px 18px);
+      pointer-events: none;
+    }
+
+    .journey-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .journey-inner {
+      position: relative;
+      z-index: 1;
+      padding: 1.5rem;
+    }
+
+    .journey-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    }
+
+    .journey-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      min-width: 0;
+    }
+
+    .journey-title-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 0 14px 30px rgba(79, 70, 229, 0.24);
+      flex-shrink: 0;
+      font-size: 1.35rem;
+    }
+
+    .journey-title {
+      font-size: 1.2rem;
+      line-height: 1.25;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .journey-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.84rem;
+      font-weight: 650;
+      margin-top: 0.25rem;
+    }
+
+    .journey-status-pill {
+      position: static;
+      transform: none;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      border-radius: var(--radius-full);
+      padding: 0.45rem 1.25rem;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--primary-dark);
+      border: 1px solid var(--primary-light);
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.1);
+      white-space: normal;
+      max-width: 420px;
+      text-align: left;
+    }
+    
+    .journey-status-pill .anim-dot {
+      flex: 0 0 auto;
+      margin-right: 0;
+    }
+
+    .journey-status-text {
+      font-size: 0.8rem;
+      font-weight: 850;
+      line-height: 1.25;
+    }
+
+    .journey-strip {
+      margin-bottom: 1.25rem;
+      border: 1px solid rgba(79, 70, 229, 0.1);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 18px 36px rgba(15, 23, 42, 0.06);
+      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 62%, #e0f2fe 100%);
+      border-radius: 22px;
+    }
+
+    .journey-strip .animation-scene {
+      height: 170px;
+    }
+
+    .checkpoints-wrapper {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: stretch;
+      gap: 0.85rem;
+      padding: 0.2rem 0 0;
+      position: relative;
+    }
+    
+    .checkpoints-wrapper::before {
+      content: '';
+      position: absolute;
+      left: 16%;
+      right: 16%;
+      top: 28px;
+      height: 4px;
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.24), rgba(79, 70, 229, 0.18), rgba(245, 158, 11, 0.24));
+      border-radius: var(--radius-full);
+      z-index: 1;
+      transform: translateY(-50%);
+    }
+
+    .checkpoints-wrapper.single-step::before {
+      display: none;
+    }
+
+    .checkpoints-wrapper.single-step {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .checkpoint-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      min-width: 0;
+      padding: 0 0.65rem 0.85rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid rgba(15, 23, 42, 0.055);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.035);
+      transition: var(--transition);
+    }
+
+    .checkpoint-step:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 16px 30px rgba(79, 70, 229, 0.08);
+    }
+
+    .checkpoint-icon-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.32rem;
+      border: 5px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+      transition: all 0.3s ease;
+      margin-top: -0.05rem;
+    }
+
+    .checkpoint-step.completed .checkpoint-icon-circle {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(16, 185, 129, 0.28);
+    }
+
+    .checkpoint-step.absent .checkpoint-icon-circle {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(239, 68, 68, 0.25);
+    }
+
+    .checkpoint-step.pending .checkpoint-icon-circle {
+      background: #fff;
+      color: var(--primary);
+      border-color: rgba(199, 210, 254, 0.95);
+      box-shadow: 0 10px 22px rgba(79, 70, 229, 0.1);
+    }
+
+    .checkpoint-name {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-top: 0.8rem;
+      line-height: 1.25;
+    }
+
+    .checkpoint-copy {
+      min-width: 0;
+    }
+
+    .checkpoint-time {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-top: 0.22rem;
+      min-height: 1.1rem;
+    }
+
+    .checkpoint-status-badge {
+      display: inline-block;
+      margin-top: 0.45rem;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.2rem 0.55rem;
+      border-radius: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .checkpoint-status-badge.badge-pending {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+    .checkpoint-status-badge.badge-completed {
+      background: #e2fbf0;
+      color: #065f46;
+    }
+    .checkpoint-status-badge.badge-absent {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* ── Bus Usage Year Grid ── */
+    .bus-year-container {
+      margin-top: 1.5rem;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      padding-top: 1.25rem;
+      width: 100%;
+    }
+
+    .bus-year-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .bus-year-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .bus-month-card {
+      background: #f8fafc;
+      border: 1px solid rgba(15, 23, 42, 0.04);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 0.4rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .pin-input {
+      transition: all 0.3s ease;
+    }
+    .pin-input:focus {
+      border-color: var(--primary) !important;
+      outline: none;
+      background: #fff !important;
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .bus-month-card.active {
+      background: rgba(124, 58, 237, 0.06);
+      border: 1.5px solid rgba(124, 58, 237, 0.3);
+    }
+
+    .bus-month-card.active .month-name {
+      color: var(--accent);
+      font-weight: 900;
+    }
+
+    .month-name {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.2rem;
+      display: block;
+    }
+
+    .month-count {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: block;
+    }
+
+    .bus-total-banner {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.1rem;
+      color: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.15);
+    }
+
+    .bus-total-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.95;
+    }
+
+    .bus-total-value {
+      font-size: 1.15rem;
+      font-weight: 900;
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-header {
+        padding: 0.85rem 1rem;
+      }
+      .dashboard-header h1 {
+        font-size: 1.25rem;
+        gap: 0.4rem;
+      }
+      .header-logo {
+        width: 28px;
+        height: 28px;
+        padding: 1px;
+      }
+      .logout-btn span {
+        display: none;
+      }
+      .logout-btn {
+        padding: 0.5rem;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .dashboard-content {
+        padding: 1.25rem 0.85rem;
+        gap: 1.25rem;
+      }
+
+      .profile-card {
+        padding: 1.5rem 1rem;
+        border-radius: 20px;
+        gap: 1.25rem;
+      }
+      .profile-avatar {
+        width: 76px;
+        height: 76px;
+        font-size: 2rem;
+      }
+      .profile-info h2 {
+        font-size: 1.35rem;
+      }
+      .profile-badge {
+        font-size: 0.78rem;
+        padding: 0.35rem 0.75rem;
+      }
+
+      .panel-card {
+        padding: 1.5rem 1rem;
+        border-radius: 20px;
+      }
+      .panel-title {
+        font-size: 1.05rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .journey-card {
+        padding: 0;
+      }
+
+      .journey-inner {
+        padding: 1rem;
+      }
+
+      .journey-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.85rem;
+        margin-bottom: 1rem;
+      }
+
+      .journey-title-group {
+        align-items: flex-start;
+      }
+
+      .journey-title-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        font-size: 1.15rem;
+      }
+
+      .journey-title {
+        font-size: 1.02rem;
+      }
+
+      .journey-subtitle {
+        font-size: 0.76rem;
+      }
+
+      .journey-status-pill {
+        max-width: none;
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+      }
+    
+      .journey-strip {
+        border-radius: 18px;
+      }
+
+      .journey-strip .animation-scene {
+        height: 145px;
+      }
+      .anim-sun {
+        right: 10% !important;
+        width: 24px !important;
+        height: 24px !important;
+      }
+      .house-img, .school-img {
+        width: 50px !important;
+        height: 50px !important;
+      }
+      .school-img {
+        width: 60px !important;
+        height: 60px !important;
+      }
+      .bus-svg {
+        width: 90px !important;
+        height: 50px !important;
+      }
+      .anim-bus, .anim-student {
+        bottom: 40px !important;
+      }
+      .anim-house-1, .anim-house-2, .anim-school {
+        bottom: 40px !important;
+      }
+      .anim-road {
+        height: 40px !important;
+      }
+      .anim-sky {
+        bottom: 40px !important;
+      }
+      .location-label {
+        font-size: 0.6rem !important;
+        padding: 0.1rem 0.4rem !important;
+      }
+    
+      .stats-visualization {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+        text-align: center;
+      }
+      .stats-meta {
+        align-items: center;
+        width: 100%;
+      }
+      .meta-item {
+        justify-content: center;
+      }
+
+      .checkpoints-wrapper {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding-left: 0;
+      }
+      .checkpoints-wrapper::before {
+        left: 27px;
+        top: 1.25rem;
+        bottom: 1.25rem;
+        width: 4px;
+        height: auto;
+        transform: none;
+        right: auto;
+      }
+      .checkpoint-step {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 0.65rem 0.75rem;
+      }
+      .checkpoint-icon-circle {
+        width: 42px;
+        height: 42px;
+        font-size: 1rem;
+        flex-shrink: 0;
+        border-width: 4px;
+        margin-top: 0;
+      }
+      .checkpoint-name {
+        margin-top: 0;
+        font-size: 0.84rem;
+      }
+      .checkpoint-copy {
+        flex: 1;
+      }
+      .checkpoint-time {
+        font-size: 0.7rem;
+        min-height: auto;
+      }
+      .checkpoint-status-badge {
+        margin-top: 0;
+        margin-left: auto;
+        flex-shrink: 0;
+        font-size: 0.62rem;
+        padding: 0.22rem 0.45rem;
+      }
+
+      .exam-tabs {
+        display: flex;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .exam-tab-btn {
+        flex: 1 0 auto;
+        text-align: center;
+        padding: 0.55rem 0.85rem;
+        font-size: 0.8rem;
+      }
+      .bus-year-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.4rem;
+      }
+      .bus-month-card {
+        padding: 0.6rem 0.25rem;
+      }
+
+      // Mobile adjustments for Fee Modal
+      #billingCard {
+        max-height: 98vh !important;
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+      }
+      #billingCard .panel-title {
+        padding: 1.5rem 1rem 0 !important;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        text-align: center;
+      }
+      #billingCard .panel-title span:first-child {
+        font-size: 1.1rem;
+      }
+      #feePinOverlay {
+        padding: 1rem !important;
+        justify-content: center !important;
+      }
+      #feePinOverlay h4 {
+        font-size: 1.25rem !important;
+      }
+      #feePinOverlay p {
+        font-size: 0.85rem !important;
+        margin-bottom: 2rem !important;
+      }
+      .pin-input {
+        width: 55px !important;
+        height: 65px !important;
+        font-size: 1.75rem !important;
+      }
+      #feeDetailsContent {
+        grid-template-columns: 1fr !important;
+        padding: 1.5rem !important;
+        gap: 1.25rem !important;
+      }
+      .fee-detail-item {
+        padding: 1rem !important;
+        background: #f8fafc !important;
+        border-radius: 16px !important;
+        border: 1px solid #edf2f7 !important;
+      }
+    }
+    
+  </style>
+</head>
+<body>
+  <!-- ============================================
+       LOGIN SECTION
+       ============================================ -->
+  <div id="loginSection" class="login-page">
+    <div class="login-bg-glows">
+      <div class="glow-sphere sphere-1"></div>
+      <div class="glow-sphere sphere-2"></div>
+      <div class="glow-sphere sphere-3"></div>
+    </div>
+
+    <a class="back-home" href="../index.html">
+      <i class="bi bi-arrow-left"></i> Back to Home
+    </a>
+
+    <div class="login-card page-enter">
+      <div class="logo-wrap">
+        <div class="login-icon">
+          <img src="../assets/logo.png" alt="MSS Logo" class="login-logo-img"/>
+        </div>
+        <h2>Student Login</h2>
+        <p>Enter your Roll Number and Date of Birth to access your portal</p>
+      </div>
+
+      <form id="studentLoginForm">
+        <div class="form-group">
+          <label class="form-label" for="rollNo">Roll Number</label>
+          <div class="input-with-icon">
+            <input type="text" class="form-control" id="rollNo" placeholder="e.g., 001" required autocomplete="off"/>
+            <i class="bi bi-hash input-icon"></i>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dob">Date of Birth</label>
+          <div class="input-with-icon">
+            <input type="text" class="form-control" id="dob" placeholder="DD-MM-YYYY" required autocomplete="off" inputmode="numeric" maxlength="10"/>
+            <i class="bi bi-calendar-event input-icon"></i>
+          </div>
+        </div>
+        
+        <div id="loginError" class="login-error-msg">
+          <i class="bi bi-exclamation-circle-fill"></i> Invalid Roll Number or Date of Birth
+        </div>
+
+        <button type="submit" id="loginSubmitBtn" class="btn btn-primary w-full btn-submit">
+          <span>Login</span>
+          <i class="bi bi-arrow-right-short"></i>
+        </button>
+      </form>
+      <div class="login-footer">
+        <a href="../index.html">
+          <i class="bi bi-arrow-left"></i> Back to Main Website
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       DASHBOARD SECTION
+       ============================================ -->
+  <div id="dashboardSection">
+    <div class="dashboard-bg-glows">
+      <div class="glow-sphere sphere-1"></div>
+      <div class="glow-sphere sphere-2"></div>
+    </div>
+
+    <header class="dashboard-header">
+      <h1>
+        <img src="../assets/logo.png" alt="MSS Logo" class="header-logo"/> Student Portal
+      </h1>
+      <button class="logout-btn" id="logoutBtn">
+        <i class="bi bi-box-arrow-right"></i> <span>Sign Out</span>
+      </button>
+    </header>
+
+    <main class="dashboard-content page-enter">
+      <div class="profile-card" id="profileCard">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Today's Journey & Live Checkpoints Card -->
+      <div class="panel-card journey-card" id="checkpointsCard">
+        <div class="journey-inner">
+          <div class="journey-header">
+            <div class="journey-title-group">
+              <span class="journey-title-icon"><i class="bi bi-geo-alt-fill"></i></span>
+              <div>
+                <h3 class="journey-title">Today's Live Attendance & Journey</h3>
+          </div>
+            </div>
+            <div class="anim-label journey-status-pill" id="animLabel">
+              <span class="anim-dot dot-orange" id="animDot"></span>
+              <span class="journey-status-text" id="animStatus">Tracking...</span>
+            </div>
+          </div>
+          
+          <div class="animation-strip journey-strip" id="animStrip">
+            <div class="animation-scene" id="animScene">
+              <div class="anim-sky">
+                <svg class="mountain-range" viewBox="0 0 1000 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0,80 L80,45 L160,75 L240,35 L320,65 L400,30 L480,80 L560,40 L640,70 L720,25 L800,60 L880,20 L960,75 L1000,55 L1000,100 L0,100 Z" fill="rgba(79, 70, 229, 0.05)" />
+                  <path d="M0,90 L120,65 L280,90 L440,55 L600,80 L760,60 L920,85 L1000,75 L1000,100 L0,100 Z" fill="rgba(124, 58, 237, 0.07)" />
+                </svg>
+                <div class="anim-sun"></div>
+                <div class="anim-cloud cloud-1"></div>
+                <div class="anim-cloud cloud-2" style="animation-delay: -10s;"></div>
+                <div class="anim-cloud cloud-3" style="animation-delay: -20s;"></div>
+                <div class="anim-cloud cloud-4" style="animation-delay: -28s;"></div>
+                <div class="anim-cloud cloud-5" style="animation-delay: -16s;"></div>
+              </div>
+              <div class="scenery-tree tree-1"></div>
+              <div class="scenery-tree tree-2"></div>
+              <div class="scenery-tree tree-3"></div>
+              <div class="anim-road" id="animRoad"></div>
+              <div class="anim-house-1">
+                <img src="../assets/home_photo.png" alt="Home" class="house-img" />
+                <span class="location-label">Home</span>
+              </div>
+              <div class="anim-bus" id="animBus" style="display: none;">
+                <svg class="bus-svg" viewBox="0 0 130 60" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="busBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fde68a" />
+                      <stop offset="44%" stop-color="#f59e0b" />
+                      <stop offset="100%" stop-color="#d97706" />
+                    </linearGradient>
+                    <linearGradient id="busWindowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#e0f2fe" />
+                      <stop offset="100%" stop-color="#7dd3fc" />
+                    </linearGradient>
+                  </defs>
+                  <ellipse cx="56" cy="54" rx="54" ry="5" fill="rgba(15,23,42,0.18)" />
+                  <polygon points="101,30 129,21 129,45 101,37" fill="rgba(253,224,71,0.38)" class="headlight-beam" />
+                  <path class="bus-body" d="M7 13H89C97 13 104 19 106 27L111 47H4V19C4 15.7 6.7 13 7 13Z" />
+                  <path class="bus-top" d="M11 13H86C94 13 100 18 102 24H7V17C7 14.8 8.8 13 11 13Z" />
+                  <rect class="bus-stripe" x="7" y="31" width="99" height="5" rx="2.5" />
+                  <rect class="bus-window" x="11" y="17" width="17" height="12" rx="2.5" />
+                  <rect class="bus-window" x="32" y="17" width="17" height="12" rx="2.5" />
+                  <rect class="bus-window" x="53" y="17" width="17" height="12" rx="2.5" />
+                  <path class="bus-window" d="M76 17H88C93 17 97 20.5 99 25V29H76V17Z" />
+                  <rect x="10" y="38" width="17" height="5" fill="rgba(120,53,15,0.18)" rx="2" />
+                  <rect x="36" y="38" width="19" height="5" fill="rgba(120,53,15,0.18)" rx="2" />
+                  <rect x="64" y="36" width="17" height="10" fill="rgba(255,247,237,0.45)" rx="2" />
+                  <rect x="83" y="35" width="17" height="11" fill="rgba(255,247,237,0.34)" rx="2" />
+                  <circle class="bus-light" cx="106" cy="35" r="3" fill="#fef3c7" />
+                  <circle cx="6" cy="36" r="2.5" fill="#ef4444" opacity="0.8" />
+                  <path d="M6 47H111" stroke="rgba(120,53,15,0.3)" stroke-width="2" stroke-linecap="round" />
+                  <g class="spinning-wheel" style="transform-origin: 20px 48px;">
+                    <circle cx="20" cy="48" r="8" fill="#1e293b" />
+                    <circle cx="20" cy="48" r="5" fill="#475569" />
+                    <line x1="20" y1="40" x2="20" y2="56" stroke="#f8fafc" stroke-width="1.3" />
+                    <line x1="12" y1="48" x2="28" y2="48" stroke="#f8fafc" stroke-width="1.3" />
+                    <circle cx="20" cy="48" r="2.4" fill="#f8fafc" />
+                  </g>
+                  <g class="spinning-wheel" style="transform-origin: 80px 48px;">
+                    <circle cx="80" cy="48" r="8" fill="#1e293b" />
+                    <circle cx="80" cy="48" r="5" fill="#475569" />
+                    <line x1="80" y1="40" x2="80" y2="56" stroke="#f8fafc" stroke-width="1.3" />
+                    <line x1="72" y1="48" x2="88" y2="48" stroke="#f8fafc" stroke-width="1.3" />
+                    <circle cx="80" cy="48" r="2.4" fill="#f8fafc" />
+                  </g>
+                  <text x="52" y="43" text-anchor="middle" font-size="8" fill="#7c2d12" font-weight="900" letter-spacing="0.05em">MSS BUS</text>
+                </svg>
+              </div>
+              <div class="anim-student" id="animStudent" style="display: none;">
+                <div class="walking-avatar">🚶‍♂️</div>
+              </div>
+              <div class="anim-school" id="animSchool">
+                <img src="../assets/school_photo.png" alt="School" class="school-img" />
+                <span class="location-label">School</span>
+              </div>
+              <div class="anim-house-2" id="animHouse2">
+                <img src="../assets/home_photo.png" alt="Home" class="house-img" />
+                <span class="location-label">Home</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="checkpoints-wrapper" id="checkpointsWrapper">
+            <!-- Injected dynamically via JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-panels">
+        <!-- Attendance Card -->
+        <div class="panel-card">
+          <div class="panel-title flex-between">
+            <span><i class="bi bi-calendar3 icon-accent"></i> Academic Attendance</span>
+            <span class="badge badge-accent" id="academicYearBadge"></span>
+          </div>
+          <div class="stats-visualization">
+            <div class="progress-ring-container">
+              <svg class="progress-ring" width="120" height="120">
+                <defs>
+                  <linearGradient id="attGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="var(--primary-light)" />
+                    <stop offset="100%" stop-color="var(--primary)" />
+                  </linearGradient>
+                </defs>
+                <circle class="progress-ring-circle-bg" cx="60" cy="60" r="50" fill="transparent"/>
+                <circle class="progress-ring-circle" id="attendanceProgressRing" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16" fill="transparent" style="stroke: url(#attGrad);"/>
+              </svg>
+              <div class="progress-ring-text">
+                <span class="stat-num" id="classAttCount">0</span>
+                <span class="stat-label">Days</span>
+              </div>
+            </div>
+            <div class="stats-meta">
+              <div class="meta-item">
+                <span class="meta-dot bg-success"></span>
+                <span>Present: <strong id="presentDaysLabel">0</strong> Days</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-dot bg-danger"></span>
+                <span>Absent: <strong id="absentDaysLabel">0</strong> Days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bus Usage Card -->
+        <div class="panel-card" id="busPanel">
+          <div class="panel-title flex-between">
+            <span><i class="bi bi-bus-front icon-accent"></i> Bus Attendance</span>
+            <span class="badge badge-success" id="currMonthStr">Month</span>
+          </div>
+          <div class="stats-visualization">
+            <div class="progress-ring-container">
+              <svg class="progress-ring" width="120" height="120">
+                <defs>
+                  <linearGradient id="busGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="var(--accent-light)" />
+                    <stop offset="100%" stop-color="var(--accent)" />
+                  </linearGradient>
+                </defs>
+                <circle class="progress-ring-circle-bg" cx="60" cy="60" r="50" fill="transparent"/>
+                <circle class="progress-ring-circle" id="busProgressRing" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16" fill="transparent" style="stroke: url(#busGrad);"/>
+              </svg>
+              <div class="progress-ring-text">
+                <span class="stat-num" id="busAttCount">0</span>
+                <span class="stat-label">Trips</span>
+              </div>
+            </div>
+            <div class="stats-meta">
+              <div class="meta-item">
+                <span class="meta-dot bg-accent"></span>
+                <span>Trips: <strong id="busTripsLabel">0</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fee & Billing Modal-like Card -->
+      <div id="feeModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem;">
+        <div class="panel-card" id="billingCard" style="width: 100%; max-width: 600px; position: relative; min-height: 450px; overflow: hidden; display: flex; flex-direction: column;">
+          <button onclick="closeFeeModal()" style="position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(15, 23, 42, 0.05); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); z-index: 20;">
+            <i class="bi bi-x-lg"></i>
+          </button>
+
+          <div class="panel-title flex-between" style="padding: 2rem 2rem 0; margin-bottom: 0; border-bottom: none;">
+            <span><i class="bi bi-credit-card-2-back icon-accent"></i> Fee & Payment Status</span>
+            <span class="badge" id="billingMonthStatus" style="display: none;">Status</span>
+          </div>
+    
+          <div style="flex: 1; position: relative; padding: 1rem 2rem 2rem;">
+            <!-- PIN Verification Overlay -->
+            <div id="feePinOverlay" style="position: absolute; inset: 0; background: #fff; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;">
+              <div style="background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; width: 60px; height: 60px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; font-size: 1.75rem; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25);">
+                <i class="bi bi-shield-lock-fill"></i>
+              </div>
+              <h4 style="margin: 0 0 0.5rem; color: var(--primary-dark); font-weight: 850; font-size: 1.25rem;">Secure Access</h4>
+              <p style="margin: 0 0 2rem; color: var(--text-secondary); font-size: 0.9rem; text-align: center; font-weight: 500;">Enter your 4-digit PIN to view detailed fee & payment history</p>
+              <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                <input type="password" maxlength="1" class="pin-input" style="width: 55px; height: 65px; border: 2px solid rgba(15, 23, 42, 0.08); border-radius: 16px; text-align: center; font-size: 1.75rem; font-weight: 800; background: #f8fafc; color: var(--primary-dark);" id="pin1">
+                <input type="password" maxlength="1" class="pin-input" style="width: 55px; height: 65px; border: 2px solid rgba(15, 23, 42, 0.08); border-radius: 16px; text-align: center; font-size: 1.75rem; font-weight: 800; background: #f8fafc; color: var(--primary-dark);" id="pin2">
+                <input type="password" maxlength="1" class="pin-input" style="width: 55px; height: 65px; border: 2px solid rgba(15, 23, 42, 0.08); border-radius: 16px; text-align: center; font-size: 1.75rem; font-weight: 800; background: #f8fafc; color: var(--primary-dark);" id="pin3">
+                <input type="password" maxlength="1" class="pin-input" style="width: 55px; height: 65px; border: 2px solid rgba(15, 23, 42, 0.08); border-radius: 16px; text-align: center; font-size: 1.75rem; font-weight: 800; background: #f8fafc; color: var(--primary-dark);" id="pin4">
+              </div>
+              <div id="pinError" style="color: var(--danger); font-size: 0.85rem; font-weight: 700; height: 1.5rem; text-align: center;"></div>
+            </div>
+
+            <div id="feeDetailsContent" style="display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+              <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(15, 23, 42, 0.04); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                <span style="font-size: 0.7rem; font-weight: 750; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Total Fee Payable</span>
+                <span style="font-size: 1.5rem; font-weight: 900; color: var(--text-primary);" id="billTotalFee">₹0.00</span>
+              </div>
+              <div style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                <span style="font-size: 0.7rem; font-weight: 750; color: var(--success); text-transform: uppercase; letter-spacing: 0.05em;">Total Paid Amount</span>
+                <span style="font-size: 1.5rem; font-weight: 900; color: var(--success);" id="billTotalPaid">₹0.00</span>
+              </div>
+              <div style="background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.1); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                <span style="font-size: 0.7rem; font-weight: 750; color: var(--danger); text-transform: uppercase; letter-spacing: 0.05em;">Outstanding Balance</span>
+                <span style="font-size: 1.5rem; font-weight: 900; color: var(--danger);" id="billBalanceFee">₹0.00</span>
+              </div>
+              <div style="background: rgba(124, 58, 237, 0.04); border: 1px solid rgba(124, 58, 237, 0.1); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                <span style="font-size: 0.7rem; font-weight: 750; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em;">Last Payment Date</span>
+                <span style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: auto;" id="billLastPaidDate">-</span>
+              </div>
+            </div>
+            <div id="feeFooter" style="display: none; font-size: 0.8rem; color: var(--text-secondary); margin-top: 2rem; align-items: center; gap: 0.5rem; padding-top: 1rem; border-top: 1px dashed rgba(15, 23, 42, 0.1);">
+              <i class="bi bi-info-circle"></i>
+              <span>Financial records are updated daily. Please contact the school office for any discrepancies.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Performance Card -->
+      <div class="panel-card">
+        <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; width: 100%;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;"><i class="bi bi-bar-chart-line icon-accent"></i> Academic Performance</div>
+          <div id="classRankBadge" style="background: linear-gradient(135deg, var(--accent), var(--accent-light)); color: var(--primary-dark); font-weight: 850; padding: 0.35rem 0.85rem; border-radius: var(--radius-full); font-size: 0.82rem; box-shadow: 0 4px 10px rgba(244,160,32,0.25); display: none; align-items: center; gap: 0.25rem;">
+            🏆 Rank: <span id="classRankVal">-</span>
+          </div>
+        </div>
+
+        <div class="exam-tabs" id="examTabs" role="tablist" aria-label="Select Exam">
+          <button class="exam-tab-btn active" data-exam="exam1" id="tab-exam1" onclick="selectExamTab(this)">
+            📝 Quarterly
+          </button>
+          <button class="exam-tab-btn" data-exam="exam2" id="tab-exam2" onclick="selectExamTab(this)">
+            📘 Half Yearly
+          </button>
+          <button class="exam-tab-btn" data-exam="exam3" id="tab-exam3" onclick="selectExamTab(this)">
+            🏆 Annual
+          </button>
+        </div>
+
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%;">
+          <table class="marks-table" style="min-width: 480px;">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Marks Obtained</th>
+                <th>Max Marks</th>
+              </tr>
+            </thead>
+            <tbody id="marksBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    // ============================================
+    // PORTAL CONTROLLER
+    // ============================================
+    let selectedExam = 'exam1';
+    let portalSession = null;
+
+    function showDashboard() {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('dashboardSection').classList.add('active');
+    }
+
+    function showLogin() {
+      document.getElementById('loginSection').style.display = 'flex';
+      document.getElementById('dashboardSection').classList.remove('active');
+    }
+
+    // ============================================
+    // LOGIN FORM HANDLER
+    // ============================================
+    // Auto-format DOB input (DD-MM-YYYY)
+    const dobInput = document.getElementById('dob');
+    dobInput.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.length > 8) {
+        val = val.slice(0, 8);
+      }
+      let formatted = '';
+      if (val.length > 0) {
+        formatted += val.slice(0, 2);
+        if (val.length > 2) {
+          formatted += '-' + val.slice(2, 4);
+          if (val.length > 4) {
+            formatted += '-' + val.slice(4, 8);
+          }
+        }
+      }
+      e.target.value = formatted;
+    });
+
+    document.getElementById('studentLoginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const rollNo = document.getElementById('rollNo').value.trim();
+      const dobRaw = document.getElementById('dob').value;
+      const parts = dobRaw.split('-');
+      if (parts.length !== 3 || parts[2].length !== 4) {
+        showToast('Please enter date of birth in DD-MM-YYYY format.', 'error');
+        return;
+      }
+      const day = parts[0];
+      const month = parts[1];
+      const year = parts[2];
+      const dob = year + '-' + month + '-' + day;
+      const session = Auth.loginStudent(rollNo, dob);
+      if (session) {
+        portalSession = session;
+        showToast('Welcome, ' + session.name + '!', 'success');
+        setTimeout(function() {
+          showDashboard();
+          document.getElementById('profileCard').innerHTML =
+            '<div style="text-align:center;padding:2rem;color:var(--text-secondary)">' +
+              '<i class="bi bi-arrow-repeat" style="font-size:2rem;animation:spin 1s linear infinite;display:inline-block;"></i>' +
+              '<p style="margin-top:0.75rem;font-weight:600;">Loading your data...</p>' +
+            '</div>';
+          DB.fetchStudentData(session.id).then(function() {
+            loadStudentData();
+          });
+        }, 800);
+      } else {
+        const errorEl = document.getElementById('loginError');
+        errorEl.style.display = 'flex';
+        errorEl.style.animation = 'none';
+        errorEl.offsetHeight;
+        errorEl.style.animation = null;
+        showToast('Login failed. Check your credentials.', 'error');
+      }
+    });
+
+    // ============================================
+    // LOGOUT HANDLER
+    // ============================================
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      Auth.logout();
+      portalSession = null;
+      showLogin();
+      showToast('Signed out successfully.', 'info');
+    });
+
+    // ============================================
+    // DASHBOARD FUNCTIONS
+    // ============================================
+    function selectExamTab(btn) {
+      document.querySelectorAll('.exam-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      selectedExam = btn.dataset.exam;
+      renderMarks();
+    }
+
+    function updateProgressRing(circleId, count, target) {
+      var circle = document.getElementById(circleId);
+      if (!circle) return;
+      var pct = Math.min(Math.max((count / target) * 100, 0), 100);
+      var radius = circle.r.baseVal.value;
+      var circumference = radius * 2 * Math.PI;
+      circle.style.strokeDasharray = circumference + ' ' + circumference;
+      var offset = circumference - (pct / 100) * circumference;
+      circle.style.strokeDashoffset = offset;
+    }
+
+    function loadStudentData() {
+      var students = DB.get('students') || [];
+      var classes = DB.get('classes') || [];
+      var session = Auth.getSession();
+      if (!session) return;
+      portalSession = session;
+      var student = students.find(function(s) { return s.id === session.id; });
+      if (!student) return;
+
+      var clsObj = classes.find(function(c) { return c.id === (student.classId || student.class_id); });
+      var cls = clsObj ? clsObj.name : 'N/A';
+
+      var activeYear = currentAcademicYear() || student.academicYear || student.academic_year || 'N/A';
+      var academicYearBadge = document.getElementById('academicYearBadge');
+      if (academicYearBadge) {
+        academicYearBadge.textContent = activeYear;
+      }
+
+      var transportPill = student.type === 'bus'
+        ? '<span class="profile-badge transport-pill bus-mode"><i class="bi bi-bus-front"></i> School Bus</span>'
+        : '<span class="profile-badge transport-pill walk-mode"><i class="bi bi-person-walking"></i> Day Scholar</span>';
+
+      document.getElementById('profileCard').innerHTML =
+        '<div class="profile-avatar">' + student.name.charAt(0) + '</div>' +
+        '<div class="profile-info">' +
+          '<div class="profile-name-row">' +
+            '<h2>' + student.name + '</h2>' +
+            '<button onclick="openFeeModal()" class="btn-fee-status">' +
+              '<i class="bi bi-credit-card-2-back"></i> View Fee Status' +
+            '</button>' +
+          '</div>' +
+          '<div class="profile-badges">' +
+            '<span class="profile-badge class-pill"><i class="bi bi-mortarboard"></i> ' + cls + '</span>' +
+            '<span class="profile-badge roll-pill"><i class="bi bi-hash"></i> Roll No: ' + (student.rollNo || student.roll_no || 'N/A') + '</span>' +
+            '<span class="profile-badge dob-pill"><i class="bi bi-calendar-event"></i> Born: ' + formatDate(student.dob) + '</span>' +
+            transportPill +
+          '</div>' +
+        '</div>';
+    
+      // Attendance
+      var logs = DB.get('attendanceLogs') || [];
+      var studentLogs = logs.filter(function(l) { return l.studentId === student.id && l.type === 'class'; });
+      var presentCount = studentLogs.filter(function(l) { return l.present; }).length;
+      var absentCount = studentLogs.filter(function(l) { return !l.present; }).length;
+      var totalMarkedDays = studentLogs.length;
+
+      document.getElementById('classAttCount').textContent = presentCount;
+      document.getElementById('presentDaysLabel').textContent = presentCount;
+      document.getElementById('absentDaysLabel').textContent = absentCount;
+
+      setTimeout(function() {
+        updateProgressRing('attendanceProgressRing', presentCount, totalMarkedDays || 1);
+      }, 300);
+
+      // Bus
+      if (student.type === 'dayscholar') {
+        document.getElementById('busPanel').innerHTML =
+          '<div class="panel-title"><i class="bi bi-person-walking icon-accent"></i> Bus Usage</div>' +
+          '<div class="dayscholar-badge-container">' +
+            '<div class="dayscholar-icon">🚶‍♂️</div>' +
+            '<h4>Day Scholar</h4>' +
+            '<p>Own Commute / Walk</p>' +
+          '</div>';
+      } else {
+        var month = currentMonth();
+        document.getElementById('currMonthStr').textContent = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+        var busAtt = DB.get('busAttendance') || {};
+        var studentBusData = busAtt[student.id] || {};
+        var bCount = studentBusData[month] || 0;
+        document.getElementById('busAttCount').textContent = bCount;
+        document.getElementById('busTripsLabel').textContent = bCount;
+
+        setTimeout(function() {
+          updateProgressRing('busProgressRing', bCount, 44);
+        }, 300);
+
+        var yearStart = activeYear ? parseInt(activeYear.split('-')[0], 10) : new Date().getFullYear();
+        var monthOrder = [
+          { key: yearStart + '-06', name: 'Jun' },
+          { key: yearStart + '-07', name: 'Jul' },
+          { key: yearStart + '-08', name: 'Aug' },
+          { key: yearStart + '-09', name: 'Sep' },
+          { key: yearStart + '-10', name: 'Oct' },
+          { key: yearStart + '-11', name: 'Nov' },
+          { key: yearStart + '-12', name: 'Dec' },
+          { key: (yearStart + 1) + '-01', name: 'Jan' },
+          { key: (yearStart + 1) + '-02', name: 'Feb' },
+          { key: (yearStart + 1) + '-03', name: 'Mar' },
+          { key: (yearStart + 1) + '-04', name: 'Apr' },
+          { key: (yearStart + 1) + '-05', name: 'May' }
+        ];
+
+        var totalTrips = 0;
+        var gridHtml = '';
+        monthOrder.forEach(function(item) {
+          var trips = studentBusData[item.key] || 0;
+          totalTrips += trips;
+          var isActive = item.key === month ? 'active' : '';
+          gridHtml +=
+            '<div class="bus-month-card ' + isActive + '">' +
+              '<span class="month-name">' + item.name + '</span>' +
+              '<span class="month-count">' + trips + '</span>' +
+            '</div>';
+        });
+
+        var existingContainer = document.getElementById('busYearContainer');
+        if (existingContainer) existingContainer.remove();
+
+        var yearContainer = document.createElement('div');
+        yearContainer.id = 'busYearContainer';
+        yearContainer.className = 'bus-year-container';
+        yearContainer.innerHTML =
+          '<div class="bus-year-title" style="margin-top: 0.5rem;">' +
+            '<span>Academic Year Summary</span>' +
+            '<span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">Year: ' + activeYear + '</span>' +
+          '</div>' +
+          '<div class="bus-total-banner">' +
+            '<span class="bus-total-label">Total Year Trips</span>' +
+            '<span class="bus-total-value">' + totalTrips + ' Trips</span>' +
+          '</div>' +
+          '<div id="busMonthlyGridWrapper" style="display: none; margin-top: 1rem; border-top: 1px dashed rgba(15, 23, 42, 0.06); padding-top: 1rem;">' +
+            '<div class="bus-year-grid">' +
+              gridHtml +
+            '</div>' +
+          '</div>' +
+          '<button type="button" id="toggleBusDetailsBtn" class="btn-toggle-details" onclick="toggleBusDetails()">' +
+            '<i class="bi bi-chevron-down"></i> View Monthly Details' +
+          '</button>';
+        document.getElementById('busPanel').appendChild(yearContainer);
+      }
+
+      // Marks
+      window.studentId = student.id;
+      window.classId = student.classId;
+
+      var grade = clsObj ? clsObj.grade : '1';
+      var config = getClassProgressCardConfig(window.classId, grade);
+      var examTabsContainer = document.getElementById('examTabs');
+      if (examTabsContainer && config && config.exams) {
+        var hasSelectedExam = config.exams.some(function(e) { return e.id === selectedExam; });
+        if (!hasSelectedExam && config.exams.length > 0) {
+          selectedExam = config.exams[0].id;
+        }
+        examTabsContainer.innerHTML = config.exams.map(function(e) {
+          var activeClass = (e.id === selectedExam) ? 'active' : '';
+          return '<button class="exam-tab-btn ' + activeClass + '" data-exam="' + e.id + '" id="tab-' + e.id + '" onclick="selectExamTab(this)">📝 ' + e.name + '</button>';
+        }).join('');
+      }
+
+      renderMarks();
+      renderCheckpoints(student);
+      renderAnimation(student);
+
+      // Billing
+      var billingList = DB.get('studentBilling') || [];
+      var billing = billingList.find(function(b) { return b.studentId === student.id; });
+
+      if (!window.feePinInitialized) {
+        setupFeePin();
+        window.feePinInitialized = true;
+      }
+
+      if (billing) {
+          document.getElementById('billTotalFee').textContent = '₹' + Number(billing.totalFee || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+          document.getElementById('billTotalPaid').textContent = '₹' + Number(billing.totalFeePaid || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+          document.getElementById('billBalanceFee').textContent = '₹' + Number(billing.balanceFee || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+          var lastPaid = document.getElementById('billLastPaidDate');
+          if (billing.lastPaidDate) {
+            lastPaid.textContent = formatDate(billing.lastPaidDate);
+          } else {
+            lastPaid.textContent = 'No payments recorded';
+          }
+
+          var statusBadge = document.getElementById('billingMonthStatus');
+          statusBadge.className = 'badge';
+          if (billing.currentMonthStatus === 'paid') {
+            statusBadge.classList.add('badge-success');
+            statusBadge.textContent = 'Paid (Current Month)';
+          } else if (billing.currentMonthStatus === 'partial') {
+            statusBadge.classList.add('badge-accent');
+            statusBadge.textContent = 'Partially Paid';
+          } else {
+            statusBadge.classList.add('badge-danger');
+            statusBadge.textContent = 'Unpaid (Current Month)';
+          }
+        } else {
+          document.getElementById('billTotalFee').textContent = '₹0.00';
+          document.getElementById('billTotalPaid').textContent = '₹0.00';
+          document.getElementById('billBalanceFee').textContent = '₹0.00';
+          document.getElementById('billLastPaidDate').textContent = 'No payments recorded';
+          document.getElementById('billingMonthStatus').className = 'badge badge-danger';
+          document.getElementById('billingMonthStatus').textContent = 'Unpaid';
+        }
+    }
+
+    function openFeeModal() {
+      document.getElementById('feeModal').style.display = 'flex';
+      var pins = [document.getElementById('pin1'), document.getElementById('pin2'), document.getElementById('pin3'), document.getElementById('pin4')];
+      pins.forEach(function(p) { p.value = ''; });
+      document.getElementById('feePinOverlay').style.display = 'flex';
+      document.getElementById('feeDetailsContent').style.display = 'none';
+      document.getElementById('feeFooter').style.display = 'none';
+      document.getElementById('billingMonthStatus').style.display = 'none';
+      if (pins[0]) pins[0].focus();
+    }
+    
+    function closeFeeModal() {
+      document.getElementById('feeModal').style.display = 'none';
+    }
+
+    function setupFeePin() {
+      var pins = [document.getElementById('pin1'), document.getElementById('pin2'), document.getElementById('pin3'), document.getElementById('pin4')];
+      var error = document.getElementById('pinError');
+      var correctPin = "1992";
+
+      pins.forEach(function(pin, idx) {
+        pin.addEventListener('input', function(e) {
+          if (e.target.value) {
+            if (idx < 3 && pins[idx + 1]) {
+              pins[idx + 1].focus();
+            } else {
+              var enteredPin = pins.map(function(p) { return p.value; }).join('');
+              if (enteredPin === correctPin) {
+                document.getElementById('feePinOverlay').style.display = 'none';
+                document.getElementById('feeDetailsContent').style.display = 'grid';
+                document.getElementById('feeFooter').style.display = 'flex';
+                document.getElementById('billingMonthStatus').style.display = 'inline-flex';
+              } else {
+                error.textContent = "Invalid PIN. Try again.";
+                pins.forEach(function(p) { p.value = ''; });
+                if (pins[0]) pins[0].focus();
+                setTimeout(function() { error.textContent = ""; }, 2000);
+              }
+            }
+          }
+        });
+
+        pin.addEventListener('keydown', function(e) {
+          if (e.key === 'Backspace' && !e.target.value && idx > 0 && pins[idx - 1]) {
+            pins[idx - 1].focus();
+          }
+        });
+      });
+    }
+
+    function renderCheckpoints(student) {
+      var wrapper = document.getElementById('checkpointsWrapper');
+      if (!wrapper) return;
+
+      var att = Attendance.getStudentAttendance(student.id, today());
+
+      if (student.type === 'dayscholar') {
+        wrapper.classList.add('single-step');
+        var clsAtt = att.class;
+        var stepClass = 'pending';
+        var icon = 'bi-mortarboard';
+        var statusText = 'Pending';
+        var timeText = '';
+    
+        if (clsAtt) {
+          if (clsAtt.present === true) {
+            stepClass = 'completed';
+            icon = 'bi-check-lg';
+            statusText = 'Present';
+            timeText = 'Marked In School';
+          } else if (clsAtt.present === false) {
+            stepClass = 'absent';
+            icon = 'bi-x-lg';
+            statusText = 'Absent';
+            timeText = 'Marked Absent';
+          }
+        }
+
+        wrapper.innerHTML =
+          '<div class="checkpoint-step ' + stepClass + '">' +
+            '<div class="checkpoint-icon-circle"><i class="bi ' + icon + '"></i></div>' +
+            '<div class="checkpoint-copy">' +
+              '<div class="checkpoint-name">School Classroom</div>' +
+              '<div class="checkpoint-time">' + timeText + '</div>' +
+            '</div>' +
+            '<span class="checkpoint-status-badge badge-' + stepClass + '">' + statusText + '</span>' +
+          '</div>';
+      } else {
+        wrapper.classList.remove('single-step');
+
+        var mb = att.busMorning;
+        var mbClass = 'pending';
+        var mbIcon = 'bi-bus-front';
+        var mbStatus = 'Pending';
+        var mbTime = 'Scheduled 07:45 AM';
+        if (mb) {
+          if (mb.present === true) {
+            mbClass = 'completed';
+            mbIcon = 'bi-check-lg';
+            mbStatus = 'Boarded';
+            mbTime = 'Checked-in';
+          } else if (mb.present === false) {
+            mbClass = 'absent';
+            mbIcon = 'bi-x-lg';
+            mbStatus = 'Absent';
+            mbTime = 'Missed Bus';
+          }
+        }
+
+        var clsAtt = att.class;
+        var clsClass = 'pending';
+        var clsIcon = 'bi-mortarboard';
+        var clsStatus = 'Pending';
+        var clsTime = '';
+        if (clsAtt) {
+          if (clsAtt.present === true) {
+            clsClass = 'completed';
+            clsIcon = 'bi-check-lg';
+            clsStatus = 'Present';
+            clsTime = 'Marked In School';
+          } else if (clsAtt.present === false) {
+            clsClass = 'absent';
+            clsIcon = 'bi-x-lg';
+            clsStatus = 'Absent';
+            clsTime = 'Marked Absent';
+          }
+        }
+
+        var eb = att.busEvening;
+        var ebClass = 'pending';
+        var ebIcon = 'bi-bus-front';
+        var ebStatus = 'Pending';
+        var ebTime = 'Scheduled 04:15 PM';
+        if (eb) {
+          if (eb.present === true) {
+            ebClass = 'completed';
+            ebIcon = 'bi-check-lg';
+            ebStatus = 'Boarded';
+            ebTime = 'Checked-in';
+          } else if (eb.present === false) {
+            ebClass = 'absent';
+            ebIcon = 'bi-x-lg';
+            ebStatus = 'Absent';
+            ebTime = 'Missed Bus';
+          }
+        }
+
+        wrapper.innerHTML =
+          '<div class="checkpoint-step ' + mbClass + '">' +
+            '<div class="checkpoint-icon-circle"><i class="bi ' + mbIcon + '"></i></div>' +
+            '<div class="checkpoint-copy">' +
+              '<div class="checkpoint-name">Morning Bus</div>' +
+              '<div class="checkpoint-time">' + mbTime + '</div>' +
+            '</div>' +
+            '<span class="checkpoint-status-badge badge-' + mbClass + '">' + mbStatus + '</span>' +
+          '</div>' +
+          '<div class="checkpoint-step ' + clsClass + '">' +
+            '<div class="checkpoint-icon-circle"><i class="bi ' + clsIcon + '"></i></div>' +
+            '<div class="checkpoint-copy">' +
+              '<div class="checkpoint-name">Classroom</div>' +
+              '<div class="checkpoint-time">' + clsTime + '</div>' +
+            '</div>' +
+            '<span class="checkpoint-status-badge badge-' + clsClass + '">' + clsStatus + '</span>' +
+          '</div>' +
+          '<div class="checkpoint-step ' + ebClass + '">' +
+            '<div class="checkpoint-icon-circle"><i class="bi ' + ebIcon + '"></i></div>' +
+            '<div class="checkpoint-copy">' +
+              '<div class="checkpoint-name">Evening Bus</div>' +
+              '<div class="checkpoint-time">' + ebTime + '</div>' +
+            '</div>' +
+            '<span class="checkpoint-status-badge badge-' + ebClass + '">' + ebStatus + '</span>' +
+          '</div>';
+      }
+    }
+
+    function renderAnimation(student) {
+      document.getElementById('animStrip').style.display = 'block';
+      var att = Attendance.getStudentAttendance(student.id, today());
+
+      var bus = document.getElementById('animBus');
+      var studentEl = document.getElementById('animStudent');
+      var label = document.getElementById('animStatus');
+      var dot = document.getElementById('animDot');
+      var road = document.getElementById('animRoad');
+
+      var state = 'home';
+
+      if (student.type === 'bus') {
+        if (bus) bus.style.display = 'block';
+        if (studentEl) studentEl.style.display = 'none';
+        var house2 = document.getElementById('animHouse2');
+        var school = document.getElementById('animSchool');
+        if (house2) house2.style.display = 'flex';
+        if (school) school.style.left = '46%';
+      } else {
+        if (bus) bus.style.display = 'none';
+        if (studentEl) studentEl.style.display = 'block';
+        var house2 = document.getElementById('animHouse2');
+        var school = document.getElementById('animSchool');
+        if (house2) house2.style.display = 'none';
+        if (school) school.style.left = '88%';
+      }
+
+      if (student.type === 'bus') {
+        var mb = att.busMorning;
+        var cls = att.class;
+        var eb = att.busEvening;
+
+        if (eb) {
+          if (eb.present === true) {
+            var now = new Date();
+            if (now.getHours() >= 17) {
+              state = 'reached-home-evening';
+            } else {
+              state = 'evening-bus';
+            }
+          } else {
+            state = 'missed-evening-bus';
+          }
+        } else if (cls) {
+          if (cls.present === true) {
+            state = 'school';
+          } else {
+            state = 'absent-school';
+          }
+        } else if (mb) {
+          if (mb.present === true) {
+            state = 'morning-bus';
+          } else {
+            state = 'missed-morning-bus';
+          }
+        } else {
+          state = 'home';
+        }
+      } else {
+        var cls = att.class;
+        if (cls) {
+          if (cls.present === true) {
+            state = 'school';
+          } else {
+            state = 'absent';
+          }
+        } else {
+          state = 'home';
+        }
+      }
+
+      setTimeout(function() {
+        if (road) road.classList.remove('moving');
+        if (bus) bus.classList.remove('bus-moving');
+        if (studentEl) studentEl.classList.remove('student-moving');
+
+        var activeActor = (student.type === 'bus') ? bus : studentEl;
+        if (!activeActor) return;
+        activeActor.classList.remove('mirror-flip');
+    
+        if (student.type === 'bus') {
+          if (state === 'school') {
+            activeActor.style.left = '46%';
+            label.textContent = '🏫 Present in School Classroom!';
+            dot.className = 'anim-dot dot-green';
+          } else if (state === 'absent-school') {
+            activeActor.style.left = '46%';
+            label.textContent = '❌ Marked Absent in Class';
+            dot.className = 'anim-dot dot-red';
+          } else if (state === 'morning-bus') {
+            activeActor.style.left = '26%';
+            label.textContent = '🚌 On Morning Bus — Heading to School';
+            dot.className = 'anim-dot dot-orange';
+            if (road) road.classList.add('moving');
+            activeActor.classList.add('bus-moving');
+          } else if (state === 'missed-morning-bus') {
+            activeActor.style.left = '6%';
+            label.textContent = '❌ Missed Morning Bus';
+            dot.className = 'anim-dot dot-red';
+          } else if (state === 'evening-bus') {
+            activeActor.style.left = '68%';
+            label.textContent = '🚌 On Evening Bus — Heading Home';
+            dot.className = 'anim-dot dot-orange';
+            if (road) road.classList.add('moving');
+            activeActor.classList.add('bus-moving');
+          } else if (state === 'reached-home-evening') {
+            activeActor.style.left = '88%';
+            label.textContent = '🏠 Arrived Home Safely — Evening Trip Done!';
+            dot.className = 'anim-dot dot-green';
+          } else if (state === 'missed-evening-bus') {
+            activeActor.style.left = '46%';
+            label.textContent = '❌ Missed Evening Bus';
+            dot.className = 'anim-dot dot-red';
+          } else {
+            activeActor.style.left = '6%';
+            label.textContent = '🏠 At Home — Waiting for Morning Bus';
+            dot.className = 'anim-dot dot-orange';
+          }
+        } else {
+          if (state === 'school') {
+            activeActor.style.left = '86%';
+            label.textContent = '🏫 Arrived at School — Classroom In!';
+            dot.className = 'anim-dot dot-green';
+          } else if (state === 'absent') {
+            activeActor.style.left = '6%';
+            label.textContent = '❌ Marked Absent Today';
+            dot.className = 'anim-dot dot-red';
+          } else {
+            activeActor.style.left = '46%';
+            activeActor.classList.add('mirror-flip');
+            label.textContent = '🚶‍♂️ Heading to School — Class Pending';
+            dot.className = 'anim-dot dot-orange';
+            if (road) road.classList.add('moving');
+            activeActor.classList.add('student-moving');
+          }
+        }
+      }, 500);
+    }
+
+    function renderMarks() {
+      var exam = selectedExam;
+      var allMarks = DB.get('marks') || {};
+      var classes = DB.get('classes') || [];
+      var classObj = classes.find(function(c) { return c.id === window.classId; });
+      var grade = classObj ? classObj.grade : '1';
+      var config = getClassProgressCardConfig(window.classId, grade);
+
+      var examConfig = config.exams.find(function(e) { return e.id === exam; });
+      if (!examConfig) return;
+
+      var sMarks = allMarks[window.studentId] || {};
+      var subjects = config.rows.filter(function(r) { return r.type === 'subject'; });
+      var tableHead = document.querySelector('.marks-table thead');
+      var tbody = document.getElementById('marksBody');
+
+      if (subjects.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">No subjects defined.</td></tr>';
+        return;
+      }
+
+      var hasSubcols = Array.isArray(examConfig.sub_columns) && examConfig.sub_columns.length > 0;
+
+      if (hasSubcols) {
+        tableHead.innerHTML =
+          '<tr>' +
+            '<th>Subject</th>' +
+            '<th style="text-align: center;">FA (40)</th>' +
+            '<th style="text-align: center;">SA (60)</th>' +
+            '<th style="text-align: center;">Total / Grade (100)</th>' +
+          '</tr>';
+
+        var totalObtained = 0;
+        var totalMax = 0;
+        var rows = subjects.map(function(row) {
+          var sub = row.name;
+          var val = sMarks[sub] && sMarks[sub][exam] !== undefined ? sMarks[sub][exam] : null;
+          var valObj = typeof val === 'object' && val !== null ? val : {};
+          var fa = valObj.FA !== undefined ? valObj.FA : '-';
+          var sa = valObj.SA !== undefined ? valObj.SA : '-';
+          var total = valObj.Total !== undefined ? valObj.Total : '-';
+
+          if (total !== '-') {
+            totalObtained += Number(total);
+            totalMax += 100;
+          }
+
+          return '<tr>' +
+            '<td><span class="subject-tag">' + sub + '</span></td>' +
+            '<td style="text-align: center;">' +
+              '<div class="marks-metric-card">' +
+                '<span class="marks-obtained-text">' + fa + '</span>' +
+                '<span class="marks-max-text">FA</span>' +
+              '</div>' +
+            '</td>' +
+            '<td style="text-align: center;">' +
+              '<div class="marks-metric-card">' +
+                '<span class="marks-obtained-text">' + sa + '</span>' +
+                '<span class="marks-max-text">SA</span>' +
+              '</div>' +
+            '</td>' +
+            '<td style="text-align: center;">' +
+              '<div class="marks-metric-card">' +
+                '<span class="marks-obtained-text" style="color:var(--accent)">' + total + '</span>' +
+                '<span class="marks-max-text">Total</span>' +
+              '</div>' +
+            '</td>' +
+          '</tr>';
+        });
+
+        if (totalMax > 0) {
+          var pct = ((totalObtained / totalMax) * 100).toFixed(1);
+          rows.push(
+            '<tr style="background: rgba(79, 70, 229, 0.04); font-weight: bold;">' +
+              '<td><span class="subject-tag" style="background: var(--primary); color: var(--white); border: none;">Total</span></td>' +
+              '<td colspan="2" style="text-align: right; color: var(--text-secondary); font-size: 0.85rem;">Combined:</td>' +
+              '<td style="text-align: center; font-weight: 800; color: var(--primary-dark);">' + totalObtained + ' / ' + totalMax + ' (' + pct + '%)</td>' +
+            '</tr>'
+          );
+        }
+        tbody.innerHTML = rows.join('');
+      } else {
+        tableHead.innerHTML =
+          '<tr>' +
+            '<th>Subject</th>' +
+            '<th>Marks Obtained</th>' +
+            '<th>Max Marks</th>' +
+          '</tr>';
+
+        var totalObtained = 0;
+        var totalMax = 0;
+        var rows = subjects.map(function(row) {
+          var sub = row.name;
+          var val = sMarks[sub] && sMarks[sub][exam] !== undefined ? sMarks[sub][exam] : '-';
+          var maxMark = row.maxMark !== undefined ? row.maxMark : 100;
+
+          var displayVal = '-';
+          var numericVal = null;
+
+          if (val !== '-') {
+            if (typeof val === 'object' && val !== null) {
+              var p = val.P !== undefined ? val.P : '-';
+              var t = val.T !== undefined ? val.T : '-';
+              var tot = val.Total !== undefined ? val.Total : '-';
+              displayVal = 'T: ' + t + ' | P: ' + p + ' <strong>(Tot: ' + tot + ')</strong>';
+              if (tot !== '-') {
+                numericVal = Number(tot);
+              }
+            } else {
+              displayVal = val;
+              numericVal = Number(val);
+            }
+          }
+
+          if (numericVal !== null) {
+            totalObtained += numericVal;
+            totalMax += maxMark;
+          }
+
+          var pctWidth = (numericVal !== null && maxMark > 0) ? ((numericVal / maxMark * 100).toFixed(1) + '%') : '0%';
+          var progressDisplay = numericVal !== null
+            ? '<div class="marks-metric-container">' +
+                '<span class="marks-val">' + displayVal + ' <span class="marks-max">/ ' + maxMark + '</span></span>' +
+                '<div class="marks-progress-track">' +
+                  '<div class="marks-progress-bar" style="width: ' + pctWidth + ';"></div>' +
+                '</div>' +
+              '</div>'
+            : '<span class="text-muted">' + displayVal + '</span>';
+
+          return '<tr>' +
+            '<td><span class="subject-tag">' + sub + '</span></td>' +
+            '<td style="text-align: center;">' +
+              '<div class="marks-metric-card">' +
+                '<span class="marks-obtained-text">' + val + '</span>' +
+                '<span class="marks-max-text">' + maxMark + '</span>' +
+              '</div>' +
+            '</td>' +
+            '<td>' + progressDisplay + '</td>' +
+          '</tr>';
+        });
+
+        if (totalMax > 0) {
+          var pct = ((totalObtained / totalMax) * 100).toFixed(1);
+          rows.push(
+            '<tr style="background: rgba(79, 70, 229, 0.04); font-weight: bold;">' +
+              '<td><span class="subject-tag" style="background: var(--primary); color: var(--white); border: none;">Total</span></td>' +
+              '<td>' +
+                '<div class="marks-metric-container">' +
+                  '<span class="marks-val">' + totalObtained + ' <span class="marks-max">/ ' + totalMax + ' (' + pct + '%)</span></span>' +
+                  '<div class="marks-progress-track">' +
+                    '<div class="marks-progress-bar" style="width: ' + pct + '%; background: linear-gradient(90deg, var(--accent), var(--primary-light));"></div>' +
+                  '</div>' +
+                '</div>' +
+              '</td>' +
+              '<td>' + totalMax + '</td>' +
+            '</tr>'
+          );
+        }
+        tbody.innerHTML = rows.join('');
+      }
+
+      var skillRows = config.rows.filter(function(r) { return r.type === 'skill'; });
+      if (skillRows.length > 0) {
+        var skillHeader =
+          '<tr class="section-divider">' +
+            '<td colspan="' + (hasSubcols ? 4 : 3) + '">Skills & Co-Curricular Profile</td>' +
+          '</tr>';
+        var skillItems = skillRows.map(function(row) {
+          var val = sMarks[row.name] && sMarks[row.name][exam] !== undefined ? sMarks[row.name][exam] : '-';
+          return '<tr>' +
+            '<td><span class="subject-tag" style="background: #e2e8f0; color: #475569;">' + row.name + '</span></td>' +
+            '<td colspan="' + (hasSubcols ? 3 : 2) + '" style="font-weight: 600; color: var(--text-primary);">' + val + '</td>' +
+          '</tr>';
+        }).join('');
+        tbody.insertAdjacentHTML('beforeend', skillHeader + skillItems);
+      }
+
+      var metricRowItems = [];
+      var metricsToRender = config.templateId === '9th'
+        ? ['Attendance', 'Overall Grade', 'Discipline', 'Remarks']
+        : ['Attendance', 'Remarks'];
+
+      metricsToRender.forEach(function(m) {
+        if (m === 'Remarks' && skillRows.some(function(r) { return r.name === 'Remarks'; })) return;
+        var val = sMarks[m] && sMarks[m][exam] !== undefined ? sMarks[m][exam] : '-';
+        metricRowItems.push(
+          '<tr style="background: #f8fafc; font-style: italic;">' +
+            '<td><strong>' + m + '</strong></td>' +
+            '<td colspan="' + (hasSubcols ? 3 : 2) + '" style="font-weight: 650; color: var(--text-secondary);">' + val + '</td>' +
+          '</tr>'
+        );
+      });
+      if (metricRowItems.length > 0) {
+        tbody.insertAdjacentHTML('beforeend', metricRowItems.join(''));
+      }
+
+      var studentsList = DB.get('students') || [];
+      var classStudents = studentsList.filter(function(std) { return std.classId === window.classId; });
+      var studentScores = classStudents.map(function(std) {
+        var total = calculateStudentExamTotal(std.id, exam, config, allMarks);
+        return { id: std.id, total: total !== null ? total : -1 };
+      });
+      var ranked = studentScores.filter(function(item) { return item.total !== -1; }).sort(function(a, b) { return b.total - a.total; });
+      var studentRank = null;
+      if (ranked.length > 0) {
+        var currentRank = 0;
+        var lastTotal = -1;
+        ranked.forEach(function(item, idx) {
+          if (item.total !== lastTotal) {
+            currentRank = idx + 1;
+            lastTotal = item.total;
+          }
+          if (item.id === window.studentId) {
+            studentRank = currentRank;
+          }
+        });
+      }
+
+      var rankBadge = document.getElementById('classRankBadge');
+      var rankVal = document.getElementById('classRankVal');
+      if (rankBadge && rankVal) {
+        if (studentRank !== null) {
+          rankVal.textContent = studentRank + ' / ' + ranked.length;
+          rankBadge.style.display = 'inline-flex';
+        } else {
+          rankBadge.style.display = 'none';
+        }
+      }
+    }
+
+    function toggleBusDetails() {
+      var wrapper = document.getElementById('busMonthlyGridWrapper');
+      var btn = document.getElementById('toggleBusDetailsBtn');
+      if (wrapper.style.display === 'none' || !wrapper.style.display) {
+        wrapper.style.display = 'block';
+        btn.innerHTML = '<i class="bi bi-chevron-up"></i> Hide Details';
+      } else {
+        wrapper.style.display = 'none';
+        btn.innerHTML = '<i class="bi bi-chevron-down"></i> View Monthly Details';
+      }
+    }
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+      var session = Auth.getSession();
+      if (session && session.role === 'student') {
+        portalSession = session;
+        showDashboard();
+        document.getElementById('profileCard').innerHTML =
+          '<div style="text-align:center;padding:2rem;color:var(--text-secondary)">' +
+            '<i class="bi bi-arrow-repeat" style="font-size:2rem;animation:spin 1s linear infinite;display:inline-block;"></i>' +
+            '<p style="margin-top:0.75rem;font-weight:600;">Loading your data...</p>' +
+          '</div>';
+        DB.fetchStudentData(session.id).then(function() {
+          loadStudentData();
+        });
+      } else {
+        showLogin();
+      }
+
+      // Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('../sw.js').catch(function(err) {
+            console.log('SW Registration failed', err);
+          });
+        });
+      }
+
+      // Listen for DB sync events (reference data updated)
+      window.addEventListener('mss-db-sync', function() {
+        if (portalSession) {
+          DB.fetchStudentData(portalSession.id).then(function() {
+            loadStudentData();
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

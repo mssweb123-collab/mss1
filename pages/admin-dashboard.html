@@ -1062,6 +1062,260 @@
       0%, 100% { transform: translateY(0) rotate(0deg); }
       50% { transform: translateY(-10px) rotate(5deg); }
     }
+    .table-wrapper table {
+      min-width: 950px;
+    }
+
+    /* Simple responsive dashboard polish */
+    html,
+    body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      background: #f6f8fb;
+    }
+
+    .dashboard-bg-glows {
+      display: none;
+    }
+
+    .dashboard-header {
+      padding: 0.85rem 1.5rem;
+      gap: 1rem;
+      border-bottom: 1px solid #e7edf5;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .dashboard-header h1 {
+      min-width: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+    }
+
+    .dashboard-header h1 span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .dashboard-content {
+      width: 100%;
+      max-width: 1440px;
+      padding: 1.5rem;
+      gap: 1.25rem;
+      min-width: 0;
+    }
+
+    .search-section {
+      width: min(100%, 680px);
+      margin-bottom: 1.25rem;
+    }
+
+    .search-bar-container {
+      border-radius: 12px;
+      padding: 0.55rem 1rem;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+    }
+
+    .stats-widgets {
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1rem;
+    }
+
+    .widget-card {
+      border-radius: 12px;
+      padding: 1.15rem;
+      min-width: 0;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+    }
+
+    .widget-info,
+    .widget-card,
+    .card,
+    .tab-content,
+    .table-wrapper,
+    .form-group {
+      min-width: 0;
+    }
+
+    .widget-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      font-size: 1.25rem;
+      flex: 0 0 auto;
+    }
+
+    .widget-value {
+      font-size: 1.25rem;
+    }
+
+    .dashboard-content > .tabs {
+      position: sticky;
+      top: 68px;
+      z-index: 80;
+      background: rgba(246, 248, 251, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      margin: 0 -0.25rem 0.75rem;
+      padding: 0.35rem 0.25rem 0.75rem;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      scrollbar-width: thin;
+    }
+
+    .dashboard-content > .tabs > .tab-btn {
+      flex: 0 0 auto;
+      border-radius: 8px;
+      padding: 0.65rem 1rem;
+      min-height: 40px;
+      white-space: nowrap;
+    }
+
+    .tab-content {
+      border-radius: 14px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+    }
+
+    .card,
+    .class-card,
+    .ai-card,
+    .ai-chat-panel {
+      border-radius: 12px !important;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04) !important;
+    }
+
+    .classes-grid {
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1rem;
+    }
+
+    .class-card {
+      height: auto;
+      min-height: 160px;
+      padding: 1.25rem;
+    }
+
+    .two-col-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+      gap: 1.25rem !important;
+    }
+
+    #systemSettings > div[style*="grid-template-columns"] {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+      gap: 1.25rem !important;
+    }
+
+    .table-wrapper {
+      max-width: 100%;
+      overflow-x: auto !important;
+      border-radius: 10px;
+    }
+
+    table {
+      width: 100%;
+    }
+
+    thead th {
+      padding: 0.8rem 0.9rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 0.75rem 0.9rem;
+      font-size: 0.85rem;
+      vertical-align: middle;
+    }
+
+    .btn,
+    .action-btn {
+      min-height: 36px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .form-control,
+    select,
+    input,
+    textarea {
+      max-width: 100%;
+    }
+
+    .modal-card {
+      border-radius: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .two-col-grid,
+      #feesDashboardTab > div[style*="grid-template-columns: 1fr 1fr"],
+      .ai-layout {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-header {
+        align-items: flex-start;
+        padding: 0.75rem 1rem;
+      }
+
+      .dashboard-header h1 {
+        flex: 1;
+      }
+
+      .dashboard-header h1 img {
+        width: 32px !important;
+        height: 32px !important;
+      }
+
+      .dashboard-header h1 span {
+        max-width: calc(100vw - 112px);
+      }
+
+      .dashboard-content {
+        padding: 1rem 0.75rem;
+      }
+
+      .tab-content {
+        padding: 1rem;
+        border-radius: 12px;
+      }
+
+      .stats-widgets {
+        grid-template-columns: 1fr;
+      }
+
+      .search-bar-container {
+        border-radius: 10px;
+      }
+
+      .ai-chat-panel {
+        height: min(680px, 72vh);
+      }
+
+      .ai-input-row {
+        align-items: stretch;
+      }
+
+      .logout-btn {
+        flex: 0 0 38px;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .classes-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #adminConcessionSearch {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1194,10 +1448,8 @@
       <button class="tab-btn active" onclick="switchTab('classesWise', this)">Classes</button>
       <button class="tab-btn" onclick="switchTab('students', this)">Students</button>
       <button class="tab-btn" onclick="switchTab('teachers', this)">Teachers</button>
-      <button class="tab-btn" onclick="switchTab('accountantsTab', this)">Accountants</button>
-      <button class="tab-btn" onclick="switchTab('feesDashboardTab', this)"><i class="bi bi-currency-rupee"></i> Fees Dashboard</button>
       <button class="tab-btn" onclick="switchTab('buses', this)">Buses</button>
-      <button class="tab-btn" onclick="switchTab('systemSettings', this)"><i class="bi bi-gear-fill"></i> Settings & Promotion</button>
+      <button class="tab-btn" onclick="switchTab('feeManagement', this)" id="feeTabBtn" style="background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.08)); color: #059669; border: 1.5px solid rgba(16,185,129,0.2);"><i class="bi bi-wallet2"></i> Fee Management</button>
       <button class="tab-btn ai-tab-btn" onclick="switchTab('aiAssistant', this)" id="aiTabBtn"><i class="bi bi-stars"></i> AI Assistant</button>
     </div>
 
@@ -1354,29 +1606,6 @@
       </div>
     </div>
 
-    <!-- Accountants Tab -->
-    <div id="accountantsTab" class="tab-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
-        <div>
-          <h2 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.6rem; color: var(--primary-dark); margin: 0;">Manage Accountants</h2>
-          <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.92rem;">Create and manage accountant accounts who handle school fee collection.</p>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="openAddAccountantModal()" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; font-weight: 750; border-radius: var(--radius-full); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);">
-          <i class="bi bi-plus-circle-fill"></i> Add New Accountant
-        </button>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr><th>Name</th><th>Username</th><th>Phone</th><th>Email</th><th>Actions</th></tr>
-          </thead>
-          <tbody id="accountantsTableBody">
-            <tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">No accountants added yet.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
     <!-- Buses Tab -->
     <div id="buses" class="tab-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
@@ -1395,263 +1624,126 @@
       </div>
     </div>
 
-    <!-- Fees Dashboard Tab -->
-    <div id="feesDashboardTab" class="tab-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
+    <!-- ═══════════════════════════════════════════════════════════
+         FEE MANAGEMENT TAB
+    ═══════════════════════════════════════════════════════════ -->
+    <div id="feeManagement" class="tab-content">
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;border-bottom:1px dashed rgba(15,23,42,0.08);padding-bottom:1rem;">
         <div>
-          <h2 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.6rem; color: var(--primary-dark); margin: 0;">Fees Management & Oversight</h2>
-          <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.92rem;">Oversight of school fee collections, pending payments, discount approvals, and configurations.</p>
+          <h2 style="font-family:'Playfair Display',serif;font-weight:850;font-size:1.6rem;color:var(--primary-dark);margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <i class="bi bi-wallet2" style="color:#059669;"></i> Fee Management
+          </h2>
+          <p style="color:var(--text-secondary);margin:0.25rem 0 0;font-size:0.9rem;">Track and update tuition, bus fee, and admission fee for all students.</p>
+        </div>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+          <button class="btn btn-sm" onclick="exportFeeCSV()" style="background:rgba(16,185,129,0.1);color:#059669;border:1.5px solid rgba(16,185,129,0.2);border-radius:var(--radius-full);font-weight:750;display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.1rem;">
+            <i class="bi bi-download"></i> Export CSV
+          </button>
+          <button class="btn btn-sm" onclick="loadFeeTab()" style="background:rgba(79,70,229,0.08);color:var(--primary);border:1.5px solid rgba(79,70,229,0.15);border-radius:var(--radius-full);font-weight:750;display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.1rem;">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+          </button>
         </div>
       </div>
 
-      <!-- Fees Overview Statistics Cards -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-        <div class="card" style="padding: 1.5rem; border-radius: 18px; border: 1px solid rgba(79, 70, 229, 0.1); background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 1rem;">
-          <div style="background: rgba(79, 70, 229, 0.1); color: var(--primary); width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><i class="bi bi-calculator"></i></div>
-          <div>
-            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Total Expected</span>
-            <h3 style="font-size: 1.4rem; font-weight: 850; color: var(--primary-dark); margin: 0;" id="adminExpectedFees">₹0</h3>
-          </div>
+      <!-- Summary Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin-bottom:1.5rem;" id="feeSummaryCards">
+        <div style="background:#fff;border-radius:16px;padding:1rem 1.25rem;border:1px solid rgba(16,185,129,0.12);box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+          <span style="font-size:0.7rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Total Students</span>
+          <div style="font-size:1.5rem;font-weight:850;color:var(--primary-dark);margin-top:0.25rem;" id="feeCardTotal">—</div>
         </div>
-        <div class="card" style="padding: 1.5rem; border-radius: 18px; border: 1px solid rgba(34, 197, 94, 0.1); background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 1rem;">
-          <div style="background: rgba(34, 197, 94, 0.1); color: #22c55e; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><i class="bi bi-cash-stack"></i></div>
-          <div>
-            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Total Collected</span>
-            <h3 style="font-size: 1.4rem; font-weight: 850; color: #15803d; margin: 0;" id="adminCollectedFees">₹0</h3>
-          </div>
+        <div style="background:#fff;border-radius:16px;padding:1rem 1.25rem;border:1px solid rgba(16,185,129,0.12);box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+          <span style="font-size:0.7rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Total Assigned</span>
+          <div style="font-size:1.5rem;font-weight:850;color:var(--primary-dark);margin-top:0.25rem;" id="feeCardAssigned">₹0</div>
         </div>
-        <div class="card" style="padding: 1.5rem; border-radius: 18px; border: 1px solid rgba(239, 68, 68, 0.1); background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 1rem;">
-          <div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><i class="bi bi-exclamation-triangle-fill"></i></div>
-          <div>
-            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Total Pending</span>
-            <h3 style="font-size: 1.4rem; font-weight: 850; color: var(--danger); margin: 0;" id="adminPendingFees">₹0</h3>
-          </div>
+        <div style="background:#fff;border-radius:16px;padding:1rem 1.25rem;border:1px solid rgba(16,185,129,0.12);box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+          <span style="font-size:0.7rem;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:0.05em;">Total Collected</span>
+          <div style="font-size:1.5rem;font-weight:850;color:#059669;margin-top:0.25rem;" id="feeCardCollected">₹0</div>
         </div>
-        <div class="card" style="padding: 1.5rem; border-radius: 18px; border: 1px solid rgba(245, 158, 11, 0.1); background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 1rem;">
-          <div style="background: rgba(245, 158, 11, 0.1); color: var(--accent); width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><i class="bi bi-percent"></i></div>
-          <div>
-            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">Collection Rate</span>
-            <h3 style="font-size: 1.4rem; font-weight: 850; color: var(--primary-dark); margin: 0;" id="adminCollectionRate">0%</h3>
-          </div>
+        <div style="background:#fff;border-radius:16px;padding:1rem 1.25rem;border:1px solid rgba(239,68,68,0.12);box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+          <span style="font-size:0.7rem;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:0.05em;">Outstanding</span>
+          <div style="font-size:1.5rem;font-weight:850;color:#dc2626;margin-top:0.25rem;" id="feeCardOutstanding">₹0</div>
+        </div>
+        <div style="background:#fff;border-radius:16px;padding:1rem 1.25rem;border:1px solid rgba(79,70,229,0.12);box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+          <span style="font-size:0.7rem;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;">Collection Rate</span>
+          <div style="font-size:1.5rem;font-weight:850;color:var(--primary);margin-top:0.25rem;" id="feeCardRate">0%</div>
+        </div>
+        <div style="background:#fff;border-radius:16px;padding:1rem 1.25rem;border:1px solid rgba(245,158,11,0.12);box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+          <span style="font-size:0.7rem;font-weight:800;color:#d97706;text-transform:uppercase;letter-spacing:0.05em;">Unpaid Students</span>
+          <div style="font-size:1.5rem;font-weight:850;color:#d97706;margin-top:0.25rem;" id="feeCardUnpaid">0</div>
         </div>
       </div>
 
-      <!-- Tab subsections for Fees: Structure Setup, Student Discounts, Class-wise collections, Logs -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; margin-bottom: 2rem;">
-        
-        <!-- Column 1: Fee Structure Setup -->
-        <div class="card" style="padding: 2rem; border-radius: 24px; background: #fff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
-          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-            <i class="bi bi-sliders" style="color: var(--primary);"></i> Class Fee Structures
-          </h3>
-          <div class="form-group" style="margin-bottom: 1.25rem;">
-            <label class="form-label" style="font-weight: 750; color: var(--primary-dark); font-size: 0.85rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.3rem;">
-              <i class="bi bi-calendar3" style="color: var(--primary);"></i> Target Academic Year
-            </label>
-            <select id="adminFeeStructureYearSelect" class="form-control" style="font-weight: 700; color: var(--primary-dark); border-radius: 12px; padding: 0.65rem;" onchange="renderAdminFees()"></select>
-          </div>
-          <div id="adminFeeStructureSetup" style="display: flex; flex-direction: column; gap: 1rem; max-height: 400px; overflow-y: auto; padding-right: 0.5rem;">
-            <!-- Render Class divisions with inputs to set base fees -->
-          </div>
-          <button class="btn btn-primary w-full" onclick="saveAdminFeeStructures()" style="margin-top: 1.5rem;">Save Fee Structures & Auto-apply</button>
-        </div>
-
-        <!-- Column 2: Accountant activity logs -->
-        <div class="card" style="padding: 2rem; border-radius: 24px; background: #fff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
-          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-            <i class="bi bi-clock-history" style="color: var(--accent);"></i> Accountant Activity Logs
-          </h3>
-          <div style="max-height: 400px; overflow-y: auto; font-size: 0.88rem;">
-            <table style="width: 100%; border-collapse: collapse;">
-              <thead>
-                <tr style="border-bottom: 2px solid rgba(0,0,0,0.05); text-align: left;"><th style="padding: 0.5rem 0.25rem;">Time</th><th style="padding: 0.5rem 0.25rem;">Accountant</th><th style="padding: 0.5rem 0.25rem;">Action</th></tr>
-              </thead>
-              <tbody id="adminFeeLogsTableBody">
-                <!-- Log rows -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
+      <!-- Filter Bar -->
+      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="feeSearchInput" placeholder="🔍 Search student name or roll no..." oninput="renderFeeTable()" style="flex:1;min-width:200px;padding:0.6rem 1rem;border-radius:12px;border:1.5px solid rgba(79,70,229,0.15);font-size:0.88rem;font-weight:600;color:var(--primary-dark);background:#f8fafc;outline:none;">
+        <select id="feeClassFilter" onchange="renderFeeTable()" style="padding:0.6rem 1rem;border-radius:12px;border:1.5px solid rgba(79,70,229,0.15);font-size:0.85rem;font-weight:700;color:var(--primary-dark);background:#f8fafc;outline:none;cursor:pointer;">
+          <option value="">All Classes</option>
+        </select>
       </div>
 
-      <!-- Class-wise outstanding section -->
-      <div class="card" style="padding: 2rem; border-radius: 24px; background: #fff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin-bottom: 2rem;">
-        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 1.5rem;">
-          <i class="bi bi-pie-chart-fill" style="color: #22c55e;"></i> Class-Wise Outstanding Fees Summary
-        </h3>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr><th>Class Division</th><th>Total Students</th><th>Expected Fee</th><th>Collected Fee</th><th>Pending Fee</th><th>Pending Students</th></tr>
-            </thead>
-            <tbody id="adminClassWiseFeesTableBody">
-              <!-- Class wise table rows -->
-            </tbody>
-          </table>
-        </div>
+      <!-- Fee Table -->
+      <div class="table-wrapper" style="overflow-x:auto;" id="feeTableWrapper">
+        <table id="feeTable" style="min-width:900px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Roll</th>
+              <th style="text-align:left;">Name</th>
+              <th style="text-align:left;">Class</th>
+              <th style="text-align:center;">Annual Fee (₹)</th>
+              <th style="text-align:center;">Paid (₹)</th>
+              <th style="text-align:center;">Balance (₹)</th>
+              <th style="text-align:center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="feeTableBody"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary);">Loading fee records...</td></tr></tbody>
+        </table>
       </div>
+    </div>
 
-      <!-- Student Discount / Scholarship Concessions Panel -->
-      <div class="card" style="padding: 2rem; border-radius: 24px; background: #fff; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); margin: 0;">
-            <i class="bi bi-tag-fill" style="color: var(--accent);"></i> Student Fee Concessions & Scholarship Approvals
-          </h3>
-          <div style="display: flex; gap: 0.5rem; width: 300px;">
-            <input type="text" id="adminConcessionSearch" oninput="searchAdminConcessions(this.value)" placeholder="Search by name/roll..." class="form-control" style="height: 38px; font-size: 0.9rem;">
+    <!-- Fee Edit Modal -->
+    <div class="modal-overlay" id="feeEditModal">
+      <div class="modal-card" style="max-width:560px;">
+        <div class="modal-header">
+          <h3><i class="bi bi-wallet2" style="color:#059669;"></i> Edit Fee Record</h3>
+          <button class="modal-close-btn" onclick="closeFeeEditModal()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div id="feeEditStudentInfo" style="background:rgba(79,70,229,0.04);border:1px solid rgba(79,70,229,0.08);border-radius:16px;padding:1rem;margin-bottom:1.25rem;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div class="form-group">
+            <label class="form-label">Total Annual Fee (₹)</label>
+            <input type="number" id="feeEditTotalFee" class="form-control" placeholder="e.g. 12000" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount Paid (₹)</label>
+            <input type="number" id="feeEditTotalPaid" class="form-control" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Admission Fee (₹)</label>
+            <input type="number" id="feeEditAdmissionFee" class="form-control" placeholder="0" min="0">
+          </div>
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label">Last Payment Date</label>
+            <input type="date" id="feeEditLastPaid" class="form-control">
           </div>
         </div>
-        <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
-          <table>
-            <thead>
-              <tr><th>Roll No</th><th>Student Name</th><th>Class</th><th>Base Yearly Fee</th><th>Discount/Concession</th><th>Total Due</th><th>Total Paid</th><th>Status</th><th>Action</th></tr>
-            </thead>
-            <tbody id="adminConcessionsTableBody">
-              <!-- Concession rows -->
-            </tbody>
-          </table>
+
+        <!-- Monthly Tuition Tracker Jun–May -->
+        <div style="margin-bottom:1.25rem;">
+          <p style="font-size:0.82rem;font-weight:800;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;">Monthly Payment Status (Academic Year)</p>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;" id="feeMonthGrid"></div>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;justify-content:flex-end;flex-wrap:wrap;margin-top:1rem;">
+          <button onclick="closeFeeEditModal()" style="padding:0.65rem 1.25rem;border-radius:12px;border:1.5px solid var(--border-color);background:#f8fafc;font-weight:700;cursor:pointer;font-size:0.88rem;">Cancel</button>
+          <button onclick="saveFeeRecord()" style="padding:0.65rem 1.5rem;border-radius:12px;border:none;background:linear-gradient(135deg,#059669,#10b981);color:#fff;font-weight:800;cursor:pointer;font-size:0.88rem;box-shadow:0 4px 12px rgba(16,185,129,0.25);display:flex;align-items:center;gap:0.4rem;">
+            <i class="bi bi-check-lg"></i> Save Changes
+          </button>
         </div>
       </div>
-
     </div>
 
     <!-- System Settings & Promotion Tab -->
-    <div id="systemSettings" class="tab-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1.25rem;">
-        <div>
-          <h2 style="font-family: 'Playfair Display', serif; font-weight: 850; font-size: 1.6rem; color: var(--primary-dark); margin: 0;">System Settings & Year Promotion</h2>
-          <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0; font-size: 0.92rem;">Manage active academic years, system backups, and school roll promotions.</p>
-        </div>
-      </div>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; align-items: start;">
-        
-        <!-- Year Promotion Panel -->
-        <div class="card" style="padding: 2rem; border-radius: 20px; border: 1px solid rgba(15, 23, 42, 0.06); background: #fff;">
-          <h3 style="font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.25rem; color: var(--primary-dark); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-            <i class="bi bi-calendar3" style="color: var(--accent);"></i> Academic Year Control
-          </h3>
-          
-          <div style="background: rgba(79, 70, 229, 0.04); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
-            <div>
-              <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary);">Active Session</span>
-              <h4 id="activeSessionDisplay" style="font-size: 1.4rem; font-weight: 850; color: var(--primary); margin: 0.15rem 0 0 0;">-</h4>
-            </div>
-            <button class="btn btn-outline btn-sm" onclick="downloadBackup()" style="padding: 0.5rem 1rem; font-size: 0.82rem; font-weight: 750; border-radius: var(--radius-full);">
-              <i class="bi bi-download"></i> Backup Data
-            </button>
-          </div>
-
-          <div class="form-group" style="margin-bottom: 1.5rem;">
-            <label class="form-label" style="font-weight: 750; color: var(--primary-dark); font-size: 0.85rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.3rem;">
-              <i class="bi bi-database-fill-gear" style="color: var(--accent);"></i> Switch Year Database View
-            </label>
-            <select id="dbYearSelect" class="form-control" style="font-weight: 700; color: var(--primary-dark); border-radius: 12px; padding: 0.65rem;" onchange="switchAcademicYear(this.value)"></select>
-          </div>
-
-          <div class="form-group" style="margin-bottom: 1.5rem; border-top: 1px dashed rgba(0,0,0,0.08); padding-top: 1rem;">
-            <label class="form-label" style="font-weight: 750; color: var(--primary-dark); font-size: 0.85rem; margin-bottom: 0.4rem;">
-              <i class="bi bi-calendar-plus-fill" style="color: var(--primary);"></i> Create New Academic Year
-            </label>
-            <div style="display: flex; gap: 0.5rem;">
-              <input type="text" id="newAcademicYearInput" class="form-control" placeholder="e.g. 2025-26" style="margin: 0;" />
-              <button class="btn btn-primary" onclick="createNewAcademicYear()" style="padding: 0.65rem 1.25rem; font-weight: 800; border-radius: 12px; white-space: nowrap;">Create</button>
-            </div>
-          </div>
-
-          <div style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
-            <p style="margin-bottom: 0.75rem;"><strong>Promoting to the next year will:</strong></p>
-            <ul style="padding-left: 1.25rem; margin: 0; display: flex; flex-direction: column; gap: 0.4rem;">
-              <li>Automatically save and download a copy of current year data.</li>
-              <li>Increment every student's class grade (e.g. Class I to Class II).</li>
-              <li>Graduate/archive students who are currently in Class X.</li>
-              <li>Reset gradebook marks and daily attendance registers for the new session.</li>
-              <li>Update the system-wide active academic year.</li>
-            </ul>
-          </div>
-
-          <button class="btn btn-primary" onclick="promoteAcademicYear()" style="width: 100%; justify-content: center; padding: 0.8rem; border-radius: 14px; font-weight: 800; background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 14px rgba(244, 160, 32, 0.25);">
-            <i class="bi bi-arrow-right-circle-fill"></i> Promote to Next Year
-          </button>
-        </div>
-
-
-        <!-- JSON Backup Inspector Panel -->
-        <div class="card" style="padding: 2rem; border-radius: 20px; border: 1px solid rgba(15, 23, 42, 0.06); background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.015);">
-          <h3 style="font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.25rem; color: var(--primary-dark); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-            <i class="bi bi-file-earmark-code-fill" style="color: var(--primary);"></i> Backup Inspector
-          </h3>
-          <p style="color: var(--text-secondary); margin: 0 0 1.25rem 0; font-size: 0.88rem; line-height: 1.5;">
-            Upload or drop any MSS backup JSON file to inspect its content in real-time, view stats, or restore database tables. <strong>Runs client-side.</strong>
-          </p>
-
-          <!-- Upload Drop Zone -->
-          <div id="backupDropZone" style="border: 2px dashed rgba(79, 70, 229, 0.25); border-radius: 16px; padding: 2rem; text-align: center; background: rgba(79, 70, 229, 0.02); transition: var(--transition); cursor: pointer;">
-            <input type="file" id="backupInspectorInput" accept=".json" style="display: none;">
-            <i class="bi bi-cloud-arrow-up" style="font-size: 2.2rem; color: var(--primary); display: block; margin-bottom: 0.5rem;"></i>
-            <span style="font-weight: 750; color: var(--primary-dark); display: block; margin-bottom: 0.25rem; font-size: 0.9rem;">Choose backup JSON or drag it here</span>
-            <span style="font-size: 0.78rem; color: var(--text-secondary);">Accepts .json exported files</span>
-          </div>
-
-          <!-- Inspector Results Pane (hidden by default) -->
-          <div id="inspectorResults" style="display: none; margin-top: 1.5rem; animation: pageFadeUp 0.5s var(--ease-smooth);">
-            <div style="border-top: 1px solid rgba(15, 23, 42, 0.06); padding-top: 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-              <div>
-                <span id="inspectFileName" style="font-weight: 800; color: var(--primary-dark); font-size: 0.95rem; display: block;">File: backup.json</span>
-                <span id="inspectFileSize" style="font-size: 0.8rem; color: var(--text-secondary);">Size: 0 KB</span>
-              </div>
-              <div style="display: flex; gap: 0.5rem;">
-                <button class="btn btn-outline" onclick="clearInspector()" style="padding: 0.45rem 1rem; border-radius: var(--radius-full); font-weight: 750; font-size: 0.78rem; border-color: rgba(239, 68, 68, 0.2); color: var(--danger); background: rgba(239, 68, 68, 0.04);">
-                  <i class="bi bi-x-circle"></i> Clear
-                </button>
-                <button class="btn btn-primary" onclick="restoreFromInspectedBackup()" style="padding: 0.45rem 1rem; border-radius: var(--radius-full); font-weight: 750; font-size: 0.78rem; background: var(--success); border-color: var(--success); color: #fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">
-                  <i class="bi bi-arrow-counterclockwise"></i> Restore
-                </button>
-              </div>
-            </div>
-
-            <!-- Quick Stats Row -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
-              <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(0,0,0,0.04); border-radius: 10px; padding: 0.75rem; text-align: center;">
-                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Classes</span>
-                <h4 id="inspectCountClasses" style="font-size: 1.15rem; font-weight: 850; color: var(--primary-dark); margin: 0.15rem 0 0 0;">0</h4>
-              </div>
-              <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(0,0,0,0.04); border-radius: 10px; padding: 0.75rem; text-align: center;">
-                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Students</span>
-                <h4 id="inspectCountStudents" style="font-size: 1.15rem; font-weight: 850; color: var(--primary-dark); margin: 0.15rem 0 0 0;">0</h4>
-              </div>
-              <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(0,0,0,0.04); border-radius: 10px; padding: 0.75rem; text-align: center;">
-                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Teachers</span>
-                <h4 id="inspectCountTeachers" style="font-size: 1.15rem; font-weight: 850; color: var(--primary-dark); margin: 0.15rem 0 0 0;">0</h4>
-              </div>
-              <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(0,0,0,0.04); border-radius: 10px; padding: 0.75rem; text-align: center;">
-                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Buses</span>
-                <h4 id="inspectCountBuses" style="font-size: 1.15rem; font-weight: 850; color: var(--primary-dark); margin: 0.15rem 0 0 0;">0</h4>
-              </div>
-            </div>
-
-            <!-- Inspector Tabs -->
-            <div class="tabs" style="border-bottom: 1px solid rgba(0,0,0,0.06); padding-bottom: 0.5rem; margin-bottom: 0.75rem; display: flex; gap: 0.3rem; flex-wrap: wrap;">
-              <button class="tab-btn active" id="btnInspectStudents" onclick="switchInspectorTab('students')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;">Students</button>
-              <button class="tab-btn" id="btnInspectClasses" onclick="switchInspectorTab('classes')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;">Classes</button>
-              <button class="tab-btn" id="btnInspectTeachers" onclick="switchInspectorTab('teachers')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;">Teachers</button>
-              <button class="tab-btn" id="btnInspectBuses" onclick="switchInspectorTab('buses')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;">Buses</button>
-              <button class="tab-btn" id="btnInspectGrades" onclick="switchInspectorTab('grades')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;">Grades</button>
-              <button class="tab-btn" id="btnInspectRaw" onclick="switchInspectorTab('raw')" style="padding: 0.4rem 0.75rem; font-size: 0.78rem;"><i class="bi bi-code-slash"></i> JSON</button>
-            </div>
-
-            <!-- Inspector Viewport Container -->
-            <div id="inspectorViewport" style="max-height: 300px; overflow-y: auto; background: rgba(15, 23, 42, 0.01); border: 1px solid rgba(15, 23, 42, 0.05); border-radius: 12px; padding: 1rem;">
-              <!-- Content will be rendered dynamically -->
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
     <!-- AI Assistant Tab -->
     <div id="aiAssistant" class="tab-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed rgba(15, 23, 42, 0.08); padding-bottom: 1rem;">
@@ -1660,7 +1752,7 @@
             <i class="bi bi-stars" style="color: var(--accent);"></i> AI School Assistant
           </h2>
           <p style="color: var(--text-secondary); margin: 0.2rem 0 0 0; font-size: 0.88rem;">
-            Intelligent assistant powered by Gemini API. Ask questions about marks, attendance, buses, and fees.
+            Intelligent assistant powered by Gemini API. Ask questions about marks, attendance, and buses.
           </p>
         </div>
       </div>
@@ -1675,17 +1767,13 @@
             
             <div class="suggestion-filter-container">
               <button class="suggestion-pill active" onclick="filterSuggestions('all', this)">All</button>
-              <button class="suggestion-pill" onclick="filterSuggestions('fees', this)">💰 Fees</button>
               <button class="suggestion-pill" onclick="filterSuggestions('marks', this)">📊 Marks</button>
               <button class="suggestion-pill" onclick="filterSuggestions('attendance', this)">📝 Attendance</button>
               <button class="suggestion-pill" onclick="filterSuggestions('transport', this)">🚌 Bus</button>
+              <button class="suggestion-pill" onclick="filterSuggestions('billing', this)">💰 Fees</button>
             </div>
 
             <div class="quick-prompts">
-              <button class="quick-prompt-btn" data-category="fees" onclick="sendQuickPrompt('tell the student who not pay fees')">
-                <span class="qp-icon">💰</span>
-                <span>List students who have not paid fees</span>
-              </button>
               <button class="quick-prompt-btn" data-category="marks" onclick="sendQuickPrompt('give me a summary report of the midterm (exam1) marks')">
                 <span class="qp-icon">📊</span>
                 <span>Midterm Marks Summary</span>
@@ -1702,11 +1790,19 @@
                 <span class="qp-icon">🚌</span>
                 <span>Bus Occupancy Summary</span>
               </button>
+              <button class="quick-prompt-btn" data-category="billing" onclick="sendQuickPrompt('show me a summary of outstanding fee balances across all classes')">
+                <span class="qp-icon">💰</span>
+                <span>Fee Balance Report</span>
+              </button>
+              <button class="quick-prompt-btn" data-category="billing" onclick="sendQuickPrompt('list students with unpaid status for the current month')">
+                <span class="qp-icon">💳</span>
+                <span>Unpaid Fee List</span>
+              </button>
             </div>
           </div>
 
           <!-- Model & System info -->
-          <div class="ai-card">
+          <div class="ai-card" style="display: none;">
             <h4 class="ai-card-title"><i class="bi bi-cpu-fill" style="color: var(--primary);"></i> Engine Settings</h4>
             <div class="ai-db-stat">
               <span class="ai-db-stat-label">Model:</span>
@@ -1792,11 +1888,25 @@
         <form id="addClassModalForm">
           <div class="form-group">
             <label class="form-label">Grade Level</label>
-            <input type="number" id="addCGrade" placeholder="e.g. 7" class="form-control" min="1" max="12" required>
+            <select id="addCGrade" class="form-control" required>
+              <option value="">-- Select Grade --</option>
+              <option value="LKG">LKG (Lower Kindergarten)</option>
+              <option value="UKG">UKG (Upper Kindergarten)</option>
+              <option value="1">Class 1</option>
+              <option value="2">Class 2</option>
+              <option value="3">Class 3</option>
+              <option value="4">Class 4</option>
+              <option value="5">Class 5</option>
+              <option value="6">Class 6</option>
+              <option value="7">Class 7</option>
+              <option value="8">Class 8</option>
+              <option value="9">Class 9</option>
+              <option value="10">Class 10</option>
+            </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Section</label>
-            <input type="text" id="addCSection" placeholder="e.g. A" class="form-control" maxlength="5" required>
+            <label class="form-label">Section <span style="color:var(--text-secondary); font-weight:500; font-size:0.8rem;">(optional — leave blank if no sections)</span></label>
+            <input type="text" id="addCSection" placeholder="e.g. A, B  (or leave blank)" class="form-control" maxlength="5">
           </div>
           <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem; font-weight: 700;">Create Class</button>
         </form>
@@ -1965,66 +2075,6 @@
     </div>
   </div>
 
-  <!-- Add Accountant Modal -->
-  <div id="addAccountantModal" class="modal-overlay" onclick="if(event.target === this) closeAddAccountantModal();">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Add New Accountant</h3>
-        <button class="modal-close-btn" onclick="closeAddAccountantModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <form id="addAccountantForm">
-          <div class="form-group">
-            <label class="form-label">Full Name</label>
-            <input type="text" id="accName" class="form-control" placeholder="Accountant's Full Name" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Username</label>
-            <input type="text" id="accUsername" class="form-control" placeholder="Choose username" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" id="accPassword" class="form-control" placeholder="Enter secure password" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Phone <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
-            <input type="tel" id="accPhone" class="form-control" placeholder="e.g. +91 98765 43210">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
-            <input type="email" id="accEmail" class="form-control" placeholder="accountant@school.com">
-          </div>
-          <button type="submit" class="btn btn-primary w-full" style="margin-top: 1.5rem; font-weight: 700;">Add Accountant</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Edit Concession Modal -->
-  <div id="concessionModal" class="modal-overlay" onclick="if(event.target === this) closeConcessionModal();">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Edit Student Fee Concession</h3>
-        <button class="modal-close-btn" onclick="closeConcessionModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <form id="concessionForm">
-          <input type="hidden" id="concessionStudentFeeId">
-          <div style="margin-bottom: 1.25rem; font-size: 0.95rem; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 0.75rem;">
-            <p style="margin: 0 0 0.25rem 0;">Student: <strong id="concessionStudentName">-</strong></p>
-            <p style="margin: 0 0 0.25rem 0;">Class: <span id="concessionStudentClass">-</span></p>
-            <p style="margin: 0;">Base Fee: <strong>₹<span id="concessionBaseFee">0</span></strong></p>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Concession / Discount Amount (₹)</label>
-            <input type="number" id="concessionAmount" class="form-control" min="0" required placeholder="Enter discount amount">
-          </div>
-          <button type="submit" class="btn btn-primary w-full" style="margin-top: 1.5rem; font-weight: 700;">Approve Concession</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <!-- BLOCKING ACADEMIC YEAR OVERLAY -->
   <div id="academicYearSetupOverlay" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(20px); background: rgba(10, 11, 28, 0.85);">
     <div class="card" style="max-width: 420px; width: 90%; padding: 2.5rem; border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.96); box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6); text-align: center;">
@@ -2060,9 +2110,6 @@
         <div id="birthdayModalList" style="max-height: 300px; overflow-y: auto; margin: 1.5rem 0; text-align: left; padding: 0.5rem;">
           <!-- Celebration items go here -->
         </div>
-        <button class="btn btn-primary" onclick="closeBirthdayModal()" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); border: none; font-weight: 700; border-radius: var(--radius-full); padding: 0.65rem 2rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3); margin-top: 0.5rem;">
-          Send Best Wishes! 🎂
-        </button>
       </div>
     </div>
   </div>
@@ -2115,17 +2162,29 @@
       const s = students.find(x => x.id === studentId);
       if (!s) return;
       const cls = classes.find(c => c.id === s.classId);
+      const grade = cls ? cls.grade : '1';
+      const config = getClassProgressCardConfig(s.classId, grade);
       const classSubjects = (DB.get('subjects') || {})[s.classId] || [];
       const maxMarksObj = (DB.get('subjectMaxMarks') || {})[s.classId] || {};
       const smarks = marks[s.id] || {};
-      const exams = ['exam1', 'exam2', 'exam3'];
-      const examLabels = { exam1: 'Quarterly', exam2: 'Half Yearly', exam3: 'Annual' };
+      
+      const exams = config && config.exams ? config.exams : [
+        { id: 'exam1', name: 'Quarterly' },
+        { id: 'exam2', name: 'Half Yearly' },
+        { id: 'exam3', name: 'Annual' }
+      ];
+
+      const examHeaders = exams.map(e => `<th style="text-align:center;">${e.name}</th>`).join('');
 
       const rows = classSubjects.map(sub => {
         const maxMark = maxMarksObj[sub] !== undefined ? maxMarksObj[sub] : 100;
         const scores = exams.map(ex => {
-          const v = smarks[sub] && smarks[sub][ex] !== undefined ? smarks[sub][ex] : '—';
-          return `<td style="text-align:center;">${v}</td>`;
+          const val = smarks[sub] && smarks[sub][ex.id] !== undefined ? smarks[sub][ex.id] : '—';
+          let displayVal = val;
+          if (typeof val === 'object' && val !== null) {
+            displayVal = val.Total !== undefined ? val.Total : (val.GRADE || val.Total || (Number(val.P || 0) + Number(val.T || 0)) || (Number(val.FA || 0) + Number(val.SA || 0)));
+          }
+          return `<td style="text-align:center;">${displayVal}</td>`;
         }).join('');
         return `<tr><td>${sub}</td><td style="text-align:center;">${maxMark}</td>${scores}</tr>`;
       }).join('');
@@ -2145,7 +2204,7 @@
           <thead>
             <tr>
               <th>Subject</th><th style="text-align:center;">Max</th>
-              <th style="text-align:center;">Quarterly</th><th style="text-align:center;">Half Yearly</th><th style="text-align:center;">Annual</th>
+              ${examHeaders}
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -2187,8 +2246,10 @@
         document.getElementById('academicYearSetupOverlay').style.display = 'none';
         document.documentElement.style.overflow = '';
         document.body.style.overflow = '';
-        loadData();
-        renderClassesWise();
+        DB.fetchAllExtendedData().then(function() {
+          loadData();
+          renderClassesWise();
+        });
       }
     });
 
@@ -2202,8 +2263,8 @@
       
       if (tabId === 'classesWise') {
         renderClassesWise();
-      } else if (tabId === 'feesDashboardTab') {
-        renderAdminFees();
+      } else if (tabId === 'feeManagement') {
+        loadFeeTab();
       } else if (tabId === 'aiAssistant') {
         if (typeof updateAiStatusUi === 'function') updateAiStatusUi();
         if (typeof checkDatabaseState === 'function') checkDatabaseState();
@@ -2273,13 +2334,23 @@
         resultsHTML += `<div style="padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; background: rgba(15,23,42,0.02);">Students</div>`;
         resultsHTML += studentMatches.map(s => {
           const cls = classes.find(c => c.id === s.classId)?.name || 'Unassigned';
+          const billing = (DB.get('studentBilling') || []).find(b => b.studentId === s.id);
+          let feeStatusBadge = '';
+          if (billing) {
+            const status = billing.currentMonthStatus || 'unpaid';
+            const color = status === 'paid' ? '#10b981' : (status === 'partial' ? '#f59e0b' : '#ef4444');
+            feeStatusBadge = `<span style="font-size: 0.65rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: ${color}20; color: ${color}; font-weight: 800; text-transform: uppercase; margin-left: 0.5rem;">${status}</span>`;
+          }
           return `
-            <div class="search-result-item" onclick="viewStudentFullDetails('${s.id}')">
-              <div class="search-result-info">
-                <h4>${s.name || 'Unnamed Student'}</h4>
-                <p>Roll No: ${s.rollNo || 'N/A'} • Class: ${cls}</p>
+            <div class="search-result-item" onclick="viewStudentFullDetails('${s.id}')" style="border-bottom: 1px solid rgba(15,23,42,0.04); padding: 0.85rem 1.25rem;">
+              <div class="search-result-info" style="flex: 1;">
+                <h4 style="display: flex; align-items: center;">${s.name || 'Unnamed Student'} ${feeStatusBadge}</h4>
+                <p style="margin-top: 0.25rem;">Roll: <span style="color: var(--primary-dark); font-weight: 700;">${s.rollNo || 'N/A'}</span> • Class: <span style="color: var(--primary-dark); font-weight: 700;">${cls}</span></p>
+                ${billing ? `<p style="font-size: 0.75rem; margin-top: 0.15rem; color: var(--text-secondary);">Balance: <span style="color: ${billing.balanceFee > 0 ? 'var(--danger)' : 'var(--success)'}; font-weight: 700;">₹${Number(billing.balanceFee || 0).toLocaleString('en-IN')}</span></p>` : ''}
               </div>
-              <i class="bi bi-chevron-right" style="color: var(--primary);"></i>
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(79,70,229,0.05); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                <i class="bi bi-chevron-right"></i>
+              </div>
             </div>
           `;
         }).join('');
@@ -2355,18 +2426,30 @@
       const smarks = allMarks[s.id] || {};
       const subjectsObj = DB.get('subjects') || {};
       const classSubjects = subjectsObj[s.classId] || [];
-      
+      const grade = cls ? cls.grade : '1';
+      const config = getClassProgressCardConfig(s.classId, grade);
+      const exams = config && config.exams ? config.exams : [
+        { id: 'exam1', name: 'Quarterly' },
+        { id: 'exam2', name: 'Half Yearly' },
+        { id: 'exam3', name: 'Annual' }
+      ];
+
+      const examHeaders = exams.map(e => `<th style="text-align: center;">${e.name}</th>`).join('');
+
       const marksRows = classSubjects.map(sub => {
         const marks = smarks[sub] || {};
-        const qMark = marks.exam1 !== undefined ? marks.exam1 : '-';
-        const hMark = marks.exam2 !== undefined ? marks.exam2 : '-';
-        const aMark = marks.exam3 !== undefined ? marks.exam3 : '-';
+        const scoresHtml = exams.map(e => {
+          const val = marks[e.id] !== undefined ? marks[e.id] : '-';
+          let displayVal = val;
+          if (typeof val === 'object' && val !== null) {
+            displayVal = val.Total !== undefined ? val.Total : (val.GRADE || val.Total || (Number(val.P || 0) + Number(val.T || 0)) || (Number(val.FA || 0) + Number(val.SA || 0)));
+          }
+          return `<td style="text-align: center;">${displayVal}</td>`;
+        }).join('');
         return `
           <tr>
             <td style="font-weight: 700; color: var(--primary-dark);">${sub}</td>
-            <td style="text-align: center;">${qMark}</td>
-            <td style="text-align: center;">${hMark}</td>
-            <td style="text-align: center;">${aMark}</td>
+            ${scoresHtml}
           </tr>
         `;
       }).join('');
@@ -2382,7 +2465,11 @@
           classSubjects.forEach(sub => {
             const markVal = (stdMarks[sub] && stdMarks[sub][examKey] !== undefined) ? stdMarks[sub][examKey] : null;
             if (markVal !== null) {
-              scoreSum += Number(markVal);
+              let displayVal = markVal;
+              if (typeof markVal === 'object' && markVal !== null) {
+                displayVal = markVal.Total !== undefined ? markVal.Total : (markVal.GRADE || markVal.Total || (Number(markVal.P || 0) + Number(markVal.T || 0)) || (Number(markVal.FA || 0) + Number(markVal.SA || 0)));
+              }
+              scoreSum += Number(displayVal) || 0;
               hasAny = true;
             }
           });
@@ -2407,39 +2494,113 @@
         return studentRank !== null ? `${studentRank} / ${ranked.length}` : '-';
       };
 
-      const rankQ = getAdminRankForExam('exam1');
-      const rankH = getAdminRankForExam('exam2');
-      const rankA = getAdminRankForExam('exam3');
+      const rankCols = exams.map(e => {
+        const r = getAdminRankForExam(e.id);
+        return `<td style="text-align: center; color: var(--accent); font-weight: 800;">${r}</td>`;
+      }).join('');
 
       const rankRow = `
         <tr style="background: rgba(245, 158, 11, 0.05); font-weight: bold; border-top: 1.5px solid var(--border-color);">
           <td style="font-weight: 800; color: var(--accent); font-size: 0.85rem;">Class Rank</td>
-          <td style="text-align: center; color: var(--accent); font-weight: 800;">${rankQ}</td>
-          <td style="text-align: center; color: var(--accent); font-weight: 800;">${rankH}</td>
-          <td style="text-align: center; color: var(--accent); font-weight: 800;">${rankA}</td>
+          ${rankCols}
         </tr>
       `;
 
+      const billingList = DB.get('studentBilling') || [];
+      const billing = billingList.find(b => b.studentId === studentId);
+      let billingHtml = '';
+      if (billing) {
+        let statusBadgeColor = '';
+        let statusBadgeText = '';
+        let statusIcon = '';
+        if (billing.currentMonthStatus === 'paid') {
+          statusBadgeColor = '#10b981';
+          statusBadgeText = 'Paid';
+          statusIcon = 'bi-check-circle-fill';
+        } else if (billing.currentMonthStatus === 'partial') {
+          statusBadgeColor = '#f59e0b';
+          statusBadgeText = 'Partial';
+          statusIcon = 'bi-exclamation-circle-fill';
+        } else {
+          statusBadgeColor = '#ef4444';
+          statusBadgeText = 'Unpaid';
+          statusIcon = 'bi-exclamation-triangle-fill';
+        }
+
+        billingHtml = `
+          <div style="margin-bottom: 1.5rem; background: white; border: 1px solid rgba(15, 23, 42, 0.06); padding: 1.25rem; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+              <h4 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 850; color: var(--primary-dark); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-wallet2" style="color: var(--primary);"></i> Fee & Billing Status
+              </h4>
+              <div style="display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.8rem; border-radius: 50px; background: ${statusBadgeColor}15; color: ${statusBadgeColor}; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;">
+                <i class="bi ${statusIcon}"></i> ${statusBadgeText}
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+              <div style="background: #f8fafc; padding: 0.85rem; border-radius: 16px; border: 1px solid #f1f5f9;">
+                <span style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; display: block; font-weight: 800; margin-bottom: 0.25rem; letter-spacing: 0.05em;">Total Assigned Fee</span>
+                <span style="font-weight: 850; color: var(--primary-dark); font-size: 1.15rem;">₹${Number(billing.totalFee || 0).toLocaleString('en-IN')}</span>
+              </div>
+              <div style="background: #f8fafc; padding: 0.85rem; border-radius: 16px; border: 1px solid #f1f5f9;">
+                <span style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; display: block; font-weight: 800; margin-bottom: 0.25rem; letter-spacing: 0.05em;">Amount Paid</span>
+                <span style="font-weight: 850; color: #10b981; font-size: 1.15rem;">₹${Number(billing.totalFeePaid || 0).toLocaleString('en-IN')}</span>
+              </div>
+              <div style="background: #f8fafc; padding: 0.85rem; border-radius: 16px; border: 1px solid #f1f5f9;">
+                <span style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; display: block; font-weight: 800; margin-bottom: 0.25rem; letter-spacing: 0.05em;">Balance Due</span>
+                <span style="font-weight: 850; color: #ef4444; font-size: 1.15rem;">₹${Number(billing.balanceFee || 0).toLocaleString('en-IN')}</span>
+              </div>
+              <div style="background: #f8fafc; padding: 0.85rem; border-radius: 16px; border: 1px solid #f1f5f9;">
+                <span style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; display: block; font-weight: 800; margin-bottom: 0.25rem; letter-spacing: 0.05em;">Last Payment</span>
+                <span style="font-weight: 800; color: var(--primary-dark); font-size: 0.85rem;">${billing.lastPaidDate ? formatDate(billing.lastPaidDate) : 'No Records'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        billingHtml = `
+          <div style="margin-bottom: 1.5rem; background: white; border: 1px dashed rgba(15, 23, 42, 0.15); padding: 1.5rem; border-radius: 24px; text-align: center;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #fff7ed; color: #f59e0b; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-size: 1.5rem;">
+              <i class="bi bi-wallet2"></i>
+            </div>
+            <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--primary-dark); margin: 0 0 0.25rem 0;">No Billing Data Found</h4>
+            <p style="color: var(--text-secondary); margin: 0; font-size: 0.8rem;">This student has no billing records in Supabase.</p>
+          </div>
+        `;
+      }
+
       const html = `
-        <div style="text-align: center; margin-bottom: 2rem;">
-          <div style="width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; font-size: 2rem; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem auto; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);">
+        <div style="text-align: center; margin-bottom: 2rem; position: relative;">
+          <div style="width: 84px; height: 84px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; font-size: 2.2rem; font-weight: 850; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.85rem auto; box-shadow: 0 15px 30px rgba(79, 70, 229, 0.25); border: 4px solid #fff;">
             ${s.name.charAt(0).toUpperCase()}
           </div>
-          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 850; color: var(--primary-dark); margin: 0;">${s.name}</h3>
-          <p style="color: var(--text-secondary); margin: 0.2rem 0 0 0; font-size: 0.88rem;">Roll Number: ${s.rollNo}</p>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 850; color: var(--primary-dark); margin: 0;">${s.name}</h3>
+          <p style="color: var(--text-secondary); margin: 0.35rem 0 0 0; font-size: 0.9rem; font-weight: 600;">Roll Number: <span style="color: var(--primary);">${s.rollNo}</span></p>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-          <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(15, 23, 42, 0.04); padding: 0.85rem; border-radius: 16px;">
-            <strong style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.2rem;">Academic info</strong>
-            <span style="font-weight: 750; color: var(--primary-dark); display: block; font-size: 0.9rem; margin-bottom: 0.15rem;">Class: ${className}</span>
-            <span style="color: var(--text-secondary); font-size: 0.8rem;">Teacher: ${teacherName}</span>
+          <div style="background: white; border: 1px solid rgba(15, 23, 42, 0.06); padding: 1.15rem; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+            <strong style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 0.5rem;">Academic Context</strong>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+              <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(79,70,229,0.08); display: flex; align-items: center; justify-content: center; color: var(--primary);"><i class="bi bi-building"></i></div>
+              <span style="font-weight: 800; color: var(--primary-dark); font-size: 0.95rem;">${className}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(124,58,237,0.08); display: flex; align-items: center; justify-content: center; color: var(--accent);"><i class="bi bi-person-badge"></i></div>
+              <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 600;">${teacherName}</span>
+            </div>
           </div>
           
-          <div style="background: rgba(15, 23, 42, 0.02); border: 1px solid rgba(15, 23, 42, 0.04); padding: 0.85rem; border-radius: 16px;">
-            <strong style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">Personal & Transport</strong>
-            <span style="font-weight: 750; color: var(--primary-dark); display: block; font-size: 0.9rem; margin-bottom: 0.15rem;">DOB: ${formatDate(s.dob)}</span>
-            <span style="color: var(--text-secondary); font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;">Bus: ${busInfo}</span>
+          <div style="background: white; border: 1px solid rgba(15, 23, 42, 0.06); padding: 1.15rem; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+            <strong style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 0.5rem;">Personal & Logistics</strong>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+              <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(6,182,212,0.08); display: flex; align-items: center; justify-content: center; color: var(--info);"><i class="bi bi-calendar-event"></i></div>
+              <span style="font-weight: 800; color: var(--primary-dark); font-size: 0.95rem;">${formatDate(s.dob)}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(245,158,11,0.08); display: flex; align-items: center; justify-content: center; color: var(--warning);"><i class="bi bi-bus-front"></i></div>
+              <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${busInfo}</span>
+            </div>
           </div>
         </div>
 
@@ -2454,6 +2615,8 @@
           <span style="font-size: 0.72rem; color: var(--text-secondary); display: block; margin-top: 0.35rem;">Attended ${presentDays} of ${totalDays} total instruction days.</span>
         </div>
 
+        ${billingHtml}
+
         <div>
           <h4 style="font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 800; color: var(--primary-dark); margin: 0 0 0.5rem 0;">Academic Report Card</h4>
           <div class="table-wrapper" style="margin: 0; max-height: 180px; overflow-y: auto;">
@@ -2461,9 +2624,7 @@
               <thead>
                 <tr>
                   <th style="text-align: left;">Subject</th>
-                  <th style="text-align: center;">Exam 1</th>
-                  <th style="text-align: center;">Exam 2</th>
-                  <th style="text-align: center;">Exam 3</th>
+                  ${examHeaders}
                 </tr>
               </thead>
               <tbody>
@@ -2798,12 +2959,22 @@
           <input type="text" id="editCName" value="${c.name}" class="form-control" required>
         </div>
         <div class="form-group">
-          <label class="form-label">Section</label>
-          <input type="text" id="editCSection" value="${c.section || ''}" class="form-control" required>
+          <label class="form-label">Section <span style="color:var(--text-secondary); font-weight:500; font-size:0.8rem;">(optional)</span></label>
+          <input type="text" id="editCSection" value="${c.section || ''}" class="form-control">
         </div>
         <div class="form-group">
           <label class="form-label">Grade Level</label>
-          <input type="number" id="editCGrade" value="${c.grade || ''}" class="form-control" required>
+          <select id="editCGrade" class="form-control" required>
+            <option value="">-- Select Grade --</option>
+            <option value="LKG" ${c.grade === 'LKG' ? 'selected' : ''}>LKG (Lower Kindergarten)</option>
+            <option value="UKG" ${c.grade === 'UKG' ? 'selected' : ''}>UKG (Upper Kindergarten)</option>
+            ${[1,2,3,4,5,6,7,8,9,10].map(n => `<option value="${n}" ${Number(c.grade) === n ? 'selected' : ''}>Class ${n}</option>`).join('')}
+          </select>
+        </div>
+        <div style="background:rgba(244,160,32,0.08); border:1px solid rgba(244,160,32,0.2); border-radius:12px; padding:0.85rem; margin-top:1rem;">
+           <p style="margin:0; font-size:0.75rem; color:#92400e; line-height:1.4;">
+             <i class="bi bi-info-circle-fill"></i> <strong>Note:</strong> To promote students, simply update the Class Name and Grade Level here. All assigned students will remain in this class record.
+           </p>
         </div>
       `;
       
@@ -3120,27 +3291,6 @@
         </tr>`).join('');
       }
 
-      // Populate Accountants Table
-      const accountants = DB.get('accountants') || [];
-      const accBody = document.getElementById('accountantsTableBody');
-      if (accBody) {
-        if (accountants.length === 0) {
-          accBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">No accountants added yet.</td></tr>`;
-        } else {
-          accBody.innerHTML = accountants.map(a => `<tr>
-            <td>${a.name}</td>
-            <td>${a.username}</td>
-            <td>${a.phone || '-'}</td>
-            <td>${a.email || '-'}</td>
-            <td>
-              <div style="display: flex; gap: 0.4rem;">
-                <button class="action-btn btn-primary btn-sm" onclick="startEditAccountant('${a.id}')"><i class="bi bi-pencil"></i> Edit</button>
-                <button class="action-btn btn-danger btn-sm" onclick="deleteAccountant('${a.id}')"><i class="bi bi-trash"></i> Delete</button>
-              </div>
-            </td>
-          </tr>`).join('');
-        }
-      }
     }
     // Forms
     document.getElementById('editForm').addEventListener('submit', (e) => {
@@ -3185,22 +3335,6 @@
             showToast('Teacher updated successfully!', 'success');
           });
         }
-      } else if (type === 'accountant') {
-        const list = DB.get('accountants') || [];
-        const idx = list.findIndex(item => item.id === id);
-        if (idx !== -1) {
-          list[idx].name = document.getElementById('editAccName').value;
-          list[idx].username = document.getElementById('editAccUsername').value;
-          list[idx].phone = document.getElementById('editAccPhone').value || null;
-          list[idx].email = document.getElementById('editAccEmail').value || null;
-          const newPass = document.getElementById('editAccPassword').value;
-          if (newPass) {
-            list[idx].password = sha256(newPass);
-          }
-          syncPromise = DB.set('accountants', list).then(() => {
-            showToast('Accountant details updated successfully!', 'success');
-          });
-        }
       } else if (type === 'bus') {
         const list = DB.get('buses') || [];
         const idx = list.findIndex(item => item.id === id);
@@ -3221,9 +3355,20 @@
         const list = DB.get('classes') || [];
         const idx = list.findIndex(item => item.id === id);
         if (idx !== -1) {
-          list[idx].name = document.getElementById('editCName').value;
-          list[idx].section = document.getElementById('editCSection').value;
-          list[idx].grade = Number(document.getElementById('editCGrade').value);
+          const gradeVal = document.getElementById('editCGrade').value;
+          const section = document.getElementById('editCSection').value.trim().toUpperCase();
+          const classGrade = (gradeVal === 'LKG' || gradeVal === 'UKG') ? gradeVal : Number(gradeVal);
+          
+          let newName;
+          if (gradeVal === 'LKG' || gradeVal === 'UKG') {
+            newName = section ? `${gradeVal} - ${section}` : gradeVal;
+          } else {
+            newName = section ? `Class ${gradeVal} - ${section}` : `Class ${gradeVal}`;
+          }
+          
+          list[idx].name = newName;
+          list[idx].section = section;
+          list[idx].grade = classGrade;
           syncPromise = DB.set('classes', list).then(() => {
             showToast('Class details updated successfully!', 'success');
           });
@@ -3254,11 +3399,21 @@
       if (preventDoubleSubmit(e)) return;
 
       const classSection = document.getElementById('addCSection').value.trim().toUpperCase();
-      const classGrade = Number(document.getElementById('addCGrade').value);
-      const className = `Class ${classGrade} - ${classSection}`;
+      const gradeVal = document.getElementById('addCGrade').value;
+
+      // Build proper class name — omit section suffix if blank
+      let className;
+      if (gradeVal === 'LKG' || gradeVal === 'UKG') {
+        className = classSection ? `${gradeVal} - ${classSection}` : gradeVal;
+      } else {
+        className = classSection ? `Class ${gradeVal} - ${classSection}` : `Class ${gradeVal}`;
+      }
+
+      // Store grade: keep as-is for LKG/UKG, numeric for 1-10
+      const classGrade = (gradeVal === 'LKG' || gradeVal === 'UKG') ? gradeVal : Number(gradeVal);
 
       const classes = DB.get('classes') || [];
-      if (classes.some(c => c.grade === classGrade && c.section.toUpperCase() === classSection)) {
+      if (classes.some(c => c.grade === classGrade && (c.section || '').toUpperCase() === classSection)) {
         showToast(`'${className}' already exists!`, 'warning');
         releaseDoubleSubmit(e.target);
         return;
@@ -3483,153 +3638,6 @@
       showToast('Database backup downloaded successfully!', 'success');
     };
 
-    window.promoteAcademicYear = async () => {
-      const students = DB.get('students') || [];
-      const classes = DB.get('classes') || [];
-      
-      if (students.length === 0) {
-        alert('No students found to promote.');
-        return;
-      }
-      
-      const currentYear = currentAcademicYear();
-      const parts = currentYear.split('-');
-      if (parts.length !== 2) {
-        alert('Invalid current academic year format. Expected YYYY-YY.');
-        return;
-      }
-      
-      const startYear = parseInt(parts[0]);
-      const endYear = parseInt(parts[1]);
-      const nextYear = `${startYear + 1}-${String(endYear + 1).padStart(2, '0')}`;
-      
-      if (!confirm(`Are you sure you want to promote the school to academic year ${nextYear}?\n\nThis will:\n1. Automatically download a JSON backup.\n2. Increment student classes (Class I -> II, etc.).\n3. Clear class & bus attendance registers.\n4. Reset marks records.\n5. Replicate changes to Supabase (if configured).`)) {
-        return;
-      }
-      
-      // 1. Force a backup download first
-      downloadBackup();
-      
-      // Archive current year data under the currentYear suffix
-      localStorage.setItem('mss_students_' + currentYear, JSON.stringify(students));
-      localStorage.setItem('mss_attendanceLogs_' + currentYear, JSON.stringify(DB.get('attendanceLogs') || []));
-      localStorage.setItem('mss_marks_' + currentYear, JSON.stringify(DB.get('marks') || {}));
-      localStorage.setItem('mss_classAttendance_' + currentYear, JSON.stringify(DB.get('classAttendance') || {}));
-      localStorage.setItem('mss_busAttendance_' + currentYear, JSON.stringify(DB.get('busAttendance') || {}));
-      
-      // 2. Perform promotion
-      const updatedStudents = students.map(student => {
-        const sClass = classes.find(c => c.id === student.classId);
-        let nextClassId = student.classId;
-        
-        if (sClass) {
-          const currentGrade = sClass.grade;
-          if (currentGrade >= 10) {
-            // Graduate Class X students (clear classId or set to graduated)
-            nextClassId = 'graduated';
-          } else {
-            // Find next class with grade + 1
-            const nextClass = classes.find(c => c.grade === currentGrade + 1);
-            if (nextClass) {
-              nextClassId = nextClass.id;
-            } else {
-              // No higher grade defined
-              nextClassId = null;
-            }
-          }
-        }
-        
-        return {
-          ...student,
-          classId: nextClassId,
-          academicYear: nextYear
-        };
-      });
-      
-      // 3. Clear logs locally & register the new year in DB list
-      sessionStorage.setItem('mss_activeAcademicYear', nextYear);
-      localStorage.setItem('mss_activeAcademicYear', nextYear);
-
-      const yearsList = DB.get('academicYears') || [];
-      if (!yearsList.includes(nextYear)) {
-        yearsList.push(nextYear);
-        await DB.setLocal('academicYears', yearsList);
-      }
-
-      // Auto assign student fees for promoted students carrying over balances
-      const feeStructures = DB.get('feeStructures') || [];
-      const studentFees = DB.get('studentFees') || [];
-      updatedStudents.forEach(s => {
-        if (s.classId && s.classId !== 'graduated') {
-          const struct = feeStructures.find(fs => fs.classId === s.classId && fs.academicYear === nextYear);
-          const baseAmount = struct ? struct.amount : 0;
-          
-          // Find previous year's fee card to carry over balance
-          const prevSf = studentFees.find(f => f.studentId === s.id && f.academicYear === currentYear);
-          let outstanding = 0;
-          if (prevSf) {
-            let customSum = 0;
-            if (Array.isArray(prevSf.customFees)) {
-              prevSf.customFees.forEach(cf => {
-                customSum += (Number(cf.amount) || 0);
-              });
-            }
-            const prevTotalDue = (Number(prevSf.yearlyFee) || 0) + (Number(prevSf.busFee) || 0) + (Number(prevSf.bookFee) || 0) + (Number(prevSf.uniformFee) || 0) + (Number(prevSf.otherFee) || 0) + (Number(prevSf.previousBalance) || 0) + customSum - (Number(prevSf.discount) || 0);
-            const prevPaid = Number(prevSf.totalPaid) || 0;
-            outstanding = Math.max(0, prevTotalDue - prevPaid);
-          }
-
-          studentFees.push({
-            id: genId('sf'),
-            studentId: s.id,
-            academicYear: nextYear,
-            yearlyFee: baseAmount,
-            busFee: 0,
-            bookFee: 0,
-            uniformFee: 0,
-            otherFee: 0,
-            previousBalance: outstanding,
-            discount: 0,
-            customFees: [],
-            totalDue: baseAmount + outstanding,
-            totalPaid: 0,
-            status: (baseAmount + outstanding) > 0 ? 'Pending' : 'Paid'
-          });
-        }
-      });
-
-      // Wait for all DB writes to complete locally and sync to Supabase
-      await DB.setLocal('studentFees', studentFees);
-      await DB.setLocal('students', updatedStudents);
-      await DB.setLocal('attendanceLogs', []);
-      await DB.setLocal('marks', {});
-      await DB.setLocal('classAttendance', {});
-      await DB.setLocal('busAttendance', {});
-      
-      // 4. Save to Supabase (if configured)
-      const configured = typeof isSupabaseConfigured === 'function' && isSupabaseConfigured();
-      if (configured && typeof getSupabase === 'function') {
-        try {
-          showToast('Syncing promotion to Supabase, please wait...', 'info');
-          const client = getSupabase();
-          
-          // Delete live attendance logs and marks on remote database
-          await client.from('attendance_logs').delete().neq('id', 0);
-          await client.from('marks').delete().neq('id', 0);
-          
-          showToast('Supabase database sync complete!', 'success');
-        } catch (e) {
-          console.error('Supabase promotion sync failed:', e);
-          alert('Promoted locally, but remote Supabase sync failed. Please review console errors.');
-        }
-      }
-      
-      showToast(`Successfully promoted to academic year ${nextYear}!`, 'success');
-      
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
-    };
 
     window.switchAcademicYear = function(year) {
       sessionStorage.setItem('mss_activeAcademicYear', year);
@@ -3993,417 +4001,653 @@
     // ==========================================
     // ACCOUNTANT AND FEES MANAGEMENT HELPERS
     // ==========================================
-    window.openAddAccountantModal = function() {
-      document.getElementById('addAccountantModal').classList.add('show');
-    };
-    window.closeAddAccountantModal = function() {
-      document.getElementById('addAccountantModal').classList.remove('show');
-      document.getElementById('addAccountantForm').reset();
-    };
-    
-    document.getElementById('addAccountantForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (preventDoubleSubmit(e)) return;
+  </script>
 
-      const username = document.getElementById('accUsername').value.trim();
-      const list = DB.get('accountants') || [];
-      if (list.some(a => a.username.trim().toLowerCase() === username.toLowerCase())) {
-        showToast(`Accountant username '${username}' already exists!`, 'warning');
-        releaseDoubleSubmit(e.target);
+  <!-- ── YEAR PROMOTION MODAL ─────────────────────────────────── -->
+  <!-- Edit Class Modal -->
+  <div id="editClassModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Edit Class</h3>
+        <button class="modal-close-btn" onclick="closeModal('editClassModal')">✕</button>
+      </div>
+      <form id="editClassForm">
+        <input type="hidden" id="editClassId">
+        <div class="form-group">
+          <label class="form-label">Class Name</label>
+          <input type="text" id="editClassName" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Section</label>
+          <input type="text" id="editClassSection" class="form-control" placeholder="e.g. A, B">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Grade (Numeric)</label>
+          <input type="number" id="editClassGrade" class="form-control" placeholder="e.g. 1, 2, 5">
+        </div>
+        <button type="submit" class="btn btn-primary w-100 mt-2">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="promotionModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.7); backdrop-filter:blur(6px); overflow-y:auto;">
+    <div style="max-width:960px; margin:2rem auto; background:#fff; border-radius:28px; box-shadow:0 40px 80px rgba(15,23,42,0.25); overflow:hidden;">
+      <!-- Header -->
+      <div style="background:linear-gradient(135deg,var(--primary) 0%,var(--accent) 100%); padding:2rem 2.5rem; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2 style="font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:850; color:#fff; margin:0;">🎓 Promote to Next Academic Year</h2>
+          <p id="promoModalSubtitle" style="color:rgba(255,255,255,0.8); margin:0.35rem 0 0 0; font-size:0.9rem;"></p>
+        </div>
+        <button onclick="closePromotionModal()" style="background:rgba(255,255,255,0.15); border:none; color:#fff; width:38px; height:38px; border-radius:50%; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+      </div>
+
+      <!-- Info Banner -->
+      <div style="background:rgba(244,160,32,0.08); border-bottom:1px solid rgba(244,160,32,0.2); padding:1rem 2.5rem; display:flex; align-items:flex-start; gap:0.75rem;">
+        <i class="bi bi-info-circle-fill" style="color:var(--accent); font-size:1.1rem; flex-shrink:0; margin-top:0.15rem;"></i>
+        <p style="margin:0; font-size:0.88rem; color:#92400e; line-height:1.5;">All students are <strong>selected by default</strong>. Choose the target section **per class group** using the dropdown. Uncheck any student to exclude them and mark them as <strong>"Dropped"</strong>. Class 10 students will be marked as <strong>Graduated</strong>.</p>
+      </div>
+
+      <!-- Controls Bar -->
+      <div style="padding:1.25rem 2.5rem; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; gap:1rem; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+        <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+          <button onclick="promoSelectAll(true)" style="padding:0.45rem 1rem; border-radius:var(--radius-full); font-size:0.82rem; font-weight:750; background:rgba(79,70,229,0.08); color:var(--primary); border:1px solid rgba(79,70,229,0.2); cursor:pointer;"><i class="bi bi-check-all"></i> Select All</button>
+          <button onclick="promoSelectAll(false)" style="padding:0.45rem 1rem; border-radius:var(--radius-full); font-size:0.82rem; font-weight:750; background:rgba(239,68,68,0.06); color:var(--danger); border:1px solid rgba(239,68,68,0.15); cursor:pointer;"><i class="bi bi-x-square"></i> Deselect All</button>
+    // ── PROMOTION MODAL LOGIC ─────────────────────────────────────────
+    let _promoNextYear = '';
+    let _promoCurrentYear = '';
+
+    /**
+     * Canonical sort order for this school's class structure.
+     * LKG=0, UKG=1, Class 1=2, ..., Class 10=11.
+     */
+    function getClassSortOrder(cls) {
+      if (!cls) return 999;
+      const name = (cls.name || '').trim().toUpperCase();
+      if (name.includes('LKG')) return 0;
+      if (name.includes('UKG')) return 1;
+      
+      // Try to read cls.grade (number 1 to 10)
+      if (typeof cls.grade === 'number' && cls.grade >= 1 && cls.grade <= 10) {
+        return cls.grade + 1;
+      }
+      
+      // Try to parse grade from name
+      const m = name.match(/CLASS\s*(\d+)/i) || name.match(/GRADE\s*(\d+)/i) || name.match(/(\d+)/);
+      if (m) {
+        const val = parseInt(m[1]);
+        if (val >= 1 && val <= 10) return val + 1;
+      }
+      return 999;
+    }
+
+    function getNextSortOrder(cls) {
+      return getClassSortOrder(cls) + 1;
+    }
+
+    window.openPromotionModal = function() {
+      const students = DB.get('students') || [];
+      const classes = DB.get('classes') || [];
+
+      if (students.length === 0) {
+        showToast('No students found to promote.', 'warning');
         return;
       }
 
-      list.push({
-        id: genId('acc'), name: document.getElementById('accName').value,
-        username: username, password: sha256(document.getElementById('accPassword').value),
-        phone: document.getElementById('accPhone').value || null,
-        email: document.getElementById('accEmail').value || null
-      });
-      DB.set('accountants', list).then(() => {
-        e.target.reset();
-        releaseDoubleSubmit(e.target);
-        closeAddAccountantModal();
-        loadData();
-        showToast('Accountant added successfully', 'success');
-      });
-    });
+      _promoCurrentYear = currentAcademicYear();
+      const parts = _promoCurrentYear.split('-');
+      if (parts.length !== 2) {
+        showToast('Invalid academic year format. Expected YYYY-YY.', 'danger');
+        return;
+      }
+      const startY = parseInt(parts[0]);
+      const endY = parseInt(parts[1]);
+      _promoNextYear = `${startY + 1}-${String(endY + 1).padStart(2, '0')}`;
 
-    window.startEditAccountant = function(id) {
-      const accountants = DB.get('accountants') || [];
-      const a = accountants.find(item => item.id === id);
-      if (!a) return;
+      document.getElementById('promoModalSubtitle').textContent =
+        `Moving students from ${_promoCurrentYear} → ${_promoNextYear}`;
 
-      const html = `
-        <input type="hidden" id="editId" value="${a.id}">
-        <input type="hidden" id="editType" value="accountant">
-        <div class="form-group">
-          <label class="form-label">Full Name</label>
-          <input type="text" id="editAccName" value="${a.name}" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Username</label>
-          <input type="text" id="editAccUsername" value="${a.username}" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" id="editAccPassword" placeholder="Enter new password or keep existing" class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Phone <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
-          <input type="tel" id="editAccPhone" value="${a.phone || ''}" class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
-          <input type="email" id="editAccEmail" value="${a.email || ''}" class="form-control">
-        </div>
-      `;
-      document.getElementById('modalTitle').textContent = 'Edit Accountant Details';
-      document.getElementById('editFormFields').innerHTML = html;
-      openEditModal();
+      // Group students by class, sort class by canonical order
+      const sortedClasses = [...classes].sort((a, b) => getClassSortOrder(a) - getClassSortOrder(b));
+      let html = '';
+
+      sortedClasses.forEach(cls => {
+        const classStudents = students.filter(s => s.classId === cls.id && s.academicYear === _promoCurrentYear)
+          .sort((a, b) => (a.rollNo || '').localeCompare(b.rollNo || '', undefined, { numeric: true }));
+        if (classStudents.length === 0) return;
+
+        const isGraduating = getClassSortOrder(cls) >= 11; // Class 10 and above
+
+        // Build target-class options for this class group
+        let targetOptions = '';
+        if (isGraduating) {
+          targetOptions = `<option value="graduated">🎓 Graduated (leave school)</option>`;
+        } else {
+          const nextOrder = getNextSortOrder(cls);
+          const nextCandidates = sortedClasses.filter(c => getClassSortOrder(c) === nextOrder);
+
+          if (nextCandidates.length === 0) {
+            targetOptions = `<option value="">-- No next class found --</option>`;
+          } else {
+            // Find a candidate with the matching section name first, for smart default
+            const currentSection = (cls.section || '').trim().toUpperCase();
+            nextCandidates.forEach(nc => {
+              const targetSection = (nc.section || '').trim().toUpperCase();
+              const isDefault = (currentSection !== '' && targetSection === currentSection) || 
+                                (currentSection === '' && nextCandidates.indexOf(nc) === 0);
+              targetOptions += `<option value="${nc.id}" ${isDefault ? 'selected' : ''}>${nc.name}</option>`;
+            });
+            // Also allow repeating the same class
+            targetOptions += `<option value="${cls.id}">🔁 Stay in ${cls.name} (Repeat)</option>`;
+          }
+        }
+
+        html += `
+          <div style="margin-bottom:2rem; border:1.5px solid rgba(79,70,229,0.08); border-radius:16px; overflow:hidden;">
+            <!-- Class Group Header with Selectable Target Section -->
+            <div style="display:flex; align-items:center; gap:0.75rem; padding:0.85rem 1.25rem; background:rgba(79,70,229,0.03); border-bottom:1.5px solid rgba(79,70,229,0.08); flex-wrap:wrap;">
+              <span style="font-family:'Playfair Display',serif; font-weight:800; font-size:1.05rem; color:var(--primary-dark);">${cls.name}</span>
+              <i class="bi bi-arrow-right" style="color:var(--accent); font-size:0.9rem;"></i>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:0.85rem; color:var(--text-secondary);">Promote to:</span>
+                ${isGraduating 
+                  ? `<span style="font-size:0.8rem; font-weight:750; background:rgba(16,185,129,0.1); color:#065f46; padding:0.25rem 0.75rem; border-radius:20px; border:1px solid rgba(16,185,129,0.2);">🎓 Graduated</span>`
+                  : `<select data-from-class-id="${cls.id}" class="promo-target-select form-control" 
+                            style="height:34px; padding:0 0.6rem; font-size:0.83rem; font-weight:700; border-radius:10px; border:1.5px solid rgba(79,70,229,0.25); color:var(--primary-dark); background:#fff; width:auto; min-width:185px; margin:0; cursor:pointer;">
+                      ${targetOptions}
+                    </select>`
+                }
+              </div>
+              <span style="font-size:0.75rem; color:var(--text-secondary); margin-left:auto;">${classStudents.length} students</span>
+            </div>
+            <!-- Student Cards Grid -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:0.5rem; padding:1.25rem;">
+              ${classStudents.map(s => `
+                <label style="display:flex; align-items:center; gap:0.6rem; padding:0.6rem 0.85rem; border-radius:10px; border:1.5px solid rgba(0,0,0,0.06); cursor:pointer; transition:background 0.15s; background:#fff;"
+                       onmouseover="this.style.background='rgba(79,70,229,0.04)'" onmouseout="this.style.background='#fff'">
+                  <input type="checkbox" class="promo-student-chk" data-student-id="${s.id}" data-from-class-id="${cls.id}" checked
+                         style="width:16px; height:16px; accent-color:var(--primary); flex-shrink:0;"
+                         onchange="updatePromoCount()">
+                  <div style="min-width:0;">
+                    <div style="font-weight:700; font-size:0.88rem; color:var(--primary-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${s.name}</div>
+                    <div style="font-size:0.75rem; color:var(--text-secondary);">Roll: ${s.rollNo || '-'}</div>
+                  </div>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      // Show unassigned students if any
+      const unassigned = students.filter(s => s.academicYear === _promoCurrentYear && (!s.classId || s.classId === 'graduated'));
+      if (unassigned.length > 0) {
+        html += `
+          <div style="margin-bottom:2rem; border:1.5px solid rgba(239,68,68,0.12); border-radius:16px; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:0.6rem; padding:0.85rem 1.25rem; background:rgba(239,68,68,0.03); border-bottom:1.5px solid rgba(239,68,68,0.1);">
+              <span style="font-family:'Playfair Display',serif; font-weight:800; font-size:1rem; color:var(--danger);">⚠ Unassigned / Graduated Students</span>
+              <span style="font-size:0.75rem; color:var(--text-secondary); margin-left:auto;">${unassigned.length} students</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:0.5rem; padding:1.25rem;">
+              ${unassigned.map(s => `
+                <label style="display:flex; align-items:center; gap:0.6rem; padding:0.6rem 0.85rem; border-radius:10px; border:1.5px solid rgba(239,68,68,0.1); cursor:pointer; background:rgba(239,68,68,0.03);">
+                  <input type="checkbox" class="promo-student-chk" data-student-id="${s.id}" data-from-class-id=""
+                         style="width:16px; height:16px; accent-color:var(--danger); flex-shrink:0;"
+                         onchange="updatePromoCount()">
+                  <div style="min-width:0;">
+                    <div style="font-weight:700; font-size:0.88rem; color:var(--primary-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${s.name}</div>
+                    <div style="font-size:0.75rem; color:var(--text-secondary);">No class assigned</div>
+                  </div>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('promoStudentListBody').innerHTML = html;
+      updatePromoCount();
+      document.getElementById('promotionModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
     };
 
-    window.deleteAccountant = (id) => {
-      mssConfirm('Delete Accountant?', 'This action cannot be undone.', 'danger').then(confirmed => {
-        if(!confirmed) return;
-        DB.set('accountants', DB.get('accountants').filter(a => a.id !== id)).then(() => {
-          loadData();
-          showToast('Accountant deleted successfully', 'success');
-        });
-      }).catch(()=>{});
+    window.closePromotionModal = function() {
+      document.getElementById('promotionModal').style.display = 'none';
+      document.body.style.overflow = '';
     };
 
-    window.renderAdminFees = function() {
-      const activeYear = currentAcademicYear();
+    window.promoSelectAll = function(val) {
+      document.querySelectorAll('.promo-student-chk').forEach(chk => chk.checked = val);
+      updatePromoCount();
+    };
+
+    window.updatePromoCount = function() {
+      const total = document.querySelectorAll('.promo-student-chk').length;
+      const selected = document.querySelectorAll('.promo-student-chk:checked').length;
+      const dropped = total - selected;
+      let text = `${selected} of ${total} students selected for promotion`;
+      if (dropped > 0) text += ` · ${dropped} will be marked as Dropped`;
+      document.getElementById('promoSelectionCount').textContent = text;
+    };
+
+    window.confirmPromotion = async function() {
+      const allBoxes = [...document.querySelectorAll('.promo-student-chk')];
+      const checkedBoxes = allBoxes.filter(chk => chk.checked);
+      const selectedIds = new Set(checkedBoxes.map(chk => chk.dataset.studentId));
+      const droppedIds = new Set(allBoxes.filter(chk => !chk.checked).map(chk => chk.dataset.studentId));
+
+      if (selectedIds.size === 0 && droppedIds.size === 0) {
+        showToast('No students found in promotion list.', 'warning');
+        return;
+      }
+
+      // Build target mapping from class select dropdowns
+      const targetMap = {};
+      document.querySelectorAll('.promo-target-select').forEach(sel => {
+        targetMap[sel.dataset.fromClassId] = sel.value;
+      });
+
       const students = DB.get('students') || [];
       const classes = DB.get('classes') || [];
-      const studentFees = DB.get('studentFees') || [];
-      const feeLogs = DB.get('feeLogs') || [];
-      const feeStructures = DB.get('feeStructures') || [];
+      // Download safety backup first
+      downloadBackup();
 
-      // Populate adminFeeStructureYearSelect dropdown preserving the selected option
-      const yearSelect = document.getElementById('adminFeeStructureYearSelect');
-      if (yearSelect) {
-        const currentVal = yearSelect.value || activeYear;
-        const years = DB.get('academicYears') || [];
-        yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
-        if (years.includes(currentVal)) {
-          yearSelect.value = currentVal;
-        } else {
-          yearSelect.value = activeYear;
+      // Archive current year data to localStorage for history
+      localStorage.setItem('mss_students_' + _promoCurrentYear, JSON.stringify(students));
+      localStorage.setItem('mss_attendanceLogs_' + _promoCurrentYear, JSON.stringify(DB.get('attendanceLogs') || []));
+      localStorage.setItem('mss_marks_' + _promoCurrentYear, JSON.stringify(DB.get('marks') || {}));
+
+      const nextYear = _promoNextYear;
+
+      const updatedStudents = students.map(student => {
+        // If the student was unselected, mark them as Dropped in the system
+        if (droppedIds.has(student.id)) {
+          return { ...student, status: 'dropped', classId: null };
+        }
+
+        // If student is not part of this year's batch, do not modify
+        if (!selectedIds.has(student.id)) return student;
+
+        const sClass = classes.find(c => c.id === student.classId);
+        let nextClassId = student.classId;
+
+        if (sClass) {
+          if (getClassSortOrder(sClass) >= 11) {
+            nextClassId = 'graduated';
+          } else if (targetMap[student.classId]) {
+            nextClassId = targetMap[student.classId];
+          }
+        }
+
+        return { 
+          ...student, 
+          classId: nextClassId, 
+          academicYear: nextYear, 
+          status: nextClassId === 'graduated' ? 'graduated' : 'active' 
+        };
+      });
+
+      // Register next academic year
+      sessionStorage.setItem('mss_activeAcademicYear', nextYear);
+      localStorage.setItem('mss_activeAcademicYear', nextYear);
+      const yearsList = DB.get('academicYears') || [];
+      if (!yearsList.includes(nextYear)) {
+        yearsList.push(nextYear);
+        await DB.setLocal('academicYears', yearsList);
+      }
+
+      await DB.setLocal('students', updatedStudents);
+      await DB.setLocal('attendanceLogs', []);
+      await DB.setLocal('marks', {});
+      await DB.setLocal('classAttendance', {});
+      await DB.setLocal('busAttendance', {});
+
+      // Sync to Supabase if configured
+      if (typeof isSupabaseConfigured === 'function' && isSupabaseConfigured()) {
+        try {
+          showToast('Syncing promotion to Supabase…', 'info');
+          const client = getSupabase();
+          await client.from('marks').delete().neq('id', 0);
+          showToast('Supabase sync complete!', 'success');
+        } catch (e) {
+          console.error('Supabase promotion sync failed:', e);
+          showToast('Promoted locally, but Supabase sync failed. Check console.', 'danger');
         }
       }
-      const selectedYear = yearSelect ? (yearSelect.value || activeYear) : activeYear;
 
-      // Calculate totals for activeYear
-      const activeFees = studentFees.filter(sf => sf.academicYear === activeYear);
-      let expected = 0;
-      let collected = 0;
-      let pending = 0;
-
-      activeFees.forEach(sf => {
-        expected += Number(sf.totalDue) || 0;
-        collected += Number(sf.totalPaid) || 0;
-      });
-      pending = expected - collected;
-      const rate = expected > 0 ? Math.round((collected / expected) * 100) : 0;
-
-      document.getElementById('adminExpectedFees').textContent = '₹' + expected.toLocaleString('en-IN');
-      document.getElementById('adminCollectedFees').textContent = '₹' + collected.toLocaleString('en-IN');
-      document.getElementById('adminPendingFees').textContent = '₹' + pending.toLocaleString('en-IN');
-      document.getElementById('adminCollectionRate').textContent = rate + '%';
-
-      // Render Fee Structure Setup
-      const structureContainer = document.getElementById('adminFeeStructureSetup');
-      if (structureContainer) {
-        structureContainer.innerHTML = classes.map(c => {
-          const struct = feeStructures.find(fs => fs.classId === c.id && fs.academicYear === selectedYear);
-          const currentAmount = struct ? struct.amount : '';
-          return `
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid rgba(0,0,0,0.04); padding-bottom: 0.5rem;">
-              <span style="font-weight: 700; color: var(--text-main);">${c.name}</span>
-              <div style="display: flex; align-items: center; gap: 0.5rem; width: 150px;">
-                <span style="color: var(--text-secondary); font-weight: 600;">₹</span>
-                <input type="number" data-class-id="${c.id}" value="${currentAmount}" placeholder="0" class="form-control class-fee-input" style="height: 36px; padding: 0.25rem 0.5rem; font-size: 0.9rem; font-weight: 700; text-align: right;">
-              </div>
-            </div>
-          `;
-        }).join('') || '<p style="color: var(--text-secondary); margin:0;">No classes configured.</p>';
-      }
-
-      // Render Logs
-      const logsBody = document.getElementById('adminFeeLogsTableBody');
-      if (logsBody) {
-        const sortedLogs = [...feeLogs].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 15);
-        logsBody.innerHTML = sortedLogs.map(l => `
-          <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
-            <td style="padding: 0.5rem 0.25rem; font-size: 0.8rem; color: var(--text-secondary);">${new Date(l.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-            <td style="padding: 0.5rem 0.25rem; font-weight: 700; color: var(--primary-dark);">${l.userName || 'System'}</td>
-            <td style="padding: 0.5rem 0.25rem; color: var(--text-main); font-weight: 500;">${l.details || l.action}</td>
-          </tr>
-        `).join('') || `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 1rem;">No recent activity logs.</td></tr>`;
-      }
-
-      // Render Class-wise Outstanding Summary
-      const classWiseBody = document.getElementById('adminClassWiseFeesTableBody');
-      if (classWiseBody) {
-        classWiseBody.innerHTML = classes.map(c => {
-          const classStudents = students.filter(s => s.classId === c.id && s.academicYear === activeYear);
-          let cExpected = 0;
-          let cCollected = 0;
-          let cPendingCount = 0;
-
-          classStudents.forEach(s => {
-            const sf = activeFees.find(f => f.studentId === s.id);
-            if (sf) {
-              cExpected += sf.totalDue;
-              cCollected += sf.totalPaid;
-              if (sf.status !== 'Paid') {
-                cPendingCount++;
-              }
-            }
-          });
-          const cPending = cExpected - cCollected;
-
-          return `
-            <tr>
-              <td style="font-weight:700;">${c.name}</td>
-              <td>${classStudents.length}</td>
-              <td style="font-weight:600; color:var(--text-main);">₹${cExpected.toLocaleString('en-IN')}</td>
-              <td style="font-weight:600; color:#15803d;">₹${cCollected.toLocaleString('en-IN')}</td>
-              <td style="font-weight:600; color:var(--danger);">₹${cPending.toLocaleString('en-IN')}</td>
-              <td><span class="badge ${cPendingCount > 0 ? 'badge-danger' : 'badge-success'}">${cPendingCount} Students</span></td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      // Render Concessions
-      window.searchAdminConcessions(document.getElementById('adminConcessionSearch')?.value || '');
+      closePromotionModal();
+      showToast(`🎉 Successfully promoted ${selectedIds.size} students to ${nextYear}!`, 'success');
+      setTimeout(() => window.location.reload(), 1500);
     };
 
-    window.searchAdminConcessions = function(query) {
-      const activeYear = currentAcademicYear();
-      const students = DB.get('students') || [];
+    // ── FEE MANAGEMENT TAB LOGIC ──────────────────────────────────────
+    let feeRecords = [];
+    const academicMonths = ['JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY'];
+
+    window.loadFeeTab = async function() {
+      try {
+        const classes = DB.get('classes') || [];
+        const filterSelect = document.getElementById('feeClassFilter');
+        const currentVal = filterSelect.value;
+        filterSelect.innerHTML = '<option value="">All Classes</option>' + 
+          classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        filterSelect.value = currentVal;
+
+        // Fetch billing records — prefer Supabase, fall back to local cache.
+        // getBillingAll already merges Supabase rows with local-only rows and
+        // returns the local cache untouched when Supabase has no rows yet.
+        feeRecords = await DB.getBillingAll();
+
+        // If still empty, read local storage directly as last resort
+        if (!feeRecords || feeRecords.length === 0) {
+          feeRecords = DB.get('studentBilling') || [];
+        }
+
+        // Auto-seed a ₹0 stub for every student that has no billing record at
+        // all so the table always shows every student (data is editable via Edit).
+        const students = DB.get('students') || [];
+        const billedIds = new Set(feeRecords.map(b => b.studentId));
+        students.forEach(s => {
+          if (!billedIds.has(s.id)) {
+            feeRecords.push({
+              studentId: s.id,
+              studentName: s.name || '',
+              totalFee: 0,
+              totalFeePaid: 0,
+              balanceFee: 0,
+              currentMonthStatus: 'unpaid',
+              paidMonths: {},
+              admissionFee: 0,
+              busFee: 0,
+              lastPaidDate: null
+            });
+          }
+        });
+
+        renderFeeTable();
+      } catch (err) {
+        console.error('Failed to load fee tab:', err);
+        // Even on error, render with whatever local data is available
+        feeRecords = DB.get('studentBilling') || [];
+        renderFeeTable();
+      }
+    };
+
+    window.renderFeeTable = function() {
       const classes = DB.get('classes') || [];
-      const studentFees = DB.get('studentFees') || [];
+      const students = DB.get('students') || [];
+      const search = document.getElementById('feeSearchInput').value.toLowerCase().trim();
+      const classId = document.getElementById('feeClassFilter').value;
 
-      const concessionsBody = document.getElementById('adminConcessionsTableBody');
-      if (!concessionsBody) return;
-
-      const activeFees = studentFees.filter(sf => sf.academicYear === activeYear);
-      const filtered = students.filter(s => {
-        if (s.academicYear !== activeYear) return false;
-        if (!query) return true;
-        const q = query.toLowerCase();
-        return s.name.toLowerCase().includes(q) || (s.rollNo || '').toLowerCase().includes(q);
+      // Group students with their billing record
+      let rowsData = students.map(s => {
+        const bill = feeRecords.find(b => b.studentId === s.id) || {
+          studentId: s.id,
+          studentName: s.name,
+          totalFee: 0,
+          totalFeePaid: 0,
+          balanceFee: 0,
+          currentMonthStatus: 'unpaid',
+          paidMonths: {},
+          admissionFee: 0,
+          busFee: 0
+        };
+        return {
+          student: s,
+          bill: bill,
+          className: classes.find(c => c.id === s.classId)?.name || 'Unassigned'
+        };
       });
 
-      concessionsBody.innerHTML = filtered.map(s => {
-        const cls = classes.find(c => c.id === s.classId)?.name || 'Unassigned';
-        const sf = activeFees.find(f => f.studentId === s.id) || {
-          id: '',
-          yearlyFee: 0,
-          discount: 0,
-          totalDue: 0,
-          totalPaid: 0,
-          status: 'Pending'
-        };
+      // Apply Search Filter
+      if (search) {
+        rowsData = rowsData.filter(r => 
+          r.student.name.toLowerCase().includes(search) || 
+          (r.student.rollNo && r.student.rollNo.toLowerCase().includes(search))
+        );
+      }
 
-        const statusClass = sf.status === 'Paid' ? 'badge-success' : (sf.status === 'Partial' ? 'badge-warning' : 'badge-danger');
+      // Apply Class Filter
+      if (classId) {
+        rowsData = rowsData.filter(r => String(r.student.classId) === String(classId));
+      }
 
+      // Compute Global Summaries BEFORE status filtering
+      let totalStudentsCount = rowsData.length;
+      let totalAssigned = 0;
+      let totalCollected = 0;
+      let totalOutstanding = 0;
+      let totalUnpaid = 0;
+
+      rowsData.forEach(r => {
+        totalAssigned += Number(r.bill.totalFee) || 0;
+        totalCollected += Number(r.bill.totalFeePaid) || 0;
+        totalOutstanding += Number(r.bill.totalFee - r.bill.totalFeePaid) || 0;
+        if (r.bill.currentMonthStatus === 'unpaid' || r.bill.totalFeePaid === 0) {
+          totalUnpaid++;
+        }
+      });
+
+      // Update Summary Cards
+      document.getElementById('feeCardTotal').textContent = totalStudentsCount;
+      document.getElementById('feeCardAssigned').textContent = '₹' + totalAssigned.toLocaleString('en-IN');
+      document.getElementById('feeCardCollected').textContent = '₹' + totalCollected.toLocaleString('en-IN');
+      document.getElementById('feeCardOutstanding').textContent = '₹' + totalOutstanding.toLocaleString('en-IN');
+      document.getElementById('feeCardRate').textContent = totalAssigned > 0 
+        ? Math.round((totalCollected / totalAssigned) * 100) + '%' 
+        : '0%';
+      document.getElementById('feeCardUnpaid').textContent = totalUnpaid;
+
+
+      // Render Table Rows
+      const tbody = document.getElementById('feeTableBody');
+      if (rowsData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary);">No matching fee records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rowsData.map(r => {
+        const balance = Math.max(0, r.bill.totalFee - r.bill.totalFeePaid);
+        
         return `
-          <tr>
-            <td style="font-weight:750; font-family:monospace; color:var(--primary-dark);">${s.rollNo || '-'}</td>
-            <td style="font-weight:600; color:var(--text-main);">${s.name}</td>
-            <td>${cls}</td>
-            <td>₹${(sf.yearlyFee || 0).toLocaleString('en-IN')}</td>
-            <td style="color:var(--accent); font-weight:700;">₹${(sf.discount || 0).toLocaleString('en-IN')}</td>
-            <td style="font-weight:700;">₹${(sf.totalDue || 0).toLocaleString('en-IN')}</td>
-            <td style="color:#15803d; font-weight:700;">₹${(sf.totalPaid || 0).toLocaleString('en-IN')}</td>
-            <td><span class="badge ${statusClass}">${sf.status}</span></td>
-            <td>
-              <button class="action-btn btn-primary btn-sm" onclick="startEditConcession('${s.id}')"><i class="bi bi-tag-fill"></i> Concession</button>
+          <tr style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+            <td style="padding:0.75rem;font-weight:600;">${r.student.rollNo || '—'}</td>
+            <td style="padding:0.75rem;">
+              <strong style="color:var(--primary-dark);">${r.student.name}</strong>
+              <div style="font-size:0.75rem;color:var(--text-secondary);">${r.student.parentName || ''}</div>
+            </td>
+            <td style="padding:0.75rem;font-weight:600;color:var(--text-secondary);">${r.className}</td>
+            <td style="padding:0.75rem;text-align:center;font-weight:700;">₹${(r.bill.totalFee || 0).toLocaleString('en-IN')}</td>
+            <td style="padding:0.75rem;text-align:center;font-weight:700;color:#0f9d58;">₹${(r.bill.totalFeePaid || 0).toLocaleString('en-IN')}</td>
+            <td style="padding:0.75rem;text-align:center;font-weight:700;color:${balance > 0 ? '#d93025' : '#0f9d58'};">₹${balance.toLocaleString('en-IN')}</td>
+            <td style="padding:0.75rem;text-align:center;">
+              <button class="btn btn-sm" onclick="openFeeEditModal('${r.student.id}')" style="background:rgba(79,70,229,0.06);color:var(--primary);border:none;padding:0.4rem 0.8rem;border-radius:8px;font-weight:750;">
+                <i class="bi bi-pencil-square"></i> Edit
+              </button>
             </td>
           </tr>
         `;
-      }).join('') || `<tr><td colspan="9" style="text-align: center; color: var(--text-secondary); padding: 1.5rem;">No matching students found.</td></tr>`;
+      }).join('');
     };
 
-    window.saveAdminFeeStructures = function() {
-      const yearSelect = document.getElementById('adminFeeStructureYearSelect');
-      const targetYear = yearSelect ? (yearSelect.value || currentAcademicYear()) : currentAcademicYear();
-      const feeStructures = DB.get('feeStructures') || [];
-      const inputs = document.querySelectorAll('.class-fee-input');
-      let changed = false;
+    let editingStudentId = null;
 
-      inputs.forEach(input => {
-        const classId = input.getAttribute('data-class-id');
-        const amount = Number(input.value) || 0;
+    window.openFeeEditModal = function(studentId) {
+      editingStudentId = studentId;
+      const s = (DB.get('students') || []).find(st => st.id === studentId);
+      if (!s) return;
 
-        let struct = feeStructures.find(fs => fs.classId === classId && fs.academicYear === targetYear);
-        if (struct) {
-          if (struct.amount !== amount) {
-            struct.amount = amount;
-            changed = true;
-          }
-        } else {
-          feeStructures.push({
-            id: genId('fs'),
-            classId: classId,
-            academicYear: targetYear,
-            amount: amount
-          });
-          changed = true;
-        }
-      });
-
-      if (changed) {
-        DB.set('feeStructures', feeStructures).then(() => {
-          // Log it
-          const feeLogs = DB.get('feeLogs') || [];
-          feeLogs.push({
-            id: genId('fl'),
-            action: 'Structures Saved',
-            details: `Admin updated fee structures for academic year ${targetYear}`,
-            userId: 'admin',
-            userName: 'Principal Admin',
-            createdAt: new Date().toISOString()
-          });
-          DB.set('feeLogs', feeLogs);
-
-          // Now let's automatically assign/update these yearly fees to all active students in their respective classes for that academic year!
-          const students = DB.get('students') || [];
-          const studentFees = DB.get('studentFees') || [];
-          let updatedCount = 0;
-
-          students.forEach(s => {
-            if (s.academicYear !== targetYear) return;
-            const struct = feeStructures.find(fs => fs.classId === s.classId && fs.academicYear === targetYear);
-            if (!struct) return;
-
-            let sf = studentFees.find(f => f.studentId === s.id && f.academicYear === targetYear);
-            if (sf) {
-              if (sf.totalPaid === 0 && sf.yearlyFee !== struct.amount) {
-                sf.yearlyFee = struct.amount;
-                sf.totalDue = sf.yearlyFee + sf.busFee - sf.discount;
-                sf.status = sf.totalPaid >= sf.totalDue ? 'Paid' : (sf.totalPaid > 0 ? 'Partial' : 'Pending');
-                updatedCount++;
-              }
-            } else {
-              studentFees.push({
-                id: genId('sf'),
-                studentId: s.id,
-                academicYear: targetYear,
-                yearlyFee: struct.amount,
-                busFee: 0,
-                discount: 0,
-                totalDue: struct.amount,
-                totalPaid: 0,
-                status: 'Pending'
-              });
-              updatedCount++;
-            }
-          });
-
-          if (updatedCount > 0) {
-            DB.set('studentFees', studentFees).then(() => {
-              showToast(`Saved. Fee structures auto-assigned to ${updatedCount} students in Year ${targetYear}.`, 'success');
-              renderAdminFees();
-            });
-          } else {
-            showToast(`Fee structures for Year ${targetYear} updated successfully!`, 'success');
-            renderAdminFees();
-          }
-        });
-      } else {
-        showToast('No changes in fee structures detected.', 'info');
-      }
-    };
-
-    window.startEditConcession = function(studentId) {
-      const activeYear = currentAcademicYear();
-      const students = DB.get('students') || [];
       const classes = DB.get('classes') || [];
-      const studentFees = DB.get('studentFees') || [];
+      const clsName = classes.find(c => c.id === s.classId)?.name || 'Unassigned';
 
-      const student = students.find(s => s.id === studentId);
-      if (!student) return;
+      document.getElementById('feeEditStudentInfo').innerHTML = `
+        <div style="font-weight:850;font-size:1.05rem;color:var(--primary-dark);">${s.name}</div>
+        <div style="font-size:0.82rem;color:var(--text-secondary);font-weight:600;margin-top:0.15rem;">Class: ${clsName} · Roll: ${s.rollNo || '—'}</div>
+      `;
 
-      const cls = classes.find(c => c.id === student.classId)?.name || 'Unassigned';
-      
-      let sf = studentFees.find(f => f.studentId === studentId && f.academicYear === activeYear);
-      if (!sf) {
-        const feeStructures = DB.get('feeStructures') || [];
-        const struct = feeStructures.find(fs => fs.classId === student.classId && fs.academicYear === activeYear);
-        const baseAmount = struct ? struct.amount : 0;
-        sf = {
-          id: genId('sf'),
-          studentId: studentId,
-          academicYear: activeYear,
-          yearlyFee: baseAmount,
-          busFee: 0,
-          discount: 0,
-          totalDue: baseAmount,
-          totalPaid: 0,
-          status: 'Pending'
-        };
-        studentFees.push(sf);
-        DB.set('studentFees', studentFees);
-      }
+      const bill = feeRecords.find(b => b.studentId === studentId) || {
+        totalFee: 0,
+        totalFeePaid: 0,
+        admissionFee: 0,
+        lastPaidDate: '',
+        paidMonths: {},
+        busMonths: {}
+      };
 
-      document.getElementById('concessionStudentFeeId').value = sf.id;
-      document.getElementById('concessionStudentName').textContent = student.name;
-      document.getElementById('concessionStudentClass').textContent = cls;
-      document.getElementById('concessionBaseFee').textContent = sf.yearlyFee;
-      document.getElementById('concessionAmount').value = sf.discount;
+      document.getElementById('feeEditTotalFee').value = bill.totalFee || '';
+      document.getElementById('feeEditTotalPaid').value = bill.totalFeePaid || '';
+      document.getElementById('feeEditAdmissionFee').value = bill.admissionFee || '';
+      document.getElementById('feeEditLastPaid').value = bill.lastPaidDate || '';
 
-      document.getElementById('concessionModal').classList.add('show');
+      // Render tuition month status selectors (Paid / Unpaid only)
+      const grid = document.getElementById('feeMonthGrid');
+      grid.innerHTML = academicMonths.map(m => {
+        const val = bill.paidMonths ? (bill.paidMonths[m] === 'paid' ? 'paid' : 'unpaid') : 'unpaid';
+        const borderStyle = val === 'paid' ? 'border-color:#10b981;background:#f0fdf4;' : 'border-color:rgba(15,23,42,0.1);background:#fff;';
+        return `
+          <div style="border:1.5px solid;border-radius:10px;padding:0.4rem 0.5rem;display:flex;flex-direction:column;gap:0.2rem;${borderStyle}" class="month-box" data-month="${m}">
+            <span style="font-size:0.72rem;font-weight:800;color:var(--text-secondary);text-align:center;">${m}</span>
+            <select style="font-size:0.75rem;font-weight:700;border:none;background:transparent;outline:none;cursor:pointer;color:var(--primary-dark);" onchange="updateMonthBoxStyle(this)">
+              <option value="unpaid" ${val === 'unpaid' ? 'selected' : ''}>Unpaid</option>
+              <option value="paid" ${val === 'paid' ? 'selected' : ''}>Paid</option>
+            </select>
+          </div>
+        `;
+      }).join('');
+
+      // Render per-month bus fee + type grid
+      const busGrid = document.getElementById('feeBusMonthGrid');
+      const busMonths = bill.busMonths || {};
+      busGrid.innerHTML = academicMonths.map(m => {
+        const bm = busMonths[m] || { fee: '', type: '' };
+        const hasFee = bm.fee !== '' && bm.fee !== undefined && bm.fee !== null;
+        return `
+          <div style="border:1.5px solid ${hasFee ? '#3b82f6' : 'rgba(15,23,42,0.1)'};border-radius:10px;padding:0.45rem 0.5rem;background:${hasFee ? '#eff6ff' : '#fff'};" class="bus-month-box" data-month="${m}">
+            <span style="font-size:0.7rem;font-weight:800;color:#64748b;display:block;text-align:center;margin-bottom:0.25rem;">${m}</span>
+            <input type="number" min="0" placeholder="Fee ₹" value="${bm.fee !== undefined && bm.fee !== null && bm.fee !== '' ? bm.fee : ''}" style="width:100%;font-size:0.72rem;font-weight:700;border:1px solid rgba(0,0,0,0.08);border-radius:6px;padding:0.2rem 0.35rem;background:transparent;outline:none;margin-bottom:0.2rem;" class="bus-month-fee" oninput="updateBusMonthBoxStyle(this)">
+            <input type="text" placeholder="Bus type" value="${bm.type || ''}" style="width:100%;font-size:0.7rem;font-weight:600;border:1px solid rgba(0,0,0,0.08);border-radius:6px;padding:0.2rem 0.35rem;background:transparent;outline:none;" class="bus-month-type">
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('feeEditModal').classList.add('show');
     };
 
-    window.closeConcessionModal = function() {
-      document.getElementById('concessionModal').classList.remove('show');
-      document.getElementById('concessionForm').reset();
+    window.updateMonthBoxStyle = function(select) {
+      const box = select.closest('.month-box');
+      const val = select.value;
+      if (val === 'paid') {
+        box.style.borderColor = '#10b981';
+        box.style.background = '#f0fdf4';
+      } else {
+        box.style.borderColor = 'rgba(15,23,42,0.1)';
+        box.style.background = '#fff';
+      }
     };
 
-    document.getElementById('concessionForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const sfId = document.getElementById('concessionStudentFeeId').value;
-      const discountVal = Number(document.getElementById('concessionAmount').value) || 0;
+    window.updateBusMonthBoxStyle = function(input) {
+      const box = input.closest('.bus-month-box');
+      const hasValue = input.value.trim() !== '';
+      box.style.borderColor = hasValue ? '#3b82f6' : 'rgba(15,23,42,0.1)';
+      box.style.background = hasValue ? '#eff6ff' : '#fff';
+    };
 
-      const studentFees = DB.get('studentFees') || [];
-      const sfIdx = studentFees.findIndex(f => f.id === sfId);
-      if (sfIdx === -1) {
-        showToast('Fee record not found.', 'danger');
-        return;
-      }
+    window.closeFeeEditModal = function() {
+      document.getElementById('feeEditModal').classList.remove('show');
+    };
 
-      const sf = studentFees[sfIdx];
-      const students = DB.get('students') || [];
-      const student = students.find(s => s.id === sf.studentId);
-      const studentName = student ? student.name : 'Unknown';
+    window.saveFeeRecord = async function() {
+      if (!editingStudentId) return;
 
-      sf.discount = discountVal;
-      sf.totalDue = sf.yearlyFee + sf.busFee - sf.discount;
-      sf.status = sf.totalPaid >= sf.totalDue ? 'Paid' : (sf.totalPaid > 0 ? 'Partial' : 'Pending');
+      const totalFee = Number(document.getElementById('feeEditTotalFee').value) || 0;
+      const totalFeePaid = Number(document.getElementById('feeEditTotalPaid').value) || 0;
+      const admissionFee = Number(document.getElementById('feeEditAdmissionFee').value) || 0;
+      const lastPaidDate = document.getElementById('feeEditLastPaid').value || null;
 
-      DB.set('studentFees', studentFees).then(() => {
-        const feeLogs = DB.get('feeLogs') || [];
-        feeLogs.push({
-          id: genId('fl'),
-          action: 'Concession Approved',
-          details: `Admin approved concession of ₹${discountVal} for student ${studentName}`,
-          userId: 'admin',
-          userName: 'Principal Admin',
-          createdAt: new Date().toISOString()
-        });
-        DB.set('feeLogs', feeLogs);
-
-        showToast(`Concession of ₹${discountVal} approved for ${studentName}`, 'success');
-        closeConcessionModal();
-        renderAdminFees();
+      // Extract tuition paidMonths state (only paid / unpaid)
+      const paidMonths = {};
+      document.querySelectorAll('#feeMonthGrid .month-box').forEach(box => {
+        const m = box.dataset.month;
+        const val = box.querySelector('select').value;
+        paidMonths[m] = val;
       });
-    });
 
+      // Extract per-month bus fee + type
+      const busMonths = {};
+      document.querySelectorAll('#feeBusMonthGrid .bus-month-box').forEach(box => {
+        const m = box.dataset.month;
+        const fee = box.querySelector('.bus-month-fee').value.trim();
+        const type = box.querySelector('.bus-month-type').value.trim();
+        busMonths[m] = { fee: fee !== '' ? Number(fee) : '', type };
+      });
+
+      // Compute primary payment status (paid only if all months paid)
+      let currentMonthStatus = 'unpaid';
+      const values = Object.values(paidMonths);
+      if (values.length > 0 && values.every(v => v === 'paid')) {
+        currentMonthStatus = 'paid';
+      } else if (values.some(v => v === 'paid')) {
+        currentMonthStatus = 'unpaid';
+      }
+
+      const updates = {
+        totalFee,
+        totalFeePaid,
+        balanceFee: Math.max(0, totalFee - totalFeePaid),
+        admissionFee,
+        lastPaidDate,
+        paidMonths,
+        busMonths,
+        currentMonthStatus
+      };
+
+      try {
+        await DB.setBilling(editingStudentId, updates);
+        showToast('Billing updated and sync triggered!', 'success');
+        closeFeeEditModal();
+        loadFeeTab();
+      } catch (err) {
+        console.error(err);
+        showToast('Error saving billing changes.', 'danger');
+      }
+    };
+
+    window.exportFeeCSV = function() {
+      const classes = DB.get('classes') || [];
+      const students = DB.get('students') || [];
+
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Roll No,Name,Class,Annual Fee,Paid,Balance,Status,Last Paid Date\n";
+
+      students.forEach(s => {
+        const bill = feeRecords.find(b => b.studentId === s.id) || {
+          totalFee: 0,
+          totalFeePaid: 0,
+          currentMonthStatus: 'unpaid',
+          lastPaidDate: ''
+        };
+        const className = classes.find(c => c.id === s.classId)?.name || 'Unassigned';
+        const balance = Math.max(0, bill.totalFee - bill.totalFeePaid);
+        const row = [
+          s.rollNo || '',
+          s.name,
+          className,
+          bill.totalFee,
+          bill.totalFeePaid,
+          balance,
+          bill.currentMonthStatus,
+          bill.lastPaidDate || ''
+        ].map(val => `"${val}"`).join(",");
+        csvContent += row + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `MSS_Fee_Report_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
   </script>
 </body>
 </html>

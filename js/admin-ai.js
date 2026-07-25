@@ -117,6 +117,11 @@ function compileSystemContext(userPrompt) {
   const totalStudents = students.length;
   const totalTeachers = teachers.length;
   const totalBuses = buses.length;
+
+  const billingList = DB.get('studentBilling') || [];
+  const totalFees = billingList.reduce((sum, b) => sum + Number(b.totalFee || 0), 0);
+  const totalPaid = billingList.reduce((sum, b) => sum + Number(b.totalFeePaid || 0), 0);
+  const totalBalance = billingList.reduce((sum, b) => sum + Number(b.balanceFee || 0), 0);
   
   // Detect if a specific class is mentioned in the prompt
   // (e.g., "10-A", "Class 5-B", "5-B")
@@ -145,10 +150,10 @@ function compileSystemContext(userPrompt) {
   }
 
   // Helper: check if category requested
-  const isFeesQuery = query.includes('fee') || query.includes('pay') || query.includes('due') || query.includes('unpaid') || query.includes('partial') || query.includes('money') || query.includes('cost') || query.includes('rupee') || query.includes('rs') || query.includes('₹') || query.includes('dayscholar');
   const isMarksQuery = query.includes('mark') || query.includes('exam') || query.includes('grade') || query.includes('score') || query.includes('fail') || query.includes('pass') || query.includes('rank') || query.includes('midterm') || query.includes('quarterly') || query.includes('final') || query.includes('annual') || query.includes('topper') || query.includes('average') || query.includes('subject');
   const isAttendanceQuery = query.includes('attendance') || query.includes('absent') || query.includes('present') || query.includes('leave') || query.includes('late');
   const isBusQuery = query.includes('bus') || query.includes('route') || query.includes('driver') || query.includes('transport') || query.includes('stop');
+  const isBillingQuery = query.includes('fee') || query.includes('bill') || query.includes('paid') || query.includes('unpaid') || query.includes('balance') || query.includes('payment') || query.includes('money') || query.includes('collection');
 
   // Filter students to send to AI
   // If specific student or class is mentioned, send only those. Otherwise, send minimal fields to save tokens.
@@ -170,70 +175,10 @@ function compileSystemContext(userPrompt) {
     }
   } else if (targetClassId) {
     filteredStudents = students.filter(s => s.classId === targetClassId);
-  } else if (!isFeesQuery && !isMarksQuery && !isAttendanceQuery && !isBusQuery) {
+  } else if (!isMarksQuery && !isAttendanceQuery && !isBusQuery) {
     // If it's a completely generic query, just send a small slice (first 10) to confirm data exists,
     // plus inform that it is token optimized.
     filteredStudents = filteredStudents.slice(0, 10);
-  }
-
-  // Generate fees summary selectively
-  let fees = [];
-  const fullFeesList = students.map(s => {
-    const isBus = (s.type || '').toLowerCase() === 'bus' || !!s.busId;
-    const tuition = 25000;
-    const transport = isBus ? 8000 : 0;
-    const total = tuition + transport;
-    
-    let paid = total;
-    let status = 'Paid';
-    const seed = (s.name || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const lastChar = (s.rollNo || s.roll_no || '').toString().slice(-1);
-    const isNumber = !isNaN(parseInt(lastChar));
-    
-    if (seed % 5 === 1) {
-      paid = isBus ? 15000 : 10000;
-      status = 'Partial';
-    } else if (seed % 5 === 3 && (lastChar === '3' || lastChar === '7' || lastChar === '9' || !isNumber)) {
-      paid = 0;
-      status = 'Unpaid';
-    }
-    
-    return {
-      studentId: s.id,
-      studentName: s.name,
-      rollNo: s.rollNo || s.roll_no || 'N/A',
-      classId: s.classId,
-      feeType: s.type || 'dayscholar',
-      tuitionFee: tuition,
-      transportFee: transport,
-      totalFee: total,
-      paidAmount: paid,
-      dueAmount: total - paid,
-      status: status
-    };
-  });
-
-  // Calculate totals
-  const totalFeesExpected = fullFeesList.reduce((sum, item) => sum + item.totalFee, 0);
-  const totalFeesCollected = fullFeesList.reduce((sum, item) => sum + item.paidAmount, 0);
-  const totalFeesDue = totalFeesExpected - totalFeesCollected;
-  const unpaidCount = fullFeesList.filter(f => f.status === 'Unpaid').length;
-  const partialCount = fullFeesList.filter(f => f.status === 'Partial').length;
-
-  const feesStats = {
-    totalExpected: totalFeesExpected,
-    totalCollected: totalFeesCollected,
-    totalDue: totalFeesDue,
-    unpaidStudentsCount: unpaidCount,
-    partialStudentsCount: partialCount
-  };
-
-  if (isFeesQuery || targetStudentId || targetClassId) {
-    fees = fullFeesList.filter(f => {
-      if (targetStudentId) return f.studentId === targetStudentId;
-      if (targetClassId) return f.classId === targetClassId;
-      return f.status !== 'Paid'; // Only include unpaid/partial
-    });
   }
 
   // Attendance
@@ -345,7 +290,6 @@ function compileSystemContext(userPrompt) {
   return {
     isDynamicContext: true,
     activeFilters: {
-      feesFiltered: !isFeesQuery && !targetStudentId && !targetClassId,
       attendanceFiltered: !isAttendanceQuery && !targetStudentId && !targetClassId,
       marksFiltered: !isMarksQuery && !targetStudentId && !targetClassId,
       classScope: targetClassName || 'All Classes',
@@ -355,8 +299,12 @@ function compileSystemContext(userPrompt) {
       totalStudents,
       totalTeachers,
       totalBuses,
-      feesStats,
-      attendanceStats
+      totalClasses: classes.length,
+      financials: {
+        totalFeesAssigned: totalFees,
+        totalFeesCollected: totalPaid,
+        totalOutstandingBalance: totalBalance
+      }
     },
     classes: classesWithNames,
     teachers: teachers.map(t => ({
@@ -368,10 +316,24 @@ function compileSystemContext(userPrompt) {
     })),
     buses: isBusQuery ? buses : buses.map(b => ({ number: b.number, route: b.route })),
     students: filteredStudents,
-    feesSummary: fees,
     attendanceSummaries: attendance,
     marksStats: marksStats,
-    examMarks: examMarks
+    examMarks: examMarks,
+    billingSummaries: (isBillingQuery || targetStudentId || targetClassId) ? billingList.filter(b => {
+      if (targetStudentId) return b.studentId === targetStudentId;
+      if (targetClassId) {
+        const student = students.find(s => s.id === b.studentId);
+        return student && student.classId === targetClassId;
+      }
+      return b.currentMonthStatus !== 'paid' || b.balanceFee > 0;
+    }).map(b => ({
+      studentName: b.studentName,
+      totalFee: b.totalFee,
+      paid: b.totalFeePaid,
+      balance: b.balanceFee,
+      status: b.currentMonthStatus,
+      lastPaid: b.lastPaidDate
+    })) : []
   };
 }
 
@@ -475,23 +437,18 @@ async function submitChatQuery(promptOverride) {
       Context Reference & Notes:
       1. TOKEN CONSERVATION & DYNAMIC FILTERING:
          - To protect against API rate limits, the Database Snapshot is dynamically filtered based on the query.
-         - General statistics (overviewStats) are always present. Detailed lists like "feesSummary", "attendanceSummaries" and "examMarks" are hydrated selectively.
-         - If lists are filtered or limited, assume this is for optimization. If you need details for a specific class or student not currently hydrated, politely ask the administrator to name the specific Class (e.g., "10-A") or Student Roll No.
-      2. EXAMS:
-         - 'exam1' refers to the Midterm Exam.
-         - 'exam2' refers to the Quarterly Exam.
-         - 'exam3' refers to the Final/Annual Exam.
-         - If asked for 'midterm' marks, analysis or reports, focus on 'exam1'.
-      3. FEES:
-         - Tuition Fee is ₹25,000 for all students.
-         - Transport Fee is ₹8,000 for students with transport type 'bus' (non-bus students have ₹0 transport fee).
-         - The total fee is Tuition Fee + Transport Fee.
-         - 'feesSummary' contains the exact deterministic fee calculations (paid, due, status). Use this to list unpaid/partial students, totals, and due amounts.
-      4. ATTENDANCE:
+          - General statistics (overviewStats) are always present. Detailed lists like "attendanceSummaries" and "examMarks" are hydrated selectively.
+          - If lists are filtered or limited, assume this is for optimization. If you need details for a specific class or student not currently hydrated, politely ask the administrator to name the specific Class (e.g., "10-A") or Student Roll No.
+       2. EXAMS:
+          - 'exam1' refers to the Midterm Exam.
+          - 'exam2' refers to the Quarterly Exam.
+          - 'exam3' refers to the Final/Annual Exam.
+          - If asked for 'midterm' marks, analysis or reports, focus on 'exam1'.
+       3. ATTENDANCE:
          - 'attendanceSummaries' lists student attendance rate (%), total days, and present days.
       5. FORMATTING RULES:
          - Answer in clean, professional Markdown.
-         - When presenting tabular data (lists of students, marks, fees), ALWAYS use Markdown tables.
+         - When presenting tabular data (lists of students, marks), ALWAYS use Markdown tables.
          - Bold headers, use colors if helpful, and keep it extremely readable.
          - If generating reports, use clear structure (e.g. Header, Summary Cards, Tables, Actionable Insights).
     `;
@@ -727,7 +684,7 @@ function clearChatHistory() {
             <br><br>
             You can ask me to perform operations like:
             <ul>
-              <li>💰 <strong>"Tell me the students who have not paid fees"</strong> (I will generate a report listing them, their classes, due amounts, and parents' contacts).</li>
+
               <li>📊 <strong>"Show me a summary PDF of this midterm exam"</strong> (I will compile class averages, rank leaders, subject performance, and help you export the report).</li>
               <li>🚌 <strong>"List bus routes and tell me which students are assigned to route 4B"</strong>.</li>
             </ul>
@@ -1268,7 +1225,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     window.addEventListener('mss-db-sync', () => {
-      checkDatabaseState();
+      DB.fetchAllExtendedData().then(function() {
+        checkDatabaseState();
+      });
+    });
+
+    // Inform user that this model does not support images/attachments
+    chatInput.addEventListener('paste', (event) => {
+      const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          showToast('Image input is not supported by the current AI model.', 'warning');
+          break;
+        }
+      }
     });
   }
 });
