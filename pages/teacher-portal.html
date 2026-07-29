@@ -6,7 +6,7 @@
   <link rel="shortcut icon" href="../assets/favicon.ico" />
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <title>Teacher Portal – MSS School</title>
   <link rel="stylesheet" href="../css/style.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
@@ -36,11 +36,15 @@
       --shadow-md: 0 10px 30px rgba(79,70,229,0.08);
       --att-green: #10b981;
       --att-red: #ef4444;
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
     }
     
     body {
       margin: 0;
-      padding: 0;
+      padding: var(--sat) var(--sar) var(--sab) var(--sal);
       background: var(--background);
       background-attachment: fixed;
       color: var(--text);
@@ -48,7 +52,9 @@
       -webkit-font-smoothing: antialiased;
       display: flex;
       min-height: 100vh;
+      min-height: 100dvh;
       flex-direction: column;
+      overscroll-behavior-y: none;
     }
     
     /* Layout Structure */
@@ -56,6 +62,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      min-height: 100dvh;
     }
     
     .sidebar {
@@ -64,21 +71,21 @@
     
     .bottom-nav {
       position: fixed;
-      bottom: 1.25rem;
-      left: 1.25rem;
-      right: 1.25rem;
-      height: 72px;
-      background: rgba(255, 255, 255, 0.85);
+      bottom: calc(0.75rem + var(--sab));
+      left: calc(0.85rem + var(--sal));
+      right: calc(0.85rem + var(--sar));
+      height: 68px;
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.7);
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       align-items: center;
       z-index: 1000;
-      border-radius: 36px;
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255,255,255,0.8);
-      padding: 0 0.75rem;
+      border-radius: 32px;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255,255,255,0.9);
+      padding: 0 0.5rem;
     }
     
     .nav-item {
@@ -89,22 +96,23 @@
       text-decoration: none;
       color: #94a3b8;
       font-size: 0.65rem;
-      font-weight: 700;
-      height: 56px;
-      width: 60px;
+      font-weight: 800;
+      height: 52px;
+      flex: 1;
       border-radius: 20px;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       background: transparent;
       border: none;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       position: relative;
+      touch-action: manipulation;
     }
     
     .nav-item i {
-      font-size: 1.35rem;
-      margin-bottom: 3px;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 1.3rem;
+      margin-bottom: 2px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -117,7 +125,7 @@
     .nav-item.active {
       color: var(--primary);
       background: rgba(79, 70, 229, 0.08);
-      transform: translateY(-4px);
+      transform: translateY(-2px);
     }
     
     .nav-item.active i {
@@ -129,20 +137,20 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding-bottom: 80px;
+      padding-bottom: calc(90px + var(--sab));
     }
 
     /* Headers */
     .dashboard-header, .app-header-bar {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
-      border-bottom: 1px solid rgba(15, 23, 42, 0.05);
-      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+      padding: calc(0.85rem + var(--sat)) 1.25rem 0.85rem 1.25rem;
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 4px 30px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
     }
     
     .hdr-top, .hdr-row, .app-header-row {
@@ -1324,9 +1332,22 @@
       enableLoginBtn();
     }
 
+    function triggerHaptic() {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('../sw.js').catch(function(err) {
+          console.log('SW Registration failed', err);
+        });
+      }
+
       document.getElementById('teacherLoginForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
+        triggerHaptic();
         if (attempts >= 5) { showToast('Too many attempts', 'error'); return; }
         const user = document.getElementById('tUser').value.trim();
         const pass = document.getElementById('tPass').value;
@@ -1614,19 +1635,19 @@
 
     <!-- Mobile Bottom Navigation Bar -->
     <nav class="bottom-nav">
-      <button class="nav-item" id="nav-btn-dashboard" onclick="window.location.hash = '#dashboard'">
+      <button class="nav-item" id="nav-btn-dashboard" onclick="triggerHaptic(); window.location.hash = '#dashboard';">
         <i class="bi bi-house-fill"></i>Home
       </button>
-      <button class="nav-item" id="nav-btn-attendance" onclick="window.location.hash = '#attendance'">
+      <button class="nav-item" id="nav-btn-attendance" onclick="triggerHaptic(); window.location.hash = '#attendance';">
         <i class="bi bi-calendar-check-fill"></i>Attendance
       </button>
-      <button class="nav-item" id="nav-btn-marks" onclick="window.location.hash = '#marks'">
+      <button class="nav-item" id="nav-btn-marks" onclick="triggerHaptic(); window.location.hash = '#marks';">
         <i class="bi bi-pencil-square"></i>Marks
       </button>
-      <button class="nav-item" id="nav-btn-subjects" onclick="window.location.hash = '#subjects'">
+      <button class="nav-item" id="nav-btn-subjects" onclick="triggerHaptic(); window.location.hash = '#subjects';">
         <i class="bi bi-book-half"></i>Subjects
       </button>
-      <button class="nav-item" id="nav-btn-transport" onclick="window.location.hash = '#transport'">
+      <button class="nav-item" id="nav-btn-transport" onclick="triggerHaptic(); window.location.hash = '#transport';">
         <i class="bi bi-bus-front-fill"></i>Bus
       </button>
     </nav>
@@ -2563,89 +2584,99 @@
           }
           @media print {
             @page {
-              size: portrait;
-              margin: 10mm 15mm;
+              size: A4 portrait;
+              margin: 4mm 6mm;
             }
-            body {
+            html, body {
               padding: 0;
               margin: 0;
               background: none;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
             .card-container {
               border: none;
               box-shadow: none;
-              padding: 2.2rem 2.5rem;
-              margin: 0;
+              padding: 1rem 1.25rem;
+              margin: 0 auto;
               page-break-after: always;
               break-after: page;
               page-break-inside: avoid;
               break-inside: avoid;
               box-sizing: border-box;
-              height: 250mm;
+              height: 284mm;
+              max-height: 286mm;
               display: flex;
               flex-direction: column;
               justify-content: space-between;
+              overflow: hidden;
             }
             .card-container::before {
               border-color: rgba(79, 70, 229, 0.25);
-              inset: 0.6rem;
+              inset: 0.5rem;
             }
             .card-container::after {
               content: '';
               position: absolute;
-              inset: 0.8rem;
-              border: 2px solid rgba(79, 70, 229, 0.35);
-              border-radius: 14px;
+              inset: 0.7rem;
+              border: 1.5px solid rgba(79, 70, 229, 0.35);
+              border-radius: 12px;
               pointer-events: none;
             }
             .school-header {
               margin-bottom: 0;
-              padding-bottom: 1.2rem;
-              gap: 1.5rem;
+              padding-bottom: 0.6rem;
+              gap: 1rem;
             }
             .school-logo-print {
-              width: 80px;
-              height: 80px;
+              width: 60px;
+              height: 60px;
             }
             .header-text-block {
-              padding-left: 1.2rem;
+              padding-left: 1rem;
             }
             .school-title {
-              font-size: 1.6rem;
+              font-size: 1.4rem;
+              margin-bottom: 0;
             }
             .school-subtitle {
-              font-size: 0.85rem;
-              margin-bottom: 0.3rem;
+              font-size: 0.78rem;
+              margin-bottom: 0.2rem;
             }
             .report-title {
-              font-size: 1.05rem;
+              font-size: 0.92rem;
             }
             .student-info-grid {
               margin-bottom: 0;
-              padding: 1rem 1.75rem;
-              gap: 1rem;
-              font-size: 0.92rem;
+              padding: 0.6rem 1.25rem;
+              gap: 0.4rem 1.5rem;
+              font-size: 0.85rem;
             }
             .info-item {
-              margin-bottom: 0.4rem;
+              margin-bottom: 0.2rem;
             }
             table {
               margin-bottom: 0;
+              width: 100%;
             }
             th {
-              padding: 0.65rem 1rem;
-              font-size: 0.82rem;
+              padding: 0.4rem 0.6rem;
+              font-size: 0.76rem;
             }
             td {
-              padding: 0.65rem 1rem;
-              font-size: 0.9rem;
+              padding: 0.35rem 0.6rem;
+              font-size: 0.82rem;
+              line-height: 1.2;
             }
             .signatures-row {
               margin-top: 0;
-              padding-top: 2rem;
+              padding-top: 1rem;
             }
             .sig-box {
-              width: 170px;
+              width: 140px;
+            }
+            .sig-line {
+              margin-bottom: 0.3rem;
             }
             .card-container:last-child {
               page-break-after: avoid;
@@ -2822,6 +2853,13 @@
     };
 
 
+    function getInitials(name) {
+      if (!name) return '?';
+      const parts = name.trim().split(' ');
+      if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+      return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
     // ── Module 3: Marks Entry ─────────────────────────────────────────
     function loadMarksData() {
       students = getMyStudents();
@@ -2923,25 +2961,49 @@
       const examObj  = config.exams.find(e => e.id === selectedExam);
       const examHasSubcols = examObj && Array.isArray(examObj.sub_columns);
 
-      let html = `<div class="section-label" style="margin-bottom:.75rem;">
-        ${getSubjectIcon(selectedSubject)} ${selectedSubject} — ${examObj ? examObj.name : ''}
-      </div><div class="mark-list">`;
+      // Calculate filled marks count for header summary
+      let filledCount = 0;
+      students.forEach(s => {
+        const smarks = allMarks[s.id] || {};
+        const val = smarks[selectedSubject] && smarks[selectedSubject][selectedExam] !== undefined
+          ? smarks[selectedSubject][selectedExam] : '';
+        if (val !== '' && val !== null && (typeof val === 'object' ? Object.keys(val).length > 0 : true)) {
+          filledCount++;
+        }
+      });
+
+      const maxMarkDisplay = row && row.maxMark !== undefined ? `/ ${row.maxMark}` : '';
+
+      let html = `<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
+        <div class="section-label" style="margin:0;font-size:0.85rem;display:flex;align-items:center;gap:0.35rem;">
+          ${getSubjectIcon(selectedSubject)} <strong>${selectedSubject}</strong> <span style="color:var(--text-secondary);font-weight:600;">— ${examObj ? examObj.name : ''}</span>
+        </div>
+        <span style="font-size:0.75rem;font-weight:850;color:var(--primary);background:rgba(79,70,229,0.08);padding:0.25rem 0.65rem;border-radius:99px;border:1px solid rgba(79,70,229,0.12);">
+          ${filledCount} / ${students.length} Filled
+        </span>
+      </div>`;
+
+      // Sticky Search Bar for Marks Entry
+      html += `<div class="search-input-wrap" style="margin-bottom:0.85rem;">
+        <input type="text" id="marksStudentSearch" placeholder="Search student by name or roll number…" oninput="filterMarksStudents()"/>
+      </div>`;
+
+      html += `<div class="mark-list" id="marksCardContainer">`;
 
       if (!row || row.type === 'metric' || row.type === 'skill') {
-        // Metric / skill entry
         students.forEach(s => {
           const smarks = allMarks[s.id] || {};
           const val = smarks[selectedSubject] && smarks[selectedSubject][selectedExam] !== undefined
             ? smarks[selectedSubject][selectedExam] : '';
           const isNum = selectedSubject === 'Attendance';
-          html += `<div class="mark-row ${val !== '' ? 'has-mark' : ''}">
-            <div class="mark-avatar">${s.name.charAt(0)}</div>
+          html += `<div class="mark-row ${val !== '' ? 'has-mark' : ''}" data-search="${(s.name + ' ' + (s.rollNo||'')).toLowerCase()}">
+            <div class="mark-avatar">${getInitials(s.name)}</div>
             <div class="mark-info">
               <div class="mark-name">${s.name}</div>
               <div class="mark-roll">Roll: ${s.rollNo || '—'}</div>
             </div>
-            <div style="flex-shrink:0;width:140px;">
-              <input class="metric-input" type="${isNum ? 'number' : 'text'}" min="0"
+            <div style="flex-shrink:0;width:130px;">
+              <input class="metric-input mark-input-field" type="${isNum ? 'number' : 'text'}" ${isNum ? 'inputmode="numeric"' : ''} min="0"
                 data-student="${s.id}" data-field="${selectedSubject}"
                 value="${val}" placeholder="${isNum ? 'Days' : 'Enter…'}"/>
             </div>
@@ -2958,29 +3020,27 @@
           const maxMark = row.maxMark !== undefined ? row.maxMark : 100;
           const hasMark = val !== '' && val !== null && (typeof val === 'object' ? Object.keys(val).length > 0 : true);
 
-          html += `<div class="mark-row ${hasMark ? 'has-mark' : ''}" id="mrow-${s.id}">
-            <div class="mark-avatar">${s.name.charAt(0)}</div>
+          html += `<div class="mark-row ${hasMark ? 'has-mark' : ''}" id="mrow-${s.id}" data-search="${(s.name + ' ' + (s.rollNo||'')).toLowerCase()}">
+            <div class="mark-avatar">${getInitials(s.name)}</div>
             <div class="mark-info">
               <div class="mark-name">${s.name}</div>
-              <div class="mark-roll">Roll: ${s.rollNo || '—'}</div>
+              <div class="mark-roll">Roll: ${s.rollNo || '—'} <span style="opacity:0.6;font-size:0.7rem;">${maxMarkDisplay}</span></div>
             </div>
             <div class="mark-inputs">`;
 
           if (hasSubcols) {
-            // Complex subject columns (Science Theory/Practical)
             const valObj = typeof val === 'object' ? val : {};
             row.sub_columns.filter(sc => sc !== 'Total').forEach(sc => {
               const max = sc === 'P' ? 25 : 75;
               const scVal = valObj[sc] !== undefined ? valObj[sc] : '';
               html += `<div class="subcol-wrap">
                 <span class="subcol-label">${sc}</span>
-                <input class="mark-input wide sub-col-input" type="number" min="0" max="${max}"
+                <input class="mark-input wide sub-col-input mark-input-field" type="number" inputmode="numeric" min="0" max="${max}"
                   data-student="${s.id}" data-subject="${selectedSubject}" data-subcol="${sc}" data-max="${max}"
                   value="${scVal}" placeholder="${sc}"/>
               </div>`;
             });
           } else if (examHasSubcols) {
-            // Exam specific subcolumns (FA/SA)
             const valObj = typeof val === 'object' ? val : {};
             examObj.sub_columns.forEach(sc => {
               const max = sc.includes('40') ? 40 : 60;
@@ -2988,14 +3048,13 @@
               const scVal = valObj[key] !== undefined ? valObj[key] : '';
               html += `<div class="subcol-wrap">
                 <span class="subcol-label">${key}</span>
-                <input class="mark-input wide sub-col-input" type="number" min="0" max="${max}"
+                <input class="mark-input wide sub-col-input mark-input-field" type="number" inputmode="numeric" min="0" max="${max}"
                   data-student="${s.id}" data-subject="${selectedSubject}" data-subcol="${key}" data-max="${max}"
                   value="${scVal}" placeholder="${key}"/>
               </div>`;
             });
           } else {
-            // Basic single marks
-            html += `<input class="mark-input std-input" type="number" min="0" max="${maxMark}"
+            html += `<input class="mark-input std-input mark-input-field" type="number" inputmode="numeric" min="0" max="${maxMark}"
               data-student="${s.id}" data-subject="${selectedSubject}" data-max="${maxMark}"
               value="${val !== '' ? val : ''}" placeholder="—"/>`;
           }
@@ -3006,7 +3065,31 @@
 
       html += '</div>';
       area.innerHTML = html;
+
+      // Enable Enter key auto-advance navigation between input fields
+      setTimeout(() => {
+        const fields = Array.from(document.querySelectorAll('.mark-input-field'));
+        fields.forEach((field, index) => {
+          field.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (index + 1 < fields.length) {
+                fields[index + 1].focus();
+                fields[index + 1].select();
+              }
+            }
+          });
+        });
+      }, 50);
     }
+
+    window.filterMarksStudents = function() {
+      const q = (document.getElementById('marksStudentSearch')?.value || '').toLowerCase().trim();
+      document.querySelectorAll('#marksCardContainer .mark-row').forEach(row => {
+        const text = row.dataset.search || '';
+        row.style.display = text.includes(q) ? 'flex' : 'none';
+      });
+    };
 
     window.saveMarks = function() {
       const allMarks = DB.get('marks') || {};

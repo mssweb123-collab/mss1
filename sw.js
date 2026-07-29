@@ -1,5 +1,6 @@
-const CACHE_NAME = 'mss-pwa-cache-v3';
-const urlsToCache = [
+const CACHE_NAME = 'mss-app-ui-v4';
+
+const UI_ASSETS = [
   './',
   './index.html',
   './css/style.css',
@@ -19,27 +20,33 @@ const urlsToCache = [
   './assets/apple-touch-icon.png',
   './assets/web-app-manifest-192x192.png',
   './assets/web-app-manifest-512x512.png',
-  './manifest.json'
+  './manifest.json',
+  'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
-// Install Service Worker and cache resources
+// Install Service Worker and pre-cache UI shell assets for instant load
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('[SW] Pre-caching app UI shell for instant offline/app launch');
+      return cache.addAll(UI_ASSETS).catch(err => {
+        console.warn('[SW] Pre-cache non-fatal warning:', err);
+      });
+    })
   );
 });
 
-// Activate Service Worker and clean up old caches
+// Activate SW and clean up older UI cache versions
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    caches.keys().then(keys => {
       return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            console.log('Service Worker: Clearing Old Cache', cache);
-            return caches.delete(cache);
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            console.log('[SW] Deleting old cache:', key);
+            return caches.delete(key);
           }
         })
       );
@@ -47,26 +54,39 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Network First strategy with Cache fallback
+// Fetch event handling:
+// - UI Shell Assets (HTML/CSS/JS/Fonts): Cache-First / Stale-While-Revalidate (0ms Instant Load)
+// - API & Dynamic Database Requests (Supabase): Network-First (Only fetch real-time data)
 self.addEventListener('fetch', event => {
-  // Only handle HTTP/HTTPS requests
-  if (!event.request.url.startsWith('http')) return;
+  const req = event.request;
+  const url = new URL(req.url);
 
+  // Skip non-GET or chrome-extension / non-http requests
+  if (req.method !== 'GET' || !req.url.startsWith('http')) return;
+
+  // Bypassing cache for live API database calls (Supabase API)
+  if (url.hostname.includes('supabase.co') || url.pathname.includes('/rest/v1/')) {
+    event.respondWith(
+      fetch(req).catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Stale-While-Revalidate Strategy for UI shell & static assets (Instant 0ms App Launch)
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Clone and store in cache if it's a successful response and it's a GET request
-        if (response.status === 200 && event.request.method === 'GET') {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
-          });
+    caches.match(req).then(cachedResponse => {
+      const fetchPromise = fetch(req).then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
+          const cacheCopy = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, cacheCopy));
         }
-        return response;
-      })
-      .catch(() => {
-        // Fallback to cache if network fails (offline mode)
-        return caches.match(event.request);
-      })
+        return networkResponse;
+      }).catch(err => {
+        console.log('[SW] Network fetch failed, relying on cache:', req.url);
+      });
+
+      // Return cached UI asset instantly if available, else wait for network
+      return cachedResponse || fetchPromise;
+    })
   );
 });

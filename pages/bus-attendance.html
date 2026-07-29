@@ -6,119 +6,276 @@
   <link rel="shortcut icon" href="../assets/favicon.ico" />
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Bus Attendance – MSS School</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <title>Bus Attendance | MSS School</title>
+  <meta name="description" content="Mobile Bus Attendance & Passenger Tracking App for MSS School." />
+  
+  <!-- PWA & Mobile Fullscreen Capabilities -->
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MSS Bus" />
+  <meta name="application-name" content="MSS Bus Attendance" />
+  <meta name="format-detection" content="telephone=no" />
+
   <link rel="stylesheet" href="../css/style.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
   <style>
-    body {
-      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
-      min-height: 100vh;
-      font-family: var(--font-sans);
+    :root {
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+
+      --accent-grad: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      --success-grad: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --danger-grad: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
     }
-    
-    .dashboard-header {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border-color);
-      padding: 0.85rem 1.25rem;
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f8fafc;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.06) 0px, transparent 50%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      font-family: 'Plus Jakarta Sans', var(--font-sans);
+      padding: calc(0.75rem + var(--sat)) calc(0.85rem + var(--sar)) calc(2rem + var(--sab)) calc(0.85rem + var(--sal));
+      margin: 0;
+      color: #0f172a;
+      overscroll-behavior-y: none;
+    }
+
+    /* ── LOGIN VIEW BEAUTIFICATION ── */
+    .login-wrapper {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(1.5rem + var(--sat)) 1.25rem calc(1.5rem + var(--sab));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bg-glow-orb {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { top: -40px; left: -40px; background: #6366f1; }
+    .orb-2 { bottom: -40px; right: -40px; background: #f43f5e; }
+
+    .login-card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      padding: 2.25rem 1.75rem;
+      border-radius: 32px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(79, 70, 229, 0.06);
+    }
+
+    .login-logo-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(124, 58, 237, 0.12));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      padding: 6px;
+      box-shadow: 0 10px 25px rgba(79, 70, 229, 0.15);
+    }
+    .login-logo-ring img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    .form-input-lg {
+      height: 54px;
+      border-radius: 16px;
+      border: 1.5px solid #e2e8f0;
+      background: #f8fafc;
+      font-weight: 750;
+      font-size: 0.95rem;
+      color: #0f172a;
+      padding: 0 1.25rem;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .form-input-lg:focus {
+      border-color: #6366f1;
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+    }
+
+    .btn-login-submit {
+      height: 54px;
+      border-radius: 16px;
+      background: var(--accent-grad);
+      color: #fff;
+      font-size: 1.02rem;
+      font-weight: 850;
+      border: none;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+    .btn-login-submit:active {
+      transform: scale(0.97);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    }
+
+    /* ── MAIN DASHBOARD VIEW (NO HEADER BAR) ── */
+    .dashboard-container {
+      max-width: 540px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    /* Top User Bar (Floating Route & Sign Out) */
+    .top-user-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: var(--glass-shadow);
+      padding: 0.25rem 0.25rem 0.5rem;
     }
-    
-    .dashboard-header h1 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 850;
-      font-size: 1.25rem;
-      color: var(--primary-dark);
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .logout-btn {
-      background: linear-gradient(135deg, #f87171, var(--danger));
-      color: var(--white);
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: var(--radius-full);
-      font-weight: 750;
-      font-size: 0.8rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
-      transition: var(--transition);
+    .route-pill-badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 0.5rem;
+      background: #ffffff;
+      padding: 0.45rem 0.95rem;
+      border-radius: 20px;
+      border: 1px solid rgba(79, 70, 229, 0.12);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+    }
+    .route-pill-badge i {
+      font-size: 1.15rem;
+      color: #6366f1;
+    }
+    .route-pill-title {
+      font-weight: 850;
+      font-size: 0.92rem;
+      color: #0f172a;
     }
     
-    .logout-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
+    .btn-quick-signout {
+      background: rgba(244, 63, 94, 0.08);
+      color: #e11d48;
+      border: 1px solid rgba(244, 63, 94, 0.2);
+      padding: 0.45rem 0.85rem;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      touch-action: manipulation;
     }
-    
-    .dashboard-content {
-      padding: 1rem 0.85rem;
-      max-width: 540px;
-      margin: 0 auto;
-      display: grid;
-      gap: 1rem;
+    .btn-quick-signout:active {
+      transform: scale(0.94);
+      background: #e11d48;
+      color: #fff;
     }
 
-    /* Modern App Stats Cards */
+    /* Vibrant Modern Stats Grid */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 0.5rem;
+      gap: 0.55rem;
       width: 100%;
     }
 
     .stat-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 0.75rem 0.5rem;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 0.85rem 0.4rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border: 1px solid rgba(15, 23, 42, 0.04);
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.01);
+      border: 1px solid rgba(15, 23, 42, 0.05);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.03);
+      position: relative;
+      overflow: hidden;
     }
 
-    .stat-card.total { background: rgba(79, 70, 229, 0.03); border-color: rgba(79, 70, 229, 0.08); }
-    .stat-card.boarded { background: rgba(16, 185, 129, 0.03); border-color: rgba(16, 185, 129, 0.08); }
-    .stat-card.absent { background: rgba(239, 68, 68, 0.03); border-color: rgba(239, 68, 68, 0.08); }
-    .stat-card.remaining { background: rgba(148, 163, 184, 0.03); border-color: rgba(148, 163, 184, 0.08); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .stat-card.total::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
+    .stat-card.present::before { background: linear-gradient(90deg, #10b981, #34d399); }
+    .stat-card.absent::before { background: linear-gradient(90deg, #f43f5e, #fb7185); }
+    .stat-card.remaining::before { background: linear-gradient(90deg, #64748b, #94a3b8); }
+
+    .stat-card.total { background: linear-gradient(180deg, #ffffff 0%, rgba(99, 102, 241, 0.03) 100%); }
+    .stat-card.present { background: linear-gradient(180deg, #ffffff 0%, rgba(16, 185, 129, 0.03) 100%); }
+    .stat-card.absent { background: linear-gradient(180deg, #ffffff 0%, rgba(244, 63, 94, 0.03) 100%); }
+    .stat-card.remaining { background: linear-gradient(180deg, #ffffff 0%, rgba(148, 163, 184, 0.04) 100%); }
 
     .stat-num {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--primary-dark);
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.1;
     }
-    .stat-card.boarded .stat-num { color: var(--success); }
-    .stat-card.absent .stat-num { color: var(--danger); }
-    .stat-card.remaining .stat-num { color: #64748b; }
+    .stat-card.present .stat-num { color: #059669; }
+    .stat-card.absent .stat-num { color: #e11d48; }
+    .stat-card.remaining .stat-num { color: #475569; }
 
     .stat-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      margin-top: 0.15rem;
+      font-size: 0.65rem;
+      font-weight: 850;
+      color: #64748b;
+      margin-top: 0.2rem;
       text-transform: uppercase;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.05em;
     }
 
-    /* Boarding Progress Bar */
-    .progress-container {
-      background: #fff;
+    /* Boarding Progress Card */
+    .progress-card {
+      background: #ffffff;
       border-radius: 20px;
-      padding: 0.85rem 1.15rem;
-      border: 1px solid rgba(79, 70, 229, 0.06);
-      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.015);
+      padding: 0.9rem 1.15rem;
+      border: 1px solid rgba(79, 70, 229, 0.1);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.03);
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
@@ -132,61 +289,97 @@
 
     .progress-title {
       font-size: 0.82rem;
-      font-weight: 800;
-      color: var(--primary-dark);
+      font-weight: 850;
+      color: #1e293b;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
 
     .progress-percent {
-      font-size: 0.9rem;
-      font-weight: 800;
-      color: var(--success);
+      font-size: 0.98rem;
+      font-weight: 900;
+      color: #059669;
     }
 
     .progress-bar-track {
-      height: 8px;
-      background: rgba(15, 23, 42, 0.05);
-      border-radius: 4px;
+      height: 10px;
+      background: #f1f5f9;
+      border-radius: 6px;
       overflow: hidden;
       width: 100%;
     }
 
     .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, #10b981, #059669);
-      border-radius: 4px;
+      background: var(--success-grad);
+      border-radius: 6px;
       width: 0%;
-      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* Date and Shift Card */
     .control-card {
-      background: #fff;
+      background: #ffffff;
       border-radius: 20px;
-      border: 1px solid rgba(79, 70, 229, 0.06);
-      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.015);
-      padding: 1rem;
+      border: 1px solid rgba(79, 70, 229, 0.1);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.03);
+      padding: 0.85rem 1rem;
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
     }
 
-    /* Search & Filter Component */
+    .shift-tabs {
+      display: flex;
+      gap: 0.35rem;
+      background: #f1f5f9;
+      padding: 0.3rem;
+      border-radius: 16px;
+    }
+
+    .shift-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.65rem 0.5rem;
+      border: none;
+      border-radius: 12px;
+      font-weight: 850;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      color: #64748b;
+      touch-action: manipulation;
+    }
+
+    .shift-tabs button.active {
+      background: #ffffff !important;
+      color: #4f46e5 !important;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.12) !important;
+    }
+
+    /* Sticky Floating Search & Filter Toolbar */
     .search-filter-card {
-      background: rgba(255, 255, 255, 0.94);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 20px;
-      border: 1px solid rgba(79, 70, 229, 0.1);
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 22px;
+      border: 1px solid rgba(79, 70, 229, 0.15);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1), 0 2px 8px rgba(79, 70, 229, 0.05);
       padding: 0.85rem 1rem;
       display: flex;
       flex-direction: column;
       gap: 0.6rem;
       position: sticky;
-      top: 0.5rem;
-      z-index: 90;
+      top: calc(0.5rem + var(--sat));
+      z-index: 99;
+      margin-bottom: 0.25rem;
     }
 
     .search-box-wrapper {
@@ -198,27 +391,27 @@
     .search-icon {
       position: absolute;
       left: 1rem;
-      color: var(--text-secondary);
+      color: #94a3b8;
       font-size: 0.95rem;
     }
 
     .search-box-wrapper input {
       width: 100%;
-      padding: 0.65rem 1rem 0.65rem 2.3rem;
+      padding: 0.75rem 1rem 0.75rem 2.4rem;
       border-radius: 14px;
-      border: 1.5px solid var(--border-color);
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--primary-dark);
+      border: 1.5px solid #e2e8f0;
+      font-size: 0.92rem;
+      font-weight: 650;
+      color: #0f172a;
       outline: none;
       transition: all 0.2s ease;
       background: #f8fafc;
     }
 
     .search-box-wrapper input:focus {
-      border-color: var(--primary);
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+      border-color: #6366f1;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
     .class-filter-wrapper {
@@ -230,19 +423,19 @@
     .class-filter-icon {
       position: absolute;
       left: 1rem;
-      color: var(--text-secondary);
+      color: #94a3b8;
       font-size: 0.9rem;
       pointer-events: none;
     }
 
     .class-filter-select {
       width: 100%;
-      padding: 0.65rem 2rem 0.65rem 2.3rem;
+      padding: 0.65rem 2rem 0.65rem 2.4rem;
       border-radius: 14px;
-      border: 1.5px solid var(--border-color);
+      border: 1.5px solid #e2e8f0;
       font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--primary-dark);
+      font-weight: 750;
+      color: #0f172a;
       outline: none;
       transition: all 0.2s ease;
       background: #f8fafc;
@@ -251,18 +444,12 @@
       cursor: pointer;
     }
 
-    .class-filter-select:focus {
-      border-color: var(--primary);
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
-    }
-
     .class-filter-wrapper::after {
       content: "▼";
       font-size: 0.6rem;
       position: absolute;
       right: 1rem;
-      color: var(--text-secondary);
+      color: #94a3b8;
       pointer-events: none;
     }
 
@@ -271,53 +458,53 @@
       right: 0.75rem;
       background: transparent;
       border: none;
-      color: var(--text-muted);
+      color: #94a3b8;
       cursor: pointer;
       font-size: 1.1rem;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0.2rem;
-    }
-
-    .clear-search-btn:hover {
-      color: var(--text-secondary);
+      touch-action: manipulation;
     }
 
     .filter-chips {
       display: flex;
-      gap: 0.35rem;
+      gap: 0.4rem;
       overflow-x: auto;
       padding-bottom: 0.2rem;
-      scrollbar-width: none; /* Firefox */
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
 
     .filter-chips::-webkit-scrollbar {
-      display: none; /* Safari & Chrome */
+      display: none;
     }
 
     .filter-chip {
-      padding: 0.45rem 0.9rem;
-      border-radius: 12px;
-      border: 1px solid rgba(15, 23, 42, 0.04);
-      font-size: 0.78rem;
-      font-weight: 800;
-      color: var(--text-secondary);
-      background: rgba(15, 23, 42, 0.03);
+      padding: 0.55rem 0.95rem;
+      border-radius: 14px;
+      border: 1px solid rgba(15, 23, 42, 0.05);
+      font-size: 0.8rem;
+      font-weight: 850;
+      color: #64748b;
+      background: rgba(15, 23, 42, 0.04);
       cursor: pointer;
       white-space: nowrap;
       touch-action: manipulation;
       transition: all 0.15s ease;
+      flex: 1;
+      text-align: center;
     }
 
     .filter-chip.active {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
-      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+      background: var(--accent-grad);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
     }
     
-    /* Student Cards & Rows */
+    /* Student Item Cards */
     .student-list {
       display: flex;
       flex-direction: column;
@@ -325,16 +512,16 @@
     }
     
     .student-item {
-      background: var(--white);
-      border: 1px solid rgba(15, 23, 42, 0.05);
-      border-radius: 20px;
-      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.01);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      padding: 1rem;
+      background: #ffffff;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      border-radius: 22px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.03);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 1.05rem;
       display: flex;
       flex-direction: column;
       gap: 0.85rem;
-      border-left: 6px solid #94a3b8; /* Default unmarked */
+      border-left: 6px solid #94a3b8;
     }
 
     .student-item.state-unmarked {
@@ -343,67 +530,68 @@
 
     .student-item.state-present {
       border-left-color: #10b981;
-      border-color: rgba(16, 185, 129, 0.2);
-      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.03);
-      background: rgba(16, 185, 129, 0.005);
+      border-color: rgba(16, 185, 129, 0.25);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.08);
+      background: rgba(16, 185, 129, 0.01);
     }
 
     .student-item.state-absent {
-      border-left-color: #ef4444;
-      border-color: rgba(239, 68, 68, 0.2);
-      box-shadow: 0 6px 18px rgba(239, 68, 68, 0.03);
-      background: rgba(239, 68, 68, 0.005);
+      border-left-color: #f43f5e;
+      border-color: rgba(244, 63, 94, 0.25);
+      box-shadow: 0 8px 24px rgba(244, 63, 94, 0.08);
+      background: rgba(244, 63, 94, 0.01);
     }
     
     .student-card-header {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
       width: 100%;
     }
 
     .student-avatar {
-      width: 40px;
-      height: 40px;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary-light), var(--primary));
-      color: #fff;
+      background: var(--accent-grad);
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      font-size: 0.9rem;
+      font-weight: 900;
+      font-size: 1rem;
       letter-spacing: 0.02em;
-      box-shadow: 0 3px 8px rgba(79, 70, 229, 0.15);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+      flex-shrink: 0;
     }
 
     .student-info-col {
       flex: 1;
-      min-width: 0; /* Enable truncation helper */
+      min-width: 0;
     }
     
     .student-name {
-      font-weight: 800;
-      color: var(--primary-dark);
-      font-size: 1rem;
+      font-weight: 850;
+      color: #0f172a;
+      font-size: 1.05rem;
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.4rem;
       flex-wrap: wrap;
     }
 
     .roll-badge {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--primary);
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #4f46e5;
       background: rgba(79, 70, 229, 0.08);
-      padding: 0.15rem 0.35rem;
-      border-radius: 6px;
+      padding: 0.15rem 0.45rem;
+      border-radius: 8px;
     }
     
     .student-meta {
-      color: var(--text-secondary);
-      font-size: 0.8rem;
+      color: #64748b;
+      font-size: 0.82rem;
       margin-top: 0.25rem;
       display: flex;
       align-items: center;
@@ -412,162 +600,134 @@
     }
 
     .student-meta .divider {
-      color: var(--text-muted);
-      opacity: 0.6;
+      color: #cbd5e1;
     }
 
     .call-parent-btn {
-      width: 38px;
-      height: 38px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      background: rgba(16, 185, 129, 0.08);
-      color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+      color: #059669;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.95rem;
+      font-size: 1.1rem;
       transition: all 0.2s ease;
       flex-shrink: 0;
-      border: 1px solid rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      text-decoration: none;
+      touch-action: manipulation;
     }
 
     .call-parent-btn:active {
-      transform: scale(0.97);
-      background: var(--success);
+      transform: scale(0.92);
+      background: #059669;
       color: #fff;
     }
     
-    /* Touch Friendly Full Width Split Action Buttons */
+    /* Touch Action Buttons (Present vs Absent) */
     .student-card-actions {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.6rem;
       width: 100%;
-      border-top: 1px dashed rgba(15, 23, 42, 0.06);
-      padding-top: 0.75rem;
+      border-top: 1px dashed rgba(15, 23, 42, 0.08);
+      padding-top: 0.8rem;
     }
 
     .action-btn {
       flex: 1;
-      height: 46px;
-      border-radius: 12px;
-      border: 1.5px solid var(--border-color);
+      min-height: 52px;
+      border-radius: 16px;
+      border: 1.5px solid #e2e8f0;
       background: #f8fafc;
-      color: var(--text-secondary);
-      font-size: 0.88rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.35rem;
-      cursor: pointer;
-      touch-action: manipulation;
-      transition: all 0.1s ease;
-    }
-
-    .action-btn:active {
-      transform: scale(0.96);
-    }
-
-    .action-btn.btn-boarded.active {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: var(--white);
-      border-color: transparent;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-    }
-
-    .action-btn.btn-absent.active {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: var(--white);
-      border-color: transparent;
-      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
-    }
-    
-    .shift-tabs button.active {
-      background: var(--white) !important;
-      color: var(--primary) !important;
-      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.08) !important;
-    }
-
-    .shift-btn {
-      flex: 1;
+      color: #475569;
+      font-size: 0.95rem;
+      font-weight: 850;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.4rem;
-      padding: 0.55rem 0.5rem;
-      border: none;
-      border-radius: 12px;
-      font-weight: 800;
-      font-size: 0.85rem;
       cursor: pointer;
-      transition: all 0.2s;
-      background: transparent;
-      color: var(--text-secondary);
       touch-action: manipulation;
+      transition: all 0.15s var(--ease-smooth);
     }
-    
-    .login-container {
-      max-width: 400px;
-      margin: 4rem auto;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      padding: 2.5rem 2rem;
-      border-radius: 28px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.06);
-    }  </style>
+
+    .action-btn:active {
+      transform: scale(0.95);
+    }
+
+    .action-btn.btn-present.active {
+      background: var(--success-grad);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
+    }
+
+    .action-btn.btn-absent.active {
+      background: var(--danger-grad);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 6px 18px rgba(244, 63, 94, 0.3);
+    }
+  </style>
 </head>
 <body>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/config.js"></script>
-<script src="../js/supabase.js"></script>
+  <script src="../js/supabase.js"></script>
   <script src="../js/app.js"></script>
 
-  <div id="loginSection">
-    <div class="login-container" style="text-align:center;">
-      <div style="margin-bottom:1.5rem;">
-        <img src="../assets/logo.png" alt="MSS Logo" style="width:64px;height:64px;object-fit:contain;border-radius:50%;border:2px solid rgba(79,70,229,0.15);padding:4px;"/>
-        <h2 style="margin-top:1rem;font-family:'Playfair Display',serif;color:var(--primary-dark);font-size:1.5rem;font-weight:800;">Bus Attendance</h2>
-        <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:0.25rem;">Sign in with your bus number and PIN</p>
+  <!-- Login Section -->
+  <div id="loginSection" class="login-wrapper">
+    <div class="bg-glow-orb orb-1"></div>
+    <div class="bg-glow-orb orb-2"></div>
+
+    <div class="login-card" style="text-align:center;">
+      <div class="login-logo-ring">
+        <img src="../assets/logo.png" alt="MSS Logo"/>
       </div>
+      <h2 style="margin:0 0 0.3rem;font-family:'Plus Jakarta Sans',sans-serif;color:#0f172a;font-size:1.6rem;font-weight:900;">Bus Attendance</h2>
+      <p style="color:#64748b;font-size:0.9rem;margin:0 0 1.5rem;font-weight:600;">Select route and enter PIN to manage attendance</p>
+
       <form id="busLoginForm">
-        <div class="form-group">
-          <label class="form-label" style="font-weight:700;">Bus Number</label>
-          <select id="loginBusNum" class="form-control" required style="height:50px;font-weight:600;"></select>
+        <div class="form-group" style="text-align:left; margin-bottom: 1.1rem;">
+          <label class="form-label" style="font-weight:800; font-size:0.85rem; color:#475569; margin-bottom:0.4rem; display:block;">Select Bus Route</label>
+          <select id="loginBusNum" class="form-input-lg" required></select>
         </div>
-        <div class="form-group">
-          <label class="form-label" style="font-weight:700;">PIN</label>
-          <input type="password" id="loginBusPin" class="form-control" required placeholder="Default: bus@[number]" style="height:50px;font-weight:600;"/>
+        <div class="form-group" style="text-align:left; margin-bottom: 1.25rem;">
+          <label class="form-label" style="font-weight:800; font-size:0.85rem; color:#475569; margin-bottom:0.4rem; display:block;">Access PIN</label>
+          <input type="password" id="loginBusPin" class="form-input-lg" required placeholder="Enter PIN"/>
         </div>
-        <button type="submit" class="btn btn-primary w-full" id="busLoginBtn" style="justify-content:center;height:50px;font-weight:700;margin-top:0.5rem;" disabled>
-          <span id="busLoginBtnText">Loading...</span>
+        <button type="submit" class="btn-login-submit" id="busLoginBtn" disabled>
+          <span id="busLoginBtnText">Loading Routes...</span>
         </button>
       </form>
-      <div style="text-align:center;margin-top:1.25rem;">
-        <a href="../index.html" style="color:var(--text-secondary);font-size:0.88rem;font-weight:600;display:inline-flex;align-items:center;gap:0.3rem;"><i class="bi bi-arrow-left"></i> Back to Home</a>
-      </div>
     </div>
   </div>
 
+  <!-- Dashboard Section (Header module removed completely) -->
   <div id="dashboardSection" style="display: none;">
-    <header class="dashboard-header">
-      <div>
-        <h1 style="font-family: 'Playfair Display', serif;"><i class="bi bi-bus-front" style="color: var(--primary);"></i> Bus Tracker</h1>
-        <div style="font-size: 0.8rem; opacity: 0.85; font-weight: 700;" id="busNameDisplay"></div>
-      </div>
-      <button class="logout-btn" onclick="logoutBus()"><i class="bi bi-box-arrow-right"></i> Logout</button>
-    </header>
+    <div class="dashboard-container">
 
-    <main class="dashboard-content">
-      <!-- App-style Stats Panel -->
+      <!-- Top Floating Route Bar & Sign Out -->
+      <div class="top-user-row">
+        <div class="route-pill-badge">
+          <i class="bi bi-bus-front-fill"></i>
+          <span class="route-pill-title" id="busNameDisplay">Route</span>
+        </div>
+        <button class="btn-quick-signout" onclick="logoutBus()"><i class="bi bi-box-arrow-right"></i> Sign Out</button>
+      </div>
+
+      <!-- App-style Live Stats Panel -->
       <div class="stats-grid">
         <div class="stat-card total">
           <span class="stat-num" id="statTotal">0</span>
           <span class="stat-label">Total</span>
         </div>
-        <div class="stat-card boarded">
+        <div class="stat-card present">
           <span class="stat-num" id="statBoarded">0</span>
-          <span class="stat-label">Boarded</span>
+          <span class="stat-label">Present</span>
         </div>
         <div class="stat-card absent">
           <span class="stat-num" id="statAbsent">0</span>
@@ -579,10 +739,10 @@
         </div>
       </div>
 
-      <!-- Progress Section -->
-      <div class="progress-container">
+      <!-- Attendance Completion Indicator -->
+      <div class="progress-card">
         <div class="progress-header">
-          <span class="progress-title">Boarding Progress</span>
+          <span class="progress-title"><i class="bi bi-speedometer2" style="color:#6366f1;"></i> Attendance Completion</span>
           <span class="progress-percent" id="progressPercent">0%</span>
         </div>
         <div class="progress-bar-track">
@@ -593,18 +753,18 @@
       <!-- Date and Shift Card -->
       <div class="control-card">
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
-          <span style="font-size: 0.88rem; font-weight: 800; color: var(--primary-dark);">Attendance Date</span>
-          <input type="date" id="attDate" class="form-control" style="width: auto; font-weight: bold; padding: 0.45rem 0.75rem; border-radius: 12px; border: 1px solid var(--border-color); font-size: 0.85rem; outline: none; margin: 0;">
+          <span style="font-size: 0.88rem; font-weight: 850; color: #0f172a;"><i class="bi bi-calendar-event" style="color:#6366f1;"></i> Attendance Date</span>
+          <input type="date" id="attDate" class="form-control" style="width: auto; font-weight: 800; padding: 0.5rem 0.75rem; border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 0.88rem; outline: none; margin: 0; background:#f8fafc; color:#0f172a;">
         </div>
         
         <!-- Shift Selector Tabs -->
-        <div class="shift-tabs" style="display: flex; gap: 0.35rem; background: rgba(15, 23, 42, 0.04); padding: 0.25rem; border-radius: 16px; border: 1px solid rgba(15, 23, 42, 0.03);">
-          <button id="shiftMorningBtn" class="shift-btn active" onclick="switchShift('morning')">☀️ Morning</button>
-          <button id="shiftEveningBtn" class="shift-btn" onclick="switchShift('evening')">🌙 Evening</button>
+        <div class="shift-tabs">
+          <button id="shiftMorningBtn" class="shift-btn active" onclick="switchShift('morning')">☀️ Morning Pickup</button>
+          <button id="shiftEveningBtn" class="shift-btn" onclick="switchShift('evening')">🌙 Evening Drop</button>
         </div>
       </div>
 
-      <!-- Search & Filter Card -->
+      <!-- Sticky Search & Filter Toolbar -->
       <div class="search-filter-card">
         <div class="search-box-wrapper">
           <i class="bi bi-search search-icon"></i>
@@ -616,26 +776,27 @@
         
         <!-- Class Filter Select -->
         <div class="class-filter-wrapper">
-          <i class="bi bi-funnel class-filter-icon"></i>
+          <i class="bi bi-funnel-fill class-filter-icon"></i>
           <select id="classFilterSelect" onchange="handleClassFilterChange()" class="class-filter-select">
-            <option value="">All Classes</option>
+            <option value="">All Passenger Classes</option>
           </select>
         </div>
         
         <div class="filter-chips">
           <button class="filter-chip active" id="chipAll" onclick="filterChipClick('all')">All</button>
           <button class="filter-chip" id="chipUnmarked" onclick="filterChipClick('unmarked')">Remaining</button>
-          <button class="filter-chip" id="chipBoarded" onclick="filterChipClick('boarded')">Boarded</button>
+          <button class="filter-chip" id="chipBoarded" onclick="filterChipClick('present')">Present</button>
           <button class="filter-chip" id="chipAbsent" onclick="filterChipClick('absent')">Absent</button>
         </div>
       </div>
 
       <!-- Passengers List -->
       <div class="student-list" id="attendanceList"></div>
-    </main>
+    </div>
   </div>
 
   <div id="toast-container"></div>
+
   <script>
     let myBusId = null;
     let currentShift = 'morning';
@@ -644,7 +805,14 @@
     let selectedClassFilter = '';
     let classesPopulated = false;
 
+    function triggerHaptic() {
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate(20); } catch(e) {}
+      }
+    }
+
     window.switchShift = function(shift) {
+      triggerHaptic();
       currentShift = shift;
       document.getElementById('shiftMorningBtn').classList.toggle('active', shift === 'morning');
       document.getElementById('shiftEveningBtn').classList.toggle('active', shift === 'evening');
@@ -664,6 +832,7 @@
     };
 
     window.clearSearch = function() {
+      triggerHaptic();
       const input = document.getElementById('studentSearchInput');
       if (input) input.value = '';
       searchQuery = '';
@@ -673,17 +842,19 @@
     };
 
     window.handleClassFilterChange = function() {
+      triggerHaptic();
       const select = document.getElementById('classFilterSelect');
       selectedClassFilter = select ? select.value : '';
       loadAttendance();
     };
 
     window.filterChipClick = function(status) {
+      triggerHaptic();
       filterStatus = status;
       const chipIds = {
         all: 'chipAll',
         unmarked: 'chipUnmarked',
-        boarded: 'chipBoarded',
+        present: 'chipBoarded',
         absent: 'chipAbsent'
       };
       
@@ -705,7 +876,6 @@
       return parts[0].substring(0, 2).toUpperCase();
     }
 
-    // Enable bus portal once database sync completes
     function populateBusSelect() {
       const buses = DB.get('buses') || [];
       const select = document.getElementById('loginBusNum');
@@ -715,7 +885,7 @@
       const btn = document.getElementById('busLoginBtn');
       const txt = document.getElementById('busLoginBtnText');
       if (btn) btn.disabled = false;
-      if (txt) txt.textContent = 'Login';
+      if (txt) txt.textContent = 'Sign In to Bus Portal';
     }
 
     window.addEventListener('mss-db-sync', () => {
@@ -727,11 +897,25 @@
         });
       }
     });
+
     document.addEventListener('DOMContentLoaded', () => {
-      // Fallback: enable immediately if Supabase is unconfigured
+      // Service Worker Registration for PWA offline support
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('../sw.js').catch(function(err) {
+          console.log('SW Registration failed', err);
+        });
+      }
+
+      // Check persistent session immediately on app launch
+      const session = Auth.getSession();
+      if (session && session.role === 'bus') {
+        initDashboard(session);
+      } else {
+        populateBusSelect();
+      }
+
       if (typeof isSupabaseConfigured === 'function' && !isSupabaseConfigured()) {
         populateBusSelect();
-        const session = Auth.getSession();
         if (session && session.role === 'bus') {
           initDashboard(session);
         }
@@ -742,7 +926,7 @@
       e.preventDefault();
       const btn = document.getElementById('busLoginBtn');
       const txt = document.getElementById('busLoginBtnText');
-      const originalText = txt ? txt.textContent : 'Login';
+      const originalText = txt ? txt.textContent : 'Sign In';
       btn.disabled = true;
       if (txt) txt.textContent = 'Signing in...';
 
@@ -763,11 +947,12 @@
     });
 
     function logoutBus() {
+      triggerHaptic();
       Auth.logout();
       classesPopulated = false;
       selectedClassFilter = '';
       document.getElementById('dashboardSection').style.display = 'none';
-      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('loginSection').style.display = 'flex';
     }
 
     function initDashboard(session) {
@@ -781,13 +966,14 @@
       
       const dateInput = document.getElementById('attDate');
       dateInput.value = today();
-      dateInput.addEventListener('change', loadAttendance);
+      dateInput.addEventListener('change', function() {
+        triggerHaptic();
+        loadAttendance();
+      });
       
-      // Auto-detect shift: Morning if before 12 PM, Evening if 12 PM or later
       const currentHour = new Date().getHours();
       currentShift = currentHour >= 12 ? 'evening' : 'morning';
       
-      // Update UI state for shift buttons
       const morningBtn = document.getElementById('shiftMorningBtn');
       const eveningBtn = document.getElementById('shiftEveningBtn');
       if (morningBtn) morningBtn.classList.toggle('active', currentShift === 'morning');
@@ -804,13 +990,12 @@
       const date = document.getElementById('attDate').value;
       const list = document.getElementById('attendanceList');
       if (busStudents.length === 0) { 
-        list.innerHTML = "<div class='card text-center' style='padding:2rem; border-radius:20px; color:var(--text-secondary);'><p style='margin:0;'>No students mapped to this bus route.</p></div>"; 
+        list.innerHTML = "<div class='card text-center' style='padding:2.5rem 1.5rem; border-radius:24px; color:#64748b; background:#fff; border:1px solid rgba(15,23,42,0.06);'><i class='bi bi-bus-front' style='font-size:2rem;color:#6366f1;display:block;margin-bottom:0.5rem;'></i><p style='margin:0;font-weight:750;'>No passengers assigned to this route.</p></div>"; 
         return; 
       }
       
       const bulkLog = Attendance.getBulkForDate(date, 'bus-' + currentShift);
 
-      // Populate class filter select once for this bus route's passengers
       if (!classesPopulated) {
         const selectEl = document.getElementById('classFilterSelect');
         if (selectEl) {
@@ -823,34 +1008,30 @@
             };
           }).sort((a, b) => a.name.localeCompare(b.name));
           
-          selectEl.innerHTML = '<option value="">All Classes</option>' + activeClasses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+          selectEl.innerHTML = '<option value="">All Passenger Classes</option>' + activeClasses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
           classesPopulated = true;
         }
       }
 
-      // Filter Students based on search query, class, and filter selection
       const filteredStudents = busStudents.filter(s => {
-        // Search query
         const nameVal = s.name ? String(s.name).toLowerCase() : '';
         const rollVal = s.rollNo ? String(s.rollNo).toLowerCase() : '';
         const matchesSearch = nameVal.includes(searchQuery) || rollVal.includes(searchQuery);
         if (!matchesSearch) return false;
 
-        // Class filter
         if (selectedClassFilter && s.classId !== selectedClassFilter) return false;
 
-        // Filter status
         const att = bulkLog.find(l => l.studentId === s.id);
         const present = att ? att.present : null;
         
-        if (filterStatus === 'boarded') return present === true;
+        if (filterStatus === 'present') return present === true;
         if (filterStatus === 'absent') return present === false;
         if (filterStatus === 'unmarked') return present === null || present === undefined;
         return true;
       });
       
       if (filteredStudents.length === 0) {
-        list.innerHTML = `<div class='card text-center' style='padding:2rem; border-radius:20px; color:var(--text-secondary); background:#fff; border:1px solid rgba(15,23,42,0.04);'><p style='margin:0;'>No passengers match the current filters.</p></div>`;
+        list.innerHTML = `<div class='card text-center' style='padding:2.5rem 1.5rem; border-radius:24px; color:#64748b; background:#fff; border:1px solid rgba(15,23,42,0.06);'><i class='bi bi-search' style='font-size:1.8rem;color:#94a3b8;display:block;margin-bottom:0.5rem;'></i><p style='margin:0;font-weight:750;'>No passengers match your filters.</p></div>`;
         return;
       }
 
@@ -859,6 +1040,7 @@
         const att = bulkLog.find(l => l.studentId === s.id);
         const present = att ? att.present : null;
         const initials = getInitials(s.name);
+        const phone = s.phone || s.phone_no || '';
         
         return `
           <div class="student-item ${present === true ? 'state-present' : (present === false ? 'state-absent' : 'state-unmarked')}" id="student-card-${s.id}">
@@ -875,14 +1057,14 @@
                   <span>Parent: <strong>${s.parentName || s.parent_name || 'N/A'}</strong></span>
                 </div>
               </div>
-              <a href="tel:${s.phone || s.phone_no || ''}" class="call-parent-btn" title="Call parent" ${!(s.phone || s.phone_no) ? 'style="opacity:0.35;pointer-events:none;"' : ''}>
+              <a href="${phone ? 'tel:' + phone : 'javascript:void(0)'}" class="call-parent-btn" title="${phone ? 'Call parent: ' + phone : 'No phone registered'}" ${!phone ? 'style="opacity:0.3;pointer-events:none;"' : 'onclick="triggerHaptic()"'}>
                 <i class="bi bi-telephone-fill"></i>
               </a>
             </div>
             
             <div class="student-card-actions">
-              <button class="action-btn btn-boarded ${present === true ? 'active' : ''}" id="btn-boarded-${s.id}" onclick="markBusAtt('${s.id}', true)">
-                <i class="bi bi-check-circle-fill"></i> Boarded
+              <button class="action-btn btn-present ${present === true ? 'active' : ''}" id="btn-boarded-${s.id}" onclick="markBusAtt('${s.id}', true)">
+                <i class="bi bi-check-circle-fill"></i> Present
               </button>
               <button class="action-btn btn-absent ${present === false ? 'active' : ''}" id="btn-absent-${s.id}" onclick="markBusAtt('${s.id}', false)">
                 <i class="bi bi-x-circle-fill"></i> Absent
@@ -892,12 +1074,10 @@
         `;
       }).join('');
 
-      // Populate Live Statistics Panel
       updateLiveStats(busStudents, bulkLog);
     }
 
     function updateLiveStats(busStudents, bulkLog) {
-      // Calculate Stats & Progress (based on active class filter if selected, or overall)
       const statsStudents = selectedClassFilter 
         ? busStudents.filter(s => s.classId === selectedClassFilter)
         : busStudents;
@@ -933,19 +1113,17 @@
     }
 
     function markBusAtt(studentId, present) {
+      triggerHaptic();
       const date = document.getElementById('attDate').value;
       if(!date) { showToast('Select a date', 'error'); return; }
       
-      // Update Database
       Attendance.markBus(studentId, date, present, currentShift);
       
-      // Fast Optimistic DOM updates
       const card = document.getElementById(`student-card-${studentId}`);
       const btnBoarded = document.getElementById(`btn-boarded-${studentId}`);
       const btnAbsent = document.getElementById(`btn-absent-${studentId}`);
       
       if (card && btnBoarded && btnAbsent) {
-        // Toggle card classes
         card.classList.remove('state-present', 'state-absent', 'state-unmarked');
         btnBoarded.classList.remove('active');
         btnAbsent.classList.remove('active');
@@ -958,13 +1136,11 @@
           btnAbsent.classList.add('active');
         }
         
-        // Recalculate and update the stats counters instantly
         const students = DB.get('students') || [];
         const busStudents = students.filter(s => s.type === 'bus' && s.busId === myBusId);
         const bulkLog = Attendance.getBulkForDate(date, 'bus-' + currentShift);
         updateLiveStats(busStudents, bulkLog);
       } else {
-        // Fallback: full load if DOM reference is missing
         loadAttendance();
       }
     }

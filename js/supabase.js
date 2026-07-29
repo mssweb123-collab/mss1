@@ -177,8 +177,7 @@ function triggerBackgroundSync(key, value, oldValue) {
             type: s.type || 'dayscholar',
             bus_id: s.busId || null,
             phone: s.phone || null,
-            parent_name: s.parentName || null,
-            academic_year: s.academicYear || activeYear
+            parent_name: s.parentName || null
           }));
           const { error: upsertErr } = await client.from('students').upsert(rows);
           if (upsertErr) throw upsertErr;
@@ -956,17 +955,9 @@ var DB = {
           class_id: 'classId',
           roll_no: 'rollNo',
           bus_id: 'busId',
-          parent_name: 'parentName',
-          academic_year: 'academicYear'
+          parent_name: 'parentName'
         }));
         LOCAL.set('students', mappedStudents);
-
-        // Dynamically build academicYears list from pulled students
-        const years = new Set(LOCAL.get('academicYears') || []);
-        mappedStudents.forEach(s => {
-          if (s.academicYear) years.add(s.academicYear);
-        });
-        LOCAL.set('academicYears', Array.from(years).sort());
       }
 
       // 3. Teachers
@@ -1232,7 +1223,6 @@ CREATE TABLE IF NOT EXISTS students (
   bus_id TEXT,
   phone TEXT,
   parent_name TEXT,
-  academic_year TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
