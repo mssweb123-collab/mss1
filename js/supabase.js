@@ -518,7 +518,6 @@ function triggerBackgroundSync(key, value, oldValue) {
           student_name: b.studentName || '',
           total_fee: Number(b.totalFee) || 0,
           total_fee_paid: Number(b.totalFeePaid) || 0,
-          balance_fee: Number(b.balanceFee !== undefined ? b.balanceFee : (b.totalFee - b.totalFeePaid)) || 0,
           current_month_status: b.currentMonthStatus || 'unpaid',
           paid_months: typeof b.paidMonths === 'object' ? JSON.stringify(b.paidMonths) : (b.paidMonths || null),
           last_paid_date: b.lastPaidDate || null,
