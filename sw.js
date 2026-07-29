@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mss-app-ui-v4';
+const CACHE_NAME = 'mss-app-ui-v5';
 
 const UI_ASSETS = [
   './',
