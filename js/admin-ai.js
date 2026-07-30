@@ -156,51 +156,49 @@ function compileSystemContext(userPrompt) {
   const isBillingQuery = query.includes('fee') || query.includes('bill') || query.includes('paid') || query.includes('unpaid') || query.includes('balance') || query.includes('payment') || query.includes('money') || query.includes('collection');
 
   // Filter students to send to AI
-  // If specific student or class is mentioned, send only those. Otherwise, send minimal fields to save tokens.
-  let filteredStudents = students.map(s => {
+  let relevantStudents = students;
+  if (targetStudentId) {
+    relevantStudents = students.filter(s => s.id === targetStudentId);
+  } else if (targetClassId) {
+    relevantStudents = students.filter(s => s.classId === targetClassId);
+  } else if (!isMarksQuery && !isAttendanceQuery && !isBusQuery) {
+    relevantStudents = students.slice(0, 10);
+  }
+
+  const filteredStudents = relevantStudents.map(s => {
+    const cls = classes.find(c => c.id === s.classId);
+    const bus = buses.find(b => b.id === s.busId);
     return {
-      id: s.id,
       name: s.name,
-      rollNo: s.rollNo || s.roll_no || 'N/A',
-      classId: s.classId,
+      roll: s.rollNo || s.roll_no || 'N/A',
+      class: cls ? `${cls.grade}-${cls.section}` : 'N/A',
       type: s.type || 'dayscholar',
-      busId: s.busId
+      bus: bus ? bus.number : null
     };
   });
-
-  if (targetStudentId) {
-    const fullStud = students.find(s => s.id === targetStudentId);
-    if (fullStud) {
-      filteredStudents = [fullStud];
-    }
-  } else if (targetClassId) {
-    filteredStudents = students.filter(s => s.classId === targetClassId);
-  } else if (!isMarksQuery && !isAttendanceQuery && !isBusQuery) {
-    // If it's a completely generic query, just send a small slice (first 10) to confirm data exists,
-    // plus inform that it is token optimized.
-    filteredStudents = filteredStudents.slice(0, 10);
-  }
 
   // Attendance
   let attendance = [];
   const fullAttendanceList = students.map(s => {
+    const cls = classes.find(c => c.id === s.classId);
     const studentLogs = rawLogs.filter(l => l.studentId === s.id);
     const totalDays = studentLogs.filter(l => l.type === 'class').length;
     const presentDays = studentLogs.filter(l => l.type === 'class' && l.present).length;
     const rate = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 100;
     return {
-      studentId: s.id,
-      studentName: s.name,
-      rollNo: s.rollNo || s.roll_no || 'N/A',
-      classId: s.classId,
+      studentId: s.id, // internal use
+      classId: s.classId, // internal use
+      name: s.name,
+      roll: s.rollNo || s.roll_no || 'N/A',
+      class: cls ? `${cls.grade}-${cls.section}` : 'N/A',
       totalDays,
       presentDays,
-      attendanceRate: rate
+      rate
     };
   });
 
   const schoolAverageAttendance = fullAttendanceList.length > 0
-    ? Math.round(fullAttendanceList.reduce((sum, a) => sum + a.attendanceRate, 0) / fullAttendanceList.length)
+    ? Math.round(fullAttendanceList.reduce((sum, a) => sum + a.rate, 0) / fullAttendanceList.length)
     : 100;
 
   const attendanceStats = {
@@ -211,8 +209,8 @@ function compileSystemContext(userPrompt) {
     attendance = fullAttendanceList.filter(a => {
       if (targetStudentId) return a.studentId === targetStudentId;
       if (targetClassId) return a.classId === targetClassId;
-      return a.attendanceRate < 90; // Only highlight low attendance
-    });
+      return a.rate < 90; // Only highlight low attendance
+    }).map(({studentId, classId, ...rest}) => rest); // Strip heavy IDs
   }
 
   // Exam Marks
@@ -221,6 +219,7 @@ function compileSystemContext(userPrompt) {
   for (const sId in rawMarks) {
     const student = students.find(s => s.id === sId);
     if (!student) continue;
+    const cls = classes.find(c => c.id === student.classId);
     
     for (const sub in rawMarks[sId]) {
       for (const exam in rawMarks[sId][sub]) {
@@ -229,14 +228,15 @@ function compileSystemContext(userPrompt) {
           ? maxMarks[student.classId][sub]
           : 100;
         marksList.push({
-          studentId: student.id,
-          studentName: student.name,
-          rollNo: student.rollNo || student.roll_no || 'N/A',
-          classId: student.classId,
+          studentId: student.id, // internal use
+          classId: student.classId, // internal use
+          name: student.name,
+          roll: student.rollNo || student.roll_no || 'N/A',
+          class: cls ? `${cls.grade}-${cls.section}` : 'N/A',
           subject: sub,
           exam: exam,
-          marksObtained: score,
-          maxMarks: maxScore
+          score: score,
+          max: maxScore
         });
       }
     }
@@ -257,7 +257,7 @@ function compileSystemContext(userPrompt) {
       const examNames = [...new Set(subMarks.map(m => m.exam))];
       marksStats[cName][sub] = {};
       examNames.forEach(ex => {
-        const scores = subMarks.filter(m => m.exam === ex).map(m => m.marksObtained);
+        const scores = subMarks.filter(m => m.exam === ex).map(m => m.score);
         const avg = scores.length > 0 ? Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length) : 0;
         marksStats[cName][sub][ex] = {
           average: avg,
@@ -273,8 +273,8 @@ function compileSystemContext(userPrompt) {
       if (targetStudentId) return m.studentId === targetStudentId;
       if (targetClassId) return m.classId === targetClassId;
       // Filter to toppers or low scorers to avoid massive context
-      return m.marksObtained >= 90 || m.marksObtained < 40;
-    });
+      return m.score >= 90 || m.score < 40;
+    }).map(({studentId, classId, ...rest}) => rest); // Strip heavy IDs
   }
 
   // Classes Mapped
@@ -451,6 +451,7 @@ async function submitChatQuery(promptOverride) {
          - When presenting tabular data (lists of students, marks), ALWAYS use Markdown tables.
          - Bold headers, use colors if helpful, and keep it extremely readable.
          - If generating reports, use clear structure (e.g. Header, Summary Cards, Tables, Actionable Insights).
+         - Be extremely concise to conserve tokens. Avoid filler words. Prioritize data density.
     `;
     
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -471,12 +472,15 @@ async function submitChatQuery(promptOverride) {
         },
         generationConfig: {
           temperature: 0.1,
-          maxOutputTokens: 8000
+          maxOutputTokens: 2048
         }
       })
     });
     
     if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error("You have reached the free tier API rate limit (Tokens or Requests Per Minute). Please wait about 60 seconds before sending another request.");
+      }
       const errData = await response.json().catch(() => ({}));
       const errMsg = errData.error?.message || 'Network response was not OK';
       throw new Error(errMsg);

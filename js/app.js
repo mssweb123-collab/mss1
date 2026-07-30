@@ -273,7 +273,12 @@ const Auth = {
   requireRole(role, redirectTo = 'index.html') {
     const s = this.getSession();
     if (!s || s.role !== role) {
-      window.location.href = redirectTo;
+      const search = window.location.search;
+      if (search && !redirectTo.includes('?')) {
+        window.location.href = redirectTo + search;
+      } else {
+        window.location.href = redirectTo;
+      }
       return false;
     }
     return s;

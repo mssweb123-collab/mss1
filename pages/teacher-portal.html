@@ -8,13 +8,36 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <title>Teacher Portal – MSS School</title>
+  
+  <!-- PWA & Mobile Fullscreen Capabilities -->
+  <link rel="manifest" href="../manifest.json" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MSS Teacher" />
+  <meta name="application-name" content="MSS Teacher Portal" />
+  <meta name="format-detection" content="telephone=no" />
   <link rel="stylesheet" href="../css/style.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
+    * { 
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box; 
+    }
+
+    /* ── Touch Active Animation ── */
+    button, .btn, .sidebar-item, .nav-item, .summary-card, .student-card, .action-btn {
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+    button:active:not(:disabled), .btn:active:not(:disabled), .sidebar-item:active, .nav-item:active, .action-btn:active {
+      transform: scale(0.96) !important;
+    }
+
+
     :root {
       --primary: #4f46e5;
       --primary-light: #6366f1;
@@ -302,15 +325,15 @@
 
     /* Dashboard View */
     .dashboard-content {
-      padding: 1rem;
+      padding: 0.85rem;
     }
     
     .directory-panel {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-radius: 28px;
-      padding: 1.5rem;
+      border-radius: 24px;
+      padding: 1.15rem 1rem;
       box-shadow: 0 10px 40px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255,255,255,0.8);
       border: 1px solid rgba(15, 23, 42, 0.04);
     }
@@ -319,7 +342,7 @@
       font-size: 1.15rem;
       font-weight: 850;
       color: var(--primary-dark);
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -330,26 +353,26 @@
     .directory-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 1rem;
-      margin-top: 1.25rem;
+      gap: 0.85rem;
+      margin-top: 1rem;
     }
     
     .student-card {
       background: #fff;
-      border: 1px solid rgba(15, 23, 42, 0.04);
-      border-radius: 24px;
-      padding: 1.25rem;
+      border: 1.5px solid rgba(15, 23, 42, 0.04);
+      border-radius: 20px;
+      padding: 1.15rem 1rem;
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255,255,255,0.8);
+      gap: 1rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255,255,255,0.8);
     }
     
-    .student-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 35px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255,255,255,0.8);
-      border-color: rgba(79, 70, 229, 0.15);
+    .student-card:hover, .student-card:active {
+      transform: translateY(-2px) scale(0.98);
+      box-shadow: 0 12px 30px rgba(79, 70, 229, 0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+      border-color: rgba(79, 70, 229, 0.2);
     }
     
     .student-avatar {
@@ -705,65 +728,101 @@
     .section-label{font-size:.72rem;font-weight:800;color:var(--text-secondary);text-transform:uppercase;
       letter-spacing:.06em;margin-bottom:.5rem;padding:0 .25rem;}
 
+    /* Subject Grid Improvements */
     .subject-grid{
-      display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem;
-      margin-bottom:1.25rem;transition:all .25s ease;
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.85rem;
+      margin-bottom:1.5rem;transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .subject-grid.collapsed{
-      display:flex;flex-wrap:nowrap;overflow-x:auto;gap:.5rem;
-      -webkit-overflow-scrolling:touch;padding-bottom:4px;
-      margin-bottom:.85rem;
+      display:flex;flex-wrap:nowrap;overflow-x:auto;gap:.6rem;
+      -webkit-overflow-scrolling:touch;padding-bottom:6px;
+      margin-bottom:1.25rem;
     }
     .subject-grid.collapsed::-webkit-scrollbar{display:none;}
     .subject-grid.collapsed .subj-btn{
-      flex:0 0 auto;padding:.35rem .85rem;
+      flex:0 0 auto;padding:.45rem 1rem;
       min-width:unset;border-radius:99px;
-      font-size:.78rem;line-height:1.4;
+      font-size:.82rem;line-height:1.4;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }
     .subject-grid.collapsed .subj-icon{display:none;}
     
-    .subj-btn{background:var(--surface);border:2px solid var(--border);border-radius:16px;
-      padding:.75rem .6rem;font-size:.88rem;font-weight:700;color:var(--text);
-      cursor:pointer;text-align:center;transition:all .18s;-webkit-tap-highlight-color:transparent;
-      display: flex;flex-direction: column;align-items: center;justify-content: center;}
+    .subj-btn{
+      background:rgba(255, 255, 255, 0.85);backdrop-filter:blur(12px);
+      border:1.5px solid rgba(15, 23, 42, 0.08);border-radius:20px;
+      padding:.85rem .6rem;font-size:.9rem;font-weight:750;color:var(--text);
+      cursor:pointer;text-align:center;transition:all .25s ease;
+      -webkit-tap-highlight-color:transparent;
+      display: flex;flex-direction: column;align-items: center;justify-content: center;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+    }
+    .subj-btn:hover { border-color: rgba(79, 70, 229, 0.3); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06); }
     .subj-btn:active{transform:scale(.96);}
-    .subj-btn.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 4px 14px rgba(79,70,229,.3);}
-    .subj-btn .subj-icon{font-size:1.4rem;display:block;margin-bottom:.35rem;}
+    .subj-btn.active{
+      background:linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-color:transparent;color:#fff;
+      box-shadow:0 8px 25px rgba(79,70,229,.4);
+    }
+    .subj-btn .subj-icon{font-size:1.6rem;display:block;margin-bottom:.4rem; transition: transform 0.3s ease;}
+    .subj-btn.active .subj-icon{transform: scale(1.1);}
 
-    .mark-list{display:flex;flex-direction:column;gap:.6rem;}
-    .mark-row{background:var(--surface);border-radius:16px;padding:.85rem 1rem;
-      display:flex;align-items:center;gap:.75rem;
-      box-shadow:var(--shadow-sm);border:2px solid transparent;
-      transition:border-color .2s;}
-    .mark-row.has-mark{border-color:rgba(79,70,229,.25);}
-    .mark-avatar{width:40px;height:40px;border-radius:50%;
+    /* Mark List Improvements */
+    .mark-list{display:flex;flex-direction:column;gap:.85rem;}
+    .mark-row{
+      background:rgba(255, 255, 255, 0.95);backdrop-filter:blur(16px);
+      border-radius:22px;padding:1rem 1.15rem;
+      display:flex;align-items:center;gap:1rem;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.03);border:1.5px solid rgba(15, 23, 42, 0.05);
+      transition:all .3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mark-row:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15, 23, 42, 0.06);}
+    .mark-row.has-mark{border-color:rgba(16, 185, 129, 0.4); background:rgba(16, 185, 129, 0.02);}
+    .mark-row.has-mark .mark-avatar { background: linear-gradient(135deg, #10b981, #059669); }
+    
+    .mark-avatar{
+      width:46px;height:46px;border-radius:50%;
       background:linear-gradient(135deg,var(--primary-light),var(--accent));color:#fff;
       display:flex;align-items:center;justify-content:center;
-      font-weight:800;font-size:1rem;flex-shrink:0;}
-    .mark-info{flex:1;min-width:0;}
-    .mark-name{font-weight:800;font-size:.95rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .mark-roll{font-size:.75rem;color:var(--text-secondary);font-weight:600;}
-    .mark-inputs{display:flex;gap:.4rem;flex-shrink:0;}
-    .mark-input{width:60px;height:44px;border:2px solid var(--border);border-radius:12px;
-      font-size:1.1rem;font-weight:800;text-align:center;color:var(--text);outline:none;
-      background:var(--background);-webkit-appearance:none;transition:border-color .2s,box-shadow .2s;}
-    .mark-input:focus{border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(99,102,241,.15);background:var(--surface);}
-    .mark-input.wide{width:52px;font-size:.9rem;}
-    .mark-input.err{border-color:var(--danger);}
+      font-weight:900;font-size:1.1rem;flex-shrink:0;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+      transition: background 0.3s ease;
+    }
+    .mark-info{flex:1;min-width:0; display:flex; flex-direction:column; gap:0.2rem;}
+    .mark-name{font-weight:850;font-size:1.05rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .mark-roll{font-size:.8rem;color:var(--primary);font-weight:750; background:rgba(79, 70, 229, 0.08); padding:0.15rem 0.5rem; border-radius:8px; display:inline-block; width:fit-content;}
+    
+    .mark-inputs{display:flex;gap:.5rem;flex-shrink:0;}
+    .mark-input{
+      width:64px;height:48px;border:1.5px solid var(--border);border-radius:14px;
+      font-size:1.15rem;font-weight:850;text-align:center;color:var(--text);outline:none;
+      background:#f8fafc;-webkit-appearance:none;transition:all .25s ease;
+    }
+    .mark-input:hover{border-color:#cbd5e1; background:#f1f5f9;}
+    .mark-input:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 4px rgba(79, 70, 229, 0.15);
+      background:#fff;
+      transform: translateY(-2px);
+    }
+    .mark-input.wide{width:56px;font-size:.95rem;}
+    .mark-input.err{border-color:var(--danger); background:rgba(239, 68, 68, 0.05); color:var(--danger); animation:shake 0.4s ease;}
 
-    .subcol-wrap{display:flex;flex-direction:column;align-items:center;gap:.15rem;}
-    .subcol-label{font-size:.62rem;font-weight:800;color:var(--text-secondary);text-transform:uppercase;}
+    .subcol-wrap{display:flex;flex-direction:column;align-items:center;gap:.25rem;}
+    .subcol-label{font-size:.65rem;font-weight:850;color:var(--text-secondary);text-transform:uppercase; letter-spacing:0.02em;}
 
-    .save-bar{position:fixed;bottom:64px;left:0;right:0;padding:.85rem 1rem;
-      background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
-      border-top:1px solid var(--border);z-index:90;}
-    .save-btn{width:100%;max-width:500px;display:block;margin:0 auto;
-      padding:.85rem;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;
-      border:none;border-radius:99px;font-size:1rem;font-weight:800;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;gap:.5rem;
-      box-shadow:0 4px 14px rgba(79,70,229,.32);-webkit-tap-highlight-color:transparent;
-      transition:transform .1s;}
-    .save-btn:active{transform:scale(.98);}
+    /* Save Bar Improvements */
+    .save-bar{position:fixed;bottom:64px;left:0;right:0;padding:.85rem 1.25rem;
+      background:rgba(255,255,255,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      border-top:1px solid rgba(15, 23, 42, 0.06);z-index:90;
+      box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.03);}
+    .save-btn{width:100%;max-width:500px;display:flex;margin:0 auto;
+      padding:.9rem;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;
+      border:none;border-radius:20px;font-size:1.05rem;font-weight:850;cursor:pointer;
+      align-items:center;justify-content:center;gap:.6rem;
+      box-shadow:0 8px 24px rgba(79,70,229,.35);-webkit-tap-highlight-color:transparent;
+      transition:all .2s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .save-btn:hover{box-shadow:0 12px 30px rgba(79,70,229,.45); transform:translateY(-2px);}
+    .save-btn:active{transform:scale(.96);}
 
     .placeholder-msg{background:var(--surface);border-radius:20px;padding:2rem;text-align:center;
       color:var(--text-secondary);box-shadow:var(--shadow-sm);border: 1px solid var(--border);}
@@ -1218,11 +1277,37 @@
     .portal-link a:hover { color: var(--accent); transform: translateX(3px); }
     .back-home { position: absolute; top: 2rem; left: 2rem; color: rgba(0, 0, 0, 0.7); font-size: 0.9rem; font-weight: 600; z-index: 10; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: var(--radius-full); background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(0, 0, 0, 0.1); transition: all 0.3s; text-decoration: none; }
     .back-home:hover { color: #000; background: rgba(255, 255, 255, 0.18); transform: translateX(-4px); }
+    @media (max-width: 768px) {
+      .back-home { display: none !important; }
+    }
     @media (max-width: 480px) {
-      .login-card { padding: 2.25rem 1.25rem; border-radius: 20px; }
-      .logo-wrap h2 { font-size: 1.5rem; }
-      .logo-wrap p { font-size: 0.88rem; }
-      .back-home { top: 1rem; left: 1rem; padding: 0.5rem 0.9rem; font-size: 0.8rem; }
+      .login-overlay { padding: 1.5rem; }
+      .login-card { 
+        padding: 2.5rem 1.75rem; 
+        border-radius: 28px; 
+        box-shadow: 0 25px 50px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(79, 70, 229, 0.1); 
+        margin: auto;
+      }
+      .logo-wrap { margin-bottom: 1.75rem; }
+      .logo-wrap h2 { font-size: 1.8rem; }
+      .logo-wrap p { font-size: 0.95rem; padding: 0 0.5rem; }
+      .input-with-icon .form-control {
+        height: 54px;
+        border-radius: 18px;
+        font-size: 1.05rem;
+      }
+      .btn-submit {
+        height: 54px;
+        border-radius: 18px;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+      }
+      .login-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1.25rem;
+      }
+      .back-home { display: none !important; }
     }
   </style>
 </head>
@@ -1294,11 +1379,6 @@
           <i class="bi bi-arrow-right-short"></i>
         </button>
       </form>
-      <div class="portal-link">
-        <a href="admin-login.html">
-          <span>Admin Portal Login</span> <i class="bi bi-arrow-right-short"></i>
-        </a>
-      </div>
     </div>
   </div>
 
@@ -1344,6 +1424,7 @@
           console.log('SW Registration failed', err);
         });
       }
+
 
       document.getElementById('teacherLoginForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -1460,7 +1541,6 @@
             <div class="panel-title">
               <span>📋 My Class Students</span>
               <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-                <button onclick="openAddStudentModal()" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);border:none;color:#1e293b;font-weight:800;font-size:.78rem;padding:.45rem .9rem;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;-webkit-tap-highlight-color:transparent;"><i class="bi bi-person-plus-fill"></i>Add Student</button>
                 <button onclick="downloadAllProgressCards()" style="background:linear-gradient(135deg,#4f46e5,#6366f1);border:none;color:#fff;font-weight:800;font-size:.78rem;padding:.45rem .9rem;border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;-webkit-tap-highlight-color:transparent;"><i class="bi bi-file-earmark-pdf-fill"></i>Download All Cards</button>
               </div>
             </div>
@@ -1655,60 +1735,7 @@
 
   <div id="toast-container"></div>
 
-  <!-- Add Student Modal Dialog -->
-  <div id="addStudentModal" class="modal-overlay" onclick="if(event.target === this) closeAddStudentModal();">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Add New Student</h3>
-        <button class="modal-close-btn" onclick="closeAddStudentModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <form id="addStudentForm">
-          <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Student Name</label>
-            <input type="text" id="sName" placeholder="Enter student name" class="form-control" required style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;">
-          </div>
-          <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Roll Number</label>
-            <input type="text" id="sRollNo" placeholder="Enter roll number" class="form-control" required style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;">
-          </div>
-          <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Date of Birth</label>
-            <input type="date" id="sDob" class="form-control" required style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;">
-          </div>
-          <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Class</label>
-            <select id="sClass" class="form-control" required style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;"></select>
-          </div>
-          
-          <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Transport Type</label>
-            <select id="sType" class="form-control" onchange="document.getElementById('sBusGroup').style.display = this.value === 'bus' ? 'block' : 'none'" style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;">
-              <option value="dayscholar">🚶 Day Scholar</option>
-              <option value="bus">🚌 School Bus</option>
-            </select>
-          </div>
-          
-          <div class="form-group" id="sBusGroup" style="margin-bottom: 1rem; display: none;">
-            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Bus Route</label>
-            <select id="sBus" class="form-control" style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;"></select>
-          </div>
 
-          <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Parent Name (Optional)</label>
-            <input type="text" id="sParentName" placeholder="Parent / Guardian Name" class="form-control" style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;">
-          </div>
-
-          <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="form-label" style="font-weight: 700; color: var(--primary-dark); margin-bottom: 0.3rem; display: block;">Parent Phone (Optional)</label>
-            <input type="tel" id="sPhone" placeholder="+91 99999 99999" class="form-control" style="width: 100%; border-radius: var(--radius-md); padding: 0.6rem;">
-          </div>
-
-          <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem; font-weight: 700; padding: 0.75rem; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border: none; border-radius: var(--radius-full); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">Create Student</button>
-        </form>
-      </div>
-    </div>
-  </div>
 
   <script>
     let myClassId = null;
@@ -1772,11 +1799,9 @@
       
       const subLabel = document.getElementById('subjectsClassLabel');
       if (subLabel) subLabel.textContent = activeClassObj ? `Class: ${activeClassObj.name}` : 'No class selected';
-      
-      const sBus = document.getElementById('sBus');
-      if (sBus) {
-        sBus.innerHTML = '<option value="">Select Route</option>' + buses.map(b => `<option value="${b.id}">${b.number} - ${b.route}</option>`).join('');
-      }
+
+      const transLabel = document.getElementById('transportClassLabel');
+      if (transLabel) transLabel.textContent = activeClassObj ? `Class: ${activeClassObj.name}` : 'No class selected';
       
       // Setup Multiple Class Selector Dropdowns
       if (window.myClassIds.length > 1) {
@@ -2060,54 +2085,7 @@
       renderDirectory(filtered);
     }
 
-    window.openAddStudentModal = function() {
-      const classes = DB.get('classes') || [];
-      const assignedClasses = classes.filter(c => window.myClassIds.includes(c.id));
-      const sClassSelect = document.getElementById('sClass');
-      sClassSelect.innerHTML = assignedClasses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-      document.getElementById('addStudentModal').classList.add('show');
-    };
 
-    window.closeAddStudentModal = function() {
-      document.getElementById('addStudentModal').classList.remove('show');
-      document.getElementById('addStudentForm').reset();
-    };
-
-    document.getElementById('addStudentForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      const rollNo = document.getElementById('sRollNo').value.trim();
-      const studentsList = DB.get('students') || [];
-      
-      // Duplicate Roll Number Check
-      if (studentsList.some(s => (s.rollNo || s.roll_no || '').trim().toLowerCase() === rollNo.toLowerCase())) {
-        showToast(`Student with roll number '${rollNo}' already exists!`, 'warning');
-        return;
-      }
-
-      const transportType = document.getElementById('sType').value;
-      const newStudent = {
-        id: genId('s'),
-        rollNo: rollNo,
-        name: document.getElementById('sName').value,
-        dob: document.getElementById('sDob').value,
-        classId: document.getElementById('sClass').value,
-        type: transportType,
-        busId: transportType === 'bus' ? document.getElementById('sBus').value : null,
-        parentName: document.getElementById('sParentName').value || null,
-        phone: document.getElementById('sPhone').value || null,
-        academicYear: currentAcademicYear()
-      };
-      
-      studentsList.push(newStudent);
-      DB.set('students', studentsList).then(() => {
-        e.target.reset();
-        document.getElementById('sBusGroup').style.display = 'none';
-        closeAddStudentModal();
-        loadDashboardData();
-        showToast('Student added successfully', 'success');
-      });
-    });
 
     // ── Progress Card PDF Printing System ─────────────────────────────
     function generateProgressCardHtml(s) {
@@ -2974,11 +2952,16 @@
 
       const maxMarkDisplay = row && row.maxMark !== undefined ? `/ ${row.maxMark}` : '';
 
-      let html = `<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem;">
-        <div class="section-label" style="margin:0;font-size:0.85rem;display:flex;align-items:center;gap:0.35rem;">
-          ${getSubjectIcon(selectedSubject)} <strong>${selectedSubject}</strong> <span style="color:var(--text-secondary);font-weight:600;">— ${examObj ? examObj.name : ''}</span>
+      let html = `<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:0.5rem;margin-bottom:1rem;">
+        <div style="display:flex; flex-direction:column; gap:0.6rem;">
+          <button onclick="selectSubject('${selectedSubject.replace(/'/g,"\\'")}')" style="background:linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(79, 70, 229, 0.05));border:1.5px solid rgba(79, 70, 229, 0.2);color:var(--primary-dark);font-size:0.85rem;font-weight:850;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;padding:0.45rem 1rem;border-radius:99px;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 10px rgba(79, 70, 229, 0.05);width:fit-content;">
+            <i class="bi bi-arrow-left-circle-fill" style="font-size:1.1rem;color:var(--primary);"></i> View All Subjects
+          </button>
+          <div class="section-label" style="margin:0;font-size:0.95rem;display:flex;align-items:center;gap:0.4rem;padding-left:0.25rem;">
+            ${getSubjectIcon(selectedSubject)} <strong>${selectedSubject}</strong> <span style="color:var(--text-secondary);font-weight:600;">— ${examObj ? examObj.name : ''}</span>
+          </div>
         </div>
-        <span style="font-size:0.75rem;font-weight:850;color:var(--primary);background:rgba(79,70,229,0.08);padding:0.25rem 0.65rem;border-radius:99px;border:1px solid rgba(79,70,229,0.12);">
+        <span style="font-size:0.75rem;font-weight:850;color:var(--primary);background:rgba(79,70,229,0.08);padding:0.25rem 0.65rem;border-radius:99px;border:1px solid rgba(79,70,229,0.12);margin-bottom:0.15rem;">
           ${filledCount} / ${students.length} Filled
         </span>
       </div>`;
@@ -2993,9 +2976,16 @@
       if (!row || row.type === 'metric' || row.type === 'skill') {
         students.forEach(s => {
           const smarks = allMarks[s.id] || {};
-          const val = smarks[selectedSubject] && smarks[selectedSubject][selectedExam] !== undefined
+          let val = smarks[selectedSubject] && smarks[selectedSubject][selectedExam] !== undefined
             ? smarks[selectedSubject][selectedExam] : '';
           const isNum = selectedSubject === 'Attendance';
+          
+          if (isNum && val === '') {
+            const rawLogs = DB.get('attendanceLogs') || [];
+            const studentLogs = rawLogs.filter(l => l.studentId === s.id && l.type === 'class' && l.present);
+            val = studentLogs.length;
+          }
+
           html += `<div class="mark-row ${val !== '' ? 'has-mark' : ''}" data-search="${(s.name + ' ' + (s.rollNo||'')).toLowerCase()}">
             <div class="mark-avatar">${getInitials(s.name)}</div>
             <div class="mark-info">
@@ -3330,7 +3320,7 @@
             </div>
             <div class="transport-controls">
               <select class="custom-select" onchange="updateTransport('${s.id}', this.value)">
-                <option value="dayscholar" ${!isBus ? 'selected' : ''}>🚶‍♂️ Day Scholar</option>
+                <option value="dayscholar" ${!isBus ? 'selected' : ''}>🚶‍♂️ Walk</option>
                 <option value="bus" ${isBus ? 'selected' : ''}>🚌 Bus Student</option>
               </select>
               <select class="custom-select" id="bus_select_${s.id}" onchange="updateBus('${s.id}', this.value)" style="display: ${isBus ? 'block' : 'none'}">

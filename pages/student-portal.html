@@ -108,84 +108,7 @@
       100% { transform: translate3d(-30px, -30px, 0) scale(0.9); }
     }
 
-    /* ── PWA Install Banner ── */
-    .pwa-install-banner {
-      position: fixed;
-      top: calc(1rem + var(--sat));
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 2rem);
-      max-width: 460px;
-      background: rgba(15, 23, 42, 0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 20px;
-      padding: 0.85rem 1.25rem;
-      z-index: 2000;
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-      animation: slideDownBanner 0.5s var(--ease-bounce);
-    }
-    @keyframes slideDownBanner {
-      from { transform: translate(-50%, -100%); opacity: 0; }
-      to { transform: translate(-50%, 0); opacity: 1; }
-    }
-    .pwa-install-info {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      color: #fff;
-    }
-    .pwa-install-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      color: #fff;
-      flex-shrink: 0;
-    }
-    .pwa-install-text h4 {
-      margin: 0;
-      font-size: 0.9rem;
-      font-weight: 800;
-      line-height: 1.2;
-    }
-    .pwa-install-text p {
-      margin: 0.15rem 0 0;
-      font-size: 0.75rem;
-      color: rgba(255, 255, 255, 0.7);
-    }
-    .pwa-install-btn {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: var(--radius-full);
-      font-size: 0.82rem;
-      font-weight: 800;
-      cursor: pointer;
-      white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
-    }
-    .pwa-install-close {
-      background: none;
-      border: none;
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 0.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+
 
     /* ── Back to Home Link ── */
     .back-home {
@@ -400,22 +323,49 @@
       transition: var(--transition);
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
       .back-home {
-        top: calc(0.85rem + var(--sat));
-        left: 0.85rem;
-        padding: 0.45rem 0.85rem;
-        font-size: 0.78rem;
+        display: none !important;
+      }
+    }
+    @media (max-width: 480px) {
+      .login-page {
+        padding: 1.5rem;
+      }
+      .back-home {
+        display: none !important;
       }
       .login-card {
-        padding: 2.25rem 1.35rem;
-        border-radius: 24px;
+        padding: 2.5rem 1.75rem;
+        border-radius: 28px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15);
+        margin: auto;
+      }
+      .logo-wrap {
+        margin-bottom: 1.75rem;
       }
       .logo-wrap h2 {
-        font-size: 1.6rem;
+        font-size: 1.8rem;
       }
       .logo-wrap p {
-        font-size: 0.85rem;
+        font-size: 0.95rem;
+        padding: 0 0.5rem;
+      }
+      .input-with-icon .form-control {
+        height: 54px;
+        border-radius: 18px;
+        font-size: 1.05rem;
+      }
+      .btn-submit {
+        height: 54px;
+        border-radius: 18px;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+      }
+      .login-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 1.25rem;
       }
     }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -821,7 +771,7 @@
     .bg-danger { background: var(--danger); }
     .bg-light { background: var(--text-muted); }
 
-    /* Day Scholar Card View */
+    /* Walk Card View */
     .dayscholar-badge-container {
       text-align: center;
       padding: 1.5rem 1rem;
@@ -1816,24 +1766,6 @@
   </style>
 </head>
 <body>
-  <!-- ============================================
-       PWA INSTALL BANNER
-       ============================================ -->
-  <div class="pwa-install-banner" id="pwaInstallBanner">
-    <div class="pwa-install-info">
-      <div class="pwa-install-icon">
-        <i class="bi bi-phone-vibrate-fill"></i>
-      </div>
-      <div class="pwa-install-text">
-        <h4>Install Student App</h4>
-        <p>Get full screen experience on your home screen</p>
-      </div>
-    </div>
-    <div style="display: flex; align-items: center; gap: 0.5rem;">
-      <button class="pwa-install-btn" onclick="installPWA()">Install</button>
-      <button class="pwa-install-close" onclick="dismissPWABanner()"><i class="bi bi-x-lg"></i></button>
-    </div>
-  </div>
 
   <!-- ============================================
        LOGIN SECTION
@@ -1884,11 +1816,7 @@
         </button>
       </form>
 
-      <div class="login-footer">
-        <a href="../index.html">
-          <i class="bi bi-arrow-left"></i> Back to Main Website
-        </a>
-      </div>
+
     </div>
   </div>
 
@@ -2201,33 +2129,6 @@
     // ============================================
     let selectedExam = 'exam1';
     let portalSession = null;
-    let deferredPrompt = null;
-
-    // PWA Install Event Listener
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const banner = document.getElementById('pwaInstallBanner');
-      if (banner) banner.style.display = 'flex';
-    });
-
-    function installPWA() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            showToast('App installed to Home Screen!', 'success');
-          }
-          deferredPrompt = null;
-          dismissPWABanner();
-        });
-      }
-    }
-
-    function dismissPWABanner() {
-      const banner = document.getElementById('pwaInstallBanner');
-      if (banner) banner.style.display = 'none';
-    }
 
 
 
@@ -2348,7 +2249,7 @@
 
       var transportPill = student.type === 'bus'
         ? '<span class="profile-badge transport-pill bus-mode"><i class="bi bi-bus-front"></i> School Bus</span>'
-        : '<span class="profile-badge transport-pill walk-mode"><i class="bi bi-person-walking"></i> Day Scholar</span>';
+        : '<span class="profile-badge transport-pill walk-mode"><i class="bi bi-person-walking"></i> Walk</span>';
 
       document.getElementById('profileCard').innerHTML =
         '<div class="profile-avatar">' + student.name.charAt(0) + '</div>' +
@@ -2388,7 +2289,7 @@
           '<div class="panel-title"><i class="bi bi-person-walking icon-accent"></i> Bus Usage</div>' +
           '<div class="dayscholar-badge-container">' +
             '<div class="dayscholar-icon">🚶‍♂️</div>' +
-            '<h4>Day Scholar</h4>' +
+            '<h4>Walk</h4>' +
             '<p>Own Commute / Walk</p>' +
           '</div>';
       } else {

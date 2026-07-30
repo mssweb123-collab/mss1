@@ -1527,7 +1527,7 @@
                 </div>
                 <div class="form-group">
                   <select id="peType" class="form-control" onchange="togglePeBus(this.value)" required style="background: #fff; font-weight: 600;">
-                    <option value="dayscholar">🚶‍♂️ Day Scholar</option>
+                    <option value="dayscholar">🚶‍♂️ Walk</option>
                     <option value="bus">🚌 School Bus</option>
                   </select>
                 </div>
@@ -1957,7 +1957,7 @@
           <div class="form-group">
             <label class="form-label">Transport Type</label>
             <select id="sType" class="form-control" onchange="document.getElementById('sBusGroupModal').style.display = this.value === 'bus' ? 'block' : 'none'">
-              <option value="dayscholar">🚶 Day Scholar</option>
+              <option value="dayscholar">🚶 Walk</option>
               <option value="bus">🚌 School Bus</option>
             </select>
           </div>
@@ -2217,13 +2217,53 @@
       setTimeout(() => { window.print(); container.style.display = 'none'; }, 200);
     };
 
+    // ── Helper: force-unlock scroll (always safe to call) ─────────────────
+    function _unlockScroll() {
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.overflowY = '';
+      document.body.style.overflow = '';
+      document.body.style.overflowY = '';
+    }
+
+    // ── Helper: derive a sensible academic year from current date ──────────
+    function _deriveFallbackYear() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth() + 1; // 1-based
+      if (m >= 6) return `${y}-${String(y + 1).slice(-2)}`;
+      return `${y - 1}-${String(y).slice(-2)}`;
+    }
+
+    // ── Show/hide loading overlay ─────────────────────────────────────────
+    function _showLoadingBanner(msg) {
+      let banner = document.getElementById('_mssLoadBanner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = '_mssLoadBanner';
+        banner.style.cssText = [
+          'position:fixed', 'top:0', 'left:0', 'right:0', 'z-index:99999',
+          'background:linear-gradient(90deg,#4f46e5,#7c3aed)',
+          'color:#fff', 'font-size:0.82rem', 'font-weight:700',
+          'padding:0.55rem 1.25rem', 'display:flex', 'align-items:center',
+          'gap:0.6rem', 'box-shadow:0 2px 12px rgba(0,0,0,0.15)'
+        ].join(';');
+        document.body.appendChild(banner);
+      }
+      banner.innerHTML = `<span style="animation:spin 1s linear infinite;display:inline-block">⟳</span> ${msg}`;
+      banner.style.display = 'flex';
+    }
+    function _hideLoadingBanner() {
+      const b = document.getElementById('_mssLoadBanner');
+      if (b) b.style.display = 'none';
+    }
+
     if (session) {
       document.getElementById('adminName').textContent = session.name;
       const activeYear = currentAcademicYear();
       if (!activeYear) {
+        // Show overlay but DO NOT lock scroll — wait for Supabase sync
         document.getElementById('academicYearSetupOverlay').style.display = 'flex';
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
+        _showLoadingBanner('Loading school data from Supabase…');
       } else {
         loadData();
         renderClassesWise();
@@ -2232,24 +2272,42 @@
 
     // Listen to background synchronization updates
     window.addEventListener('mss-db-sync', () => {
+      // Always unlock scroll first — no matter what happens next
+      _unlockScroll();
+      _hideLoadingBanner();
+
       let activeYear = currentAcademicYear();
       if (!activeYear) {
+        // Try to detect from loaded data
         const available = getAvailableAcademicYears();
         if (available.length > 0) {
           activeYear = available[available.length - 1];
+        } else {
+          // Still nothing? Derive from calendar (school data may not have year field yet)
+          activeYear = _deriveFallbackYear();
+        }
+        if (activeYear) {
           sessionStorage.setItem('mss_activeAcademicYear', activeYear);
           localStorage.setItem('mss_activeAcademicYear', activeYear);
         }
       }
 
       if (activeYear) {
-        document.getElementById('academicYearSetupOverlay').style.display = 'none';
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
-        DB.fetchAllExtendedData().then(function() {
-          loadData();
-          renderClassesWise();
-        });
+        // Hide the setup overlay — data is now available
+        const overlay = document.getElementById('academicYearSetupOverlay');
+        if (overlay) overlay.style.display = 'none';
+
+        DB.fetchAllExtendedData()
+          .then(function() {
+            loadData();
+            renderClassesWise();
+          })
+          .catch(function(err) {
+            console.warn('fetchAllExtendedData failed, rendering with base data:', err);
+            // Still render with whatever pullAllFromSupabase fetched (classes, teachers, etc.)
+            loadData();
+            renderClassesWise();
+          });
       }
     });
 
@@ -2412,7 +2470,7 @@
       const buses = DB.get('buses') || [];
       const isBus = s.type === 'bus';
       const bus = (isBus && s.busId) ? buses.find(b => b.id === s.busId) : null;
-      const busInfo = isBus ? (bus ? `Bus #${bus.number} - ${bus.route}` : 'School Bus (No Route Assigned)') : 'Day Scholar (N/A)';
+      const busInfo = isBus ? (bus ? `Bus #${bus.number} - ${bus.route}` : 'School Bus (No Route Assigned)') : 'Walk (N/A)';
 
       // Attendance calculation
       const logs = DB.get('attendanceLogs') || [];
@@ -2719,7 +2777,7 @@
         paneTableBody.innerHTML = classStudents.map(s => {
           const isBus = s.type === 'bus';
           const bus = buses.find(b => b.id === s.busId);
-          const busInfo = isBus ? (bus ? `Bus #${bus.number}` : 'Bus (No route)') : 'Day Scholar';
+          const busInfo = isBus ? (bus ? `Bus #${bus.number}` : 'Bus (No route)') : 'Walk';
           return `<tr>
             <td style="font-weight: 700; color: var(--primary);">${s.rollNo}</td>
             <td style="font-weight: 600;">${s.name}</td>
@@ -2818,7 +2876,7 @@
       const classOpts = classes.map(c => `<option value="${c.id}" ${c.id === s.classId ? 'selected' : ''}>${c.name}</option>`).join('');
 
       const buses = DB.get('buses') || [];
-      const busOpts = '<option value="">None (Day Scholar)</option>' + buses.map(b => `<option value="${b.id}" ${b.id === s.busId ? 'selected' : ''}>Bus #${b.number}</option>`).join('');
+      const busOpts = '<option value="">None (Walk)</option>' + buses.map(b => `<option value="${b.id}" ${b.id === s.busId ? 'selected' : ''}>Bus #${b.number}</option>`).join('');
 
       const html = `
         <input type="hidden" id="editId" value="${s.id}">
@@ -2842,7 +2900,7 @@
         <div class="form-group">
           <label class="form-label">Transport Type</label>
           <select id="editSType" class="form-control" onchange="toggleEditSBus(this.value)" required>
-            <option value="dayscholar" ${s.type === 'dayscholar' ? 'selected' : ''}>Day Scholar</option>
+            <option value="dayscholar" ${s.type === 'dayscholar' ? 'selected' : ''}>Walk</option>
             <option value="bus" ${s.type === 'bus' ? 'selected' : ''}>School Bus</option>
           </select>
         </div>
@@ -3694,8 +3752,11 @@
       showToast(`Academic Year '${year}' set successfully!`, 'success');
 
       document.getElementById('academicYearSetupOverlay').style.display = 'none';
-      document.documentElement.style.overflow = '';
-      document.body.style.overflow = '';
+      if (typeof _unlockScroll === 'function') _unlockScroll();
+      else {
+        document.documentElement.style.overflow = '';
+        document.body.style.overflow = '';
+      }
 
       setTimeout(() => {
         window.location.reload();
@@ -4648,6 +4709,61 @@
       link.click();
       document.body.removeChild(link);
     };
+
+    // Handle Auto-fill from Email Link
+    document.addEventListener('DOMContentLoaded', () => {
+      // Small timeout to ensure async DB operations (like loading classes into the select dropdown) finish
+      setTimeout(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        
+        if (action === 'addStudent') {
+          const name = urlParams.get('name');
+          const dob = urlParams.get('dob');
+          const parentName = urlParams.get('parentName');
+          const parentPhone = urlParams.get('parentPhone');
+          const className = urlParams.get('className');
+          
+          if (name) document.getElementById('sName').value = name;
+          if (dob) {
+            try {
+              const d = new Date(dob);
+              if (!isNaN(d)) {
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                document.getElementById('sDob').value = `${yyyy}-${mm}-${dd}`;
+              }
+            } catch(e) {}
+          }
+          if (parentName) document.getElementById('sParentName').value = parentName;
+          if (parentPhone) document.getElementById('sPhone').value = parentPhone;
+          
+          if (className) {
+            const classSelect = document.getElementById('sClass');
+            if (classSelect) {
+              for (let i = 0; i < classSelect.options.length; i++) {
+                if (classSelect.options[i].text.toLowerCase() === className.toLowerCase() || 
+                    classSelect.options[i].value === className) {
+                  classSelect.selectedIndex = i;
+                  break;
+                }
+              }
+            }
+          }
+
+          if (typeof openAddStudentModal === 'function') {
+            openAddStudentModal();
+          } else {
+            const modal = document.getElementById('addStudentModal');
+            if (modal) modal.classList.add('show');
+          }
+          
+          const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+          window.history.replaceState({path: newUrl}, '', newUrl);
+        }
+      }, 500);
+    });
   </script>
 </body>
 </html>

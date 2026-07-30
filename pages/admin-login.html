@@ -425,7 +425,10 @@ document.getElementById('adminLoginForm').addEventListener('submit', function(e)
   const session = Auth.loginAdmin(user, pass);
   if (session) {
     showToast('Welcome, ' + session.name, 'success');
-    setTimeout(() => window.location.href = 'admin-dashboard.html', 600);
+    setTimeout(() => {
+      const search = window.location.search;
+      window.location.href = 'admin-dashboard.html' + search;
+    }, 600);
   } else {
     attempts++;
     const errorEl = document.getElementById('loginError');
