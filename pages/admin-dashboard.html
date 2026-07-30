@@ -2817,6 +2817,7 @@
       teachers.forEach(t => {
         if (Array.isArray(t.classId)) {
           t.classId = t.classId.filter(id => id !== window.activeClassId);
+          if (t.classId.length === 0) t.classId = null;
         } else if (t.classId === window.activeClassId) {
           t.classId = null;
         }
@@ -2826,12 +2827,7 @@
       if (teacherId) {
         const chosen = teachers.find(t => t.id === teacherId);
         if (chosen) {
-          if (!Array.isArray(chosen.classId)) {
-            chosen.classId = chosen.classId ? [chosen.classId] : [];
-          }
-          if (!chosen.classId.includes(window.activeClassId)) {
-            chosen.classId.push(window.activeClassId);
-          }
+          chosen.classId = window.activeClassId;
         }
       }
       
@@ -2929,7 +2925,8 @@
       if (!t) return;
 
       const classes = DB.get('classes') || [];
-      const classOpts = classes.map(c => `<option value="${c.id}" ${c.id === t.classId ? 'selected' : ''}>${c.name}</option>`).join('');
+      let classIdVal = Array.isArray(t.classId) ? t.classId[0] : t.classId;
+      const classOpts = '<option value="">-- Unassigned --</option>' + classes.map(c => `<option value="${c.id}" ${c.id === classIdVal ? 'selected' : ''}>${c.name}</option>`).join('');
 
       const html = `
         <input type="hidden" id="editId" value="${t.id}">
@@ -3236,6 +3233,74 @@
     }
 
     window.openAddStudentModal = function() {
+      // Auto-fill from URL parameters if present
+      const urlParams = new URLSearchParams(window.location.search);
+      const action = urlParams.get('action');
+      
+      if (action === 'addStudent') {
+        const name = urlParams.get('name');
+        const dob = urlParams.get('dob');
+        const parentName = urlParams.get('parentName');
+        const parentPhone = urlParams.get('parentPhone');
+        const className = urlParams.get('className');
+        
+        if (name) document.getElementById('sName').value = name;
+        if (dob) {
+          try {
+            const d = new Date(dob);
+            if (!isNaN(d)) {
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, '0');
+              const dd = String(d.getDate()).padStart(2, '0');
+              document.getElementById('sDob').value = `${yyyy}-${mm}-${dd}`;
+            }
+          } catch(e) {}
+        }
+        if (parentName) document.getElementById('sParentName').value = parentName;
+        if (parentPhone) document.getElementById('sPhone').value = parentPhone;
+        
+        if (className) {
+          const classSelect = document.getElementById('sClass');
+          if (classSelect) {
+            const targetClass = className.toLowerCase().replace(/[^a-z0-9]/g, '');
+            let bestMatchIdx = -1;
+            
+            for (let i = 0; i < classSelect.options.length; i++) {
+              if (!classSelect.options[i].value) continue; // Skip default empty option
+              
+              const optText = classSelect.options[i].text.toLowerCase();
+              const optClean = optText.replace(/[^a-z0-9]/g, '');
+              
+              // 1. Exact or clean match (highest priority)
+              if (optText === className.toLowerCase() || optClean === targetClass) {
+                bestMatchIdx = i;
+                break;
+              }
+              
+              // 2. Safe partial match (Word boundary, e.g., "Class 1" safely matches "Class 1 - A" but avoids "Class 10")
+              if (bestMatchIdx === -1) {
+                const escapedName = className.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const wordBoundaryRegex = new RegExp(`\\b${escapedName}\\b`);
+                if (wordBoundaryRegex.test(optText)) {
+                  bestMatchIdx = i;
+                } else if (optClean.startsWith(targetClass) && !/^[0-9]/.test(optClean.substring(targetClass.length))) {
+                  // Fallback for clean strings (e.g., target="class1", opt="class1a" -> next char is 'a', not a digit)
+                  bestMatchIdx = i;
+                }
+              }
+            }
+
+            if (bestMatchIdx !== -1) {
+              classSelect.selectedIndex = bestMatchIdx;
+              if (typeof suggestNextRollNo === 'function') {
+                const sRollNoEl = document.getElementById('sRollNo');
+                if (sRollNoEl) sRollNoEl.value = suggestNextRollNo(classSelect.value);
+              }
+            }
+          }
+        }
+      }
+
       document.getElementById('addStudentModal').classList.add('show');
     };
     window.closeAddStudentModal = function() {
@@ -3293,12 +3358,10 @@
       
       const tClassesContainer = document.getElementById('tClassesContainer');
       if (tClassesContainer) {
-        tClassesContainer.innerHTML = classes.map(c => `
-          <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-            <input type="checkbox" name="addTClasses" value="${c.id}" style="width: 18px; height: 18px; accent-color: var(--primary);">
-            ${c.name}
-          </label>
-        `).join('') || '<p style="color: var(--text-secondary); margin: 0; font-size: 0.85rem;">No classes defined.</p>';
+        tClassesContainer.innerHTML = `<select name="addTClasses" class="form-control">
+          <option value="">-- Unassigned --</option>
+          ${classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+        </select>`;
       }
 
       // Populate Students Table
@@ -3387,7 +3450,21 @@
           if (newPass) {
             list[idx].password = sha256(newPass);
           }
-          list[idx].classId = document.getElementById('editTClass').value;
+          
+          const newClassId = document.getElementById('editTClass').value || null;
+          if (newClassId) {
+            list.forEach((t, i) => {
+              if (i !== idx) {
+                if (Array.isArray(t.classId)) {
+                  t.classId = t.classId.filter(cid => cid !== newClassId);
+                  if (t.classId.length === 0) t.classId = null;
+                } else if (t.classId === newClassId) {
+                  t.classId = null;
+                }
+              }
+            });
+          }
+          list[idx].classId = newClassId;
           
           syncPromise = DB.set('teachers', list).then(() => {
             showToast('Teacher updated successfully!', 'success');
@@ -3570,10 +3647,22 @@
         return;
       }
 
+      const chosenClassId = document.querySelector('select[name="addTClasses"]')?.value || null;
+      if (chosenClassId) {
+        teachers.forEach(t => {
+          if (Array.isArray(t.classId)) {
+            t.classId = t.classId.filter(cid => cid !== chosenClassId);
+            if (t.classId.length === 0) t.classId = null;
+          } else if (t.classId === chosenClassId) {
+            t.classId = null;
+          }
+        });
+      }
+
       teachers.push({
         id: genId('t'), name: document.getElementById('tName').value,
         username: username, password: sha256(document.getElementById('tPassword').value),
-        classId: Array.from(document.querySelectorAll('input[name="addTClasses"]:checked')).map(cb => cb.value),
+        classId: chosenClassId,
         phone: document.getElementById('tPhone').value || null,
         email: document.getElementById('tEmail').value || null,
         dob: document.getElementById('tDob').value || null
@@ -4710,60 +4799,7 @@
       document.body.removeChild(link);
     };
 
-    // Handle Auto-fill from Email Link
-    document.addEventListener('DOMContentLoaded', () => {
-      // Small timeout to ensure async DB operations (like loading classes into the select dropdown) finish
-      setTimeout(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const action = urlParams.get('action');
-        
-        if (action === 'addStudent') {
-          const name = urlParams.get('name');
-          const dob = urlParams.get('dob');
-          const parentName = urlParams.get('parentName');
-          const parentPhone = urlParams.get('parentPhone');
-          const className = urlParams.get('className');
-          
-          if (name) document.getElementById('sName').value = name;
-          if (dob) {
-            try {
-              const d = new Date(dob);
-              if (!isNaN(d)) {
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
-                document.getElementById('sDob').value = `${yyyy}-${mm}-${dd}`;
-              }
-            } catch(e) {}
-          }
-          if (parentName) document.getElementById('sParentName').value = parentName;
-          if (parentPhone) document.getElementById('sPhone').value = parentPhone;
-          
-          if (className) {
-            const classSelect = document.getElementById('sClass');
-            if (classSelect) {
-              for (let i = 0; i < classSelect.options.length; i++) {
-                if (classSelect.options[i].text.toLowerCase() === className.toLowerCase() || 
-                    classSelect.options[i].value === className) {
-                  classSelect.selectedIndex = i;
-                  break;
-                }
-              }
-            }
-          }
-
-          if (typeof openAddStudentModal === 'function') {
-            openAddStudentModal();
-          } else {
-            const modal = document.getElementById('addStudentModal');
-            if (modal) modal.classList.add('show');
-          }
-          
-          const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-          window.history.replaceState({path: newUrl}, '', newUrl);
-        }
-      }, 500);
-    });
+    // URL Auto-fill logic is now handled in openAddStudentModal
   </script>
 </body>
 </html>

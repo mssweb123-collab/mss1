@@ -287,16 +287,26 @@ const Auth = {
   loginAdmin(username, password) {
     const cfg = (typeof window !== 'undefined' && window.MSS_CONFIG) || {};
     const adminUser = cfg.ADMIN_USERNAME || 'admin';
-    const adminPass = cfg.ADMIN_PASSWORD || '';
+    const adminPassStr = cfg.ADMIN_PASSWORD || '';
 
     // If no admin password is set in Vercel, login is disabled.
-    if (!adminPass) return null;
+    if (!adminPassStr) return null;
 
     if (adminUser.toLowerCase() === username.trim().toLowerCase()) {
       const inputHash = sha256(password);
-      const expectedHash = sha256(adminPass);
-      if (expectedHash === inputHash) {
-        return this.login('admin', 'admin', 'Principal Admin');
+      
+      // Security Upgrade: If the config contains a valid SHA-256 hash, compare directly.
+      // This prevents exposing plaintext passwords in the frontend bundle.
+      if (adminPassStr.length === 64 && /^[0-9a-f]{64}$/i.test(adminPassStr)) {
+        if (adminPassStr.toLowerCase() === inputHash) {
+          return this.login('admin', 'admin', 'Principal Admin');
+        }
+      } else {
+        // Fallback: Plaintext password was used in Vercel env var (Insecure)
+        const expectedHash = sha256(adminPassStr);
+        if (expectedHash === inputHash) {
+          return this.login('admin', 'admin', 'Principal Admin');
+        }
       }
     }
     return null;
