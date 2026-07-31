@@ -3376,6 +3376,13 @@
       const allStudents = DB.get('students') || [];
       const student = allStudents.find(s => s.id === studentId);
       if (student) {
+        if (student.type === 'bus' && type === 'dayscholar') {
+          if (!confirm(`Are you sure you want to change ${student.name} from Bus to Walk?`)) {
+            loadTransport(); // Revert UI
+            return;
+          }
+        }
+        
         student.type = type;
         if (type === 'dayscholar') student.busId = null;
         DB.set('students', allStudents).then(() => {
