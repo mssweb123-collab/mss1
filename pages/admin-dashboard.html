@@ -1319,6 +1319,27 @@
   </style>
 </head>
 <body>
+  <!-- ── GLOBAL SUPABASE LOADER ── -->
+  <div id="mssAppLoader" class="mss-app-loader">
+    <div class="mss-loader-icon">
+      <div class="mss-loader-spinner"></div>
+      <img src="../assets/logo.png" alt="MSS Logo" />
+    </div>
+    <div class="mss-loader-text">MSS School System</div>
+    <div class="mss-loader-sub"><span></span> Loading...</div>
+  </div>
+  <script>
+    window.addEventListener('mss-db-sync', () => {
+      const loader = document.getElementById('mssAppLoader');
+      if (loader) loader.classList.add('fade-out');
+    }, { once: true });
+    setTimeout(() => {
+      const loader = document.getElementById('mssAppLoader');
+      if (loader && !loader.classList.contains('fade-out')) {
+        loader.classList.add('fade-out');
+      }
+    }, 8000);
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/config.js"></script>
   <script src="../js/supabase.js"></script>
@@ -1617,7 +1638,7 @@
       <div class="table-wrapper">
         <table>
           <thead>
-            <tr><th>Number</th><th>Route</th><th>Driver</th><th>Driver Phone</th><th>PIN</th><th>Actions</th></tr>
+            <tr><th>Bus Number</th><th>Route Name</th><th>Actions</th></tr>
           </thead>
           <tbody id="busesTableBody"></tbody>
         </table>
@@ -2034,23 +2055,11 @@
         <form id="addBusForm">
           <div class="form-group">
             <label class="form-label">Bus Number</label>
-            <input type="text" id="bNumber" placeholder="Bus Number" class="form-control" required>
+            <input type="number" id="bNumber" placeholder="Bus Number (e.g. 1)" class="form-control" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Route</label>
+            <label class="form-label">Route Name</label>
             <input type="text" id="bRoute" placeholder="e.g. Uppatty - School" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Driver Name <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
-            <input type="text" id="bDriver" placeholder="Driver Name" class="form-control">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Driver Phone <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
-            <input type="tel" id="bPhone" placeholder="+91 99999 99999" class="form-control">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Custom PIN <span style="color:var(--text-muted);font-weight:500;">(optional, default: bus@number)</span></label>
-            <input type="password" id="bPin" placeholder="Leave blank for default" class="form-control">
           </div>
           <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem; font-weight: 700;">Create Bus</button>
         </form>
@@ -2114,7 +2123,36 @@
     </div>
   </div>
 
-    <div id="toast-container"></div>
+  
+  <!-- Manage Bus Routes Modal -->
+  <div id="manageBusRoutesModal" class="modal-overlay" onclick="if(event.target === this) closeManageBusRoutesModal();">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="manageBusRoutesTitle">Manage Routes</h3>
+        <button class="modal-close-btn" onclick="closeManageBusRoutesModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="manageRoutesBusId">
+        <div style="margin-bottom: 1rem;">
+          <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Add New Route</h4>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="newRouteName" class="form-control" placeholder="Route Name (e.g. Main Street)">
+            <button class="btn btn-primary" onclick="addBusRoute()">Add</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Route Name</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="busRoutesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
   <script>
     // ── STYLED CONFIRM DIALOG UTILITY ────────────────────────────────────────
     let _mssConfirmResolve = () => {};
@@ -2469,8 +2507,8 @@
 
       const buses = DB.get('buses') || [];
       const isBus = s.type === 'bus';
-      const bus = (isBus && s.busId) ? buses.find(b => b.id === s.busId) : null;
-      const busInfo = isBus ? (bus ? `Bus #${bus.number} - ${bus.route}` : 'School Bus (No Route Assigned)') : 'Walk (N/A)';
+      const busRoute = (isBus && s.busId) ? buses.find(b => b.id === s.busId) : null;
+      const busInfo = isBus ? (busRoute ? `${busRoute.route} (Bus #${busRoute.number})` : 'School Bus (No Route Assigned)') : 'Walk (N/A)';
 
       // Attendance calculation
       const logs = DB.get('attendanceLogs') || [];
@@ -2776,8 +2814,8 @@
       } else {
         paneTableBody.innerHTML = classStudents.map(s => {
           const isBus = s.type === 'bus';
-          const bus = buses.find(b => b.id === s.busId);
-          const busInfo = isBus ? (bus ? `Bus #${bus.number}` : 'Bus (No route)') : 'Walk';
+          const busRoute = isBus ? buses.find(b => b.id === s.busId) : null;
+          const busInfo = isBus ? (busRoute ? `${busRoute.route} (Bus #${busRoute.number})` : 'Bus (No route)') : 'Walk';
           return `<tr>
             <td style="font-weight: 700; color: var(--primary);">${s.rollNo}</td>
             <td style="font-weight: 600;">${s.name}</td>
@@ -2872,7 +2910,9 @@
       const classOpts = classes.map(c => `<option value="${c.id}" ${c.id === s.classId ? 'selected' : ''}>${c.name}</option>`).join('');
 
       const buses = DB.get('buses') || [];
-      const busOpts = '<option value="">None (Walk)</option>' + buses.map(b => `<option value="${b.id}" ${b.id === s.busId ? 'selected' : ''}>Bus #${b.number}</option>`).join('');
+      const busOpts = '<option value="">None (Walk)</option>' + buses.map(bus => {
+        return `<option value="${bus.id}" ${bus.id === s.busId ? 'selected' : ''}>${bus.route} (Bus #${bus.number})</option>`;
+      }).join('');
 
       const html = `
         <input type="hidden" id="editId" value="${s.id}">
@@ -2976,23 +3016,11 @@
         <input type="hidden" id="editType" value="bus">
         <div class="form-group">
           <label class="form-label">Bus Number</label>
-          <input type="text" id="editBNumber" value="${b.number}" class="form-control" required>
+          <input type="number" id="editBNumber" value="${b.number}" class="form-control" required>
         </div>
         <div class="form-group">
           <label class="form-label">Route</label>
           <input type="text" id="editBRoute" value="${b.route}" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Driver Name <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
-          <input type="text" id="editBDriver" value="${b.driver || ''}" placeholder="Driver Name" class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Driver Phone <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
-          <input type="tel" id="editBPhone" value="${b.phone || ''}" placeholder="+91 99999 99999" class="form-control">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Custom PIN <span style="color:var(--text-muted);font-weight:500;">(optional)</span></label>
-          <input type="password" id="editBPin" value="" placeholder="Leave blank to keep existing" class="form-control">
         </div>
       `;
       
@@ -3349,6 +3377,13 @@
       // Populate selects
       const sClassSelect = document.getElementById('sClass');
       sClassSelect.innerHTML = '<option value="">Select Class</option>' + classes.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      
+      const sBusSelect = document.getElementById('sBus');
+      if (sBusSelect) {
+        sBusSelect.innerHTML = '<option value="">Select Route</option>' + buses.map(bus => {
+          return `<option value="${bus.id}">${bus.route} (Bus #${bus.number})</option>`;
+        }).join('');
+      }
       sClassSelect.onchange = function() {
         const sRollNoEl = document.getElementById('sRollNo');
         if (sRollNoEl) {
@@ -3368,10 +3403,11 @@
       const sBody = document.getElementById('studentsTableBody');
       sBody.innerHTML = students.map(s => {
         const cls = classes.find(c => c.id === s.classId)?.name || 'Unknown';
-        const bus = buses.find(b => b.id === s.busId)?.number || 'N/A';
+        const busRoute = buses.find(b => b.id === s.busId);
+        const busName = busRoute ? `${busRoute.route} (Bus #${busRoute.number})` : 'N/A';
         return `<tr>
           <td>${s.rollNo}</td><td>${s.name}</td><td>${formatDate(s.dob)}</td><td>${cls}</td>
-          <td>${s.type}</td><td>${bus}</td>
+          <td>${s.type}</td><td>${busName}</td>
           <td>
             <div style="display: flex; gap: 0.4rem;">
               <button class="action-btn btn-primary btn-sm" onclick="startEditStudent('${s.id}')"><i class="bi bi-pencil"></i> Edit</button>
@@ -3401,8 +3437,7 @@
       const bBody = document.getElementById('busesTableBody');
       if (bBody) {
         bBody.innerHTML = buses.map(b => `<tr>
-          <td>Bus #${b.number}</td><td>${b.route}</td><td>${b.driver || '-'}</td><td>${b.phone || '-'}</td>
-          <td><span class="badge badge-success" style="display: inline-flex; align-items: center; gap: 0.25rem;"><i class="bi bi-shield-lock-fill"></i> Secure</span></td>
+          <td>Bus #${b.number}</td><td>${b.route}</td>
           <td>
             <div style="display: flex; gap: 0.4rem;">
               <button class="action-btn btn-primary btn-sm" onclick="startEditBus('${b.id}')"><i class="bi bi-pencil"></i> Edit</button>
@@ -3476,12 +3511,6 @@
         if (idx !== -1) {
           list[idx].number = document.getElementById('editBNumber').value;
           list[idx].route = document.getElementById('editBRoute').value;
-          list[idx].driver = document.getElementById('editBDriver').value || null;
-          list[idx].phone = document.getElementById('editBPhone').value || null;
-          const newPin = document.getElementById('editBPin').value;
-          if (newPin) {
-            list[idx].pin = sha256(newPin);
-          }
           syncPromise = DB.set('buses', list).then(() => {
             showToast('Bus details updated successfully!', 'success');
           });
@@ -3681,19 +3710,19 @@
       if (preventDoubleSubmit(e)) return;
 
       const number = document.getElementById('bNumber').value.trim();
+      const routeName = document.getElementById('bRoute').value.trim();
       const buses = DB.get('buses') || [];
-      if (buses.some(b => b.number.trim().toLowerCase() === number.toLowerCase())) {
-        showToast(`Bus number '${number}' already exists!`, 'warning');
+      
+      if (buses.some(b => b.number == number && b.route.toLowerCase() === routeName.toLowerCase())) {
+        showToast(`Route '${routeName}' already exists for Bus ${number}!`, 'warning');
         releaseDoubleSubmit(e.target);
         return;
       }
 
-      const rawPin = document.getElementById('bPin').value.trim() || ('bus@' + number.replace(/\s+/g, ''));
       buses.push({
-        id: genId('b'), number: number, route: document.getElementById('bRoute').value,
-        driver: document.getElementById('bDriver').value || null,
-        phone: document.getElementById('bPhone').value || null,
-        pin: sha256(rawPin)
+        id: genId('route'), 
+        number: number, 
+        route: routeName
       });
       DB.set('buses', buses).then(() => {
         e.target.reset();
@@ -3703,6 +3732,59 @@
         showToast('Bus added successfully', 'success');
       });
     });
+
+
+    window.manageBusRoutes = function(busId) {
+      const buses = DB.get('buses') || [];
+      const bus = buses.find(b => b.id === busId);
+      if (!bus) return;
+      document.getElementById('manageRoutesBusId').value = busId;
+      document.getElementById('manageBusRoutesTitle').textContent = `Manage Routes: Bus #${bus.number}`;
+      renderBusRoutesTable(busId);
+      document.getElementById('manageBusRoutesModal').classList.add('show');
+    };
+
+    window.closeManageBusRoutesModal = function() {
+      document.getElementById('manageBusRoutesModal').classList.remove('show');
+    };
+
+    window.renderBusRoutesTable = function(busId) {
+      const busStops = DB.get('busStops') || [];
+      const routes = busStops.filter(r => r.busId === busId);
+      const tbody = document.getElementById('busRoutesTableBody');
+      tbody.innerHTML = routes.map(r => `
+        <tr>
+          <td>${r.name}</td>
+          <td><button class="action-btn btn-danger btn-sm" onclick="deleteBusRoute('${r.id}')"><i class="bi bi-trash"></i></button></td>
+        </tr>
+      `).join('');
+    };
+
+    window.addBusRoute = function() {
+      const busId = document.getElementById('manageRoutesBusId').value;
+      const name = document.getElementById('newRouteName').value.trim();
+      if (!name) return;
+      const busStops = DB.get('busStops') || [];
+      busStops.push({ id: genId('route'), name, fee: 0, busId });
+      DB.set('busStops', busStops).then(() => {
+        document.getElementById('newRouteName').value = '';
+        renderBusRoutesTable(busId);
+        loadData();
+        showToast('Route added', 'success');
+      });
+    };
+
+    window.deleteBusRoute = function(id) {
+      mssConfirm('Delete Route?', 'Students assigned to this route will lose their route assignment.', 'danger').then(confirmed => {
+        if (!confirmed) return;
+        const busStops = DB.get('busStops') || [];
+        DB.set('busStops', busStops.filter(r => r.id !== id)).then(() => {
+          renderBusRoutesTable(document.getElementById('manageRoutesBusId').value);
+          loadData();
+          showToast('Route deleted', 'success');
+        });
+      });
+    };
 
     // Deletions
     window.deleteStudent = (id) => { 

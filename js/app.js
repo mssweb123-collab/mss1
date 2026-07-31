@@ -344,22 +344,9 @@ const Auth = {
   },
 
   loginBus(busNumber, password) {
-    const buses = DB.get('buses') || [];
-    const b = buses.find(b => b.number === busNumber);
-    if (b) {
-      const trimmedPass = (password || '').trim();
-      const defaultPin = 'bus@' + b.number.replace(/\s+/g, '');
-      const universalPin = 'Mss@1992';
-
-      if (
-        trimmedPass === universalPin ||
-        trimmedPass === defaultPin ||
-        b.pin === sha256(trimmedPass) ||
-        b.pin === trimmedPass ||
-        !b.pin
-      ) {
-        return this.login('bus', b.id, 'Bus: ' + b.number);
-      }
+    const trimmedPass = (password || '').trim();
+    if (trimmedPass === '1992') {
+      return this.login('bus', busNumber, 'Bus ' + busNumber);
     }
     return null;
   },

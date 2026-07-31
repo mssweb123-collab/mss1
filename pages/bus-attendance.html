@@ -58,11 +58,10 @@
       min-height: 100vh;
       min-height: 100dvh;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
       padding: calc(1.5rem + var(--sat)) 1.25rem calc(1.5rem + var(--sab));
       position: relative;
-      overflow: hidden;
+      overflow-y: auto;
     }
 
     .bg-glow-orb {
@@ -83,6 +82,7 @@
       z-index: 10;
       width: 100%;
       max-width: 420px;
+      margin: auto;
       background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
@@ -90,6 +90,13 @@
       padding: 2.25rem 1.75rem;
       border-radius: 32px;
       box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(79, 70, 229, 0.06);
+    }
+    
+    @media (max-height: 700px) {
+      .login-card {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+      }
     }
 
     .login-logo-ring {
@@ -155,7 +162,7 @@
 
     /* ── MAIN DASHBOARD VIEW (NO HEADER BAR) ── */
     .dashboard-container {
-      max-width: 540px;
+      width: 100%;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
@@ -174,18 +181,18 @@
       align-items: center;
       gap: 0.5rem;
       background: #ffffff;
-      padding: 0.45rem 0.95rem;
-      border-radius: 20px;
+      padding: 0.6rem 1.1rem;
+      border-radius: 24px;
       border: 1px solid rgba(79, 70, 229, 0.12);
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
     }
     .route-pill-badge i {
-      font-size: 1.15rem;
+      font-size: 1.4rem;
       color: #6366f1;
     }
     .route-pill-title {
-      font-weight: 850;
-      font-size: 0.92rem;
+      font-weight: 900;
+      font-size: 1.15rem;
       color: #0f172a;
     }
     
@@ -193,10 +200,10 @@
       background: rgba(244, 63, 94, 0.08);
       color: #e11d48;
       border: 1px solid rgba(244, 63, 94, 0.2);
-      padding: 0.45rem 0.85rem;
+      padding: 0.6rem 1rem;
       border-radius: 20px;
       font-weight: 800;
-      font-size: 0.78rem;
+      font-size: 0.95rem;
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
@@ -212,8 +219,8 @@
     /* Vibrant Modern Stats Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.55rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
       width: 100%;
     }
 
@@ -251,7 +258,7 @@
     .stat-card.remaining { background: linear-gradient(180deg, #ffffff 0%, rgba(148, 163, 184, 0.04) 100%); }
 
     .stat-num {
-      font-size: 1.35rem;
+      font-size: 2.2rem;
       font-weight: 900;
       color: #0f172a;
       line-height: 1.1;
@@ -261,24 +268,17 @@
     .stat-card.remaining .stat-num { color: #475569; }
 
     .stat-label {
-      font-size: 0.65rem;
+      font-size: 0.85rem;
       font-weight: 850;
       color: #64748b;
-      margin-top: 0.2rem;
+      margin-top: 0.3rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
-    /* Boarding Progress Card */
+    /* Boarding Progress Card - Hidden to simplify UI */
     .progress-card {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 0.9rem 1.15rem;
-      border: 1px solid rgba(79, 70, 229, 0.1);
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.03);
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      display: none;
     }
 
     .progress-header {
@@ -346,11 +346,11 @@
       align-items: center;
       justify-content: center;
       gap: 0.4rem;
-      padding: 0.65rem 0.5rem;
+      padding: 0.85rem 0.5rem;
       border: none;
       border-radius: 12px;
-      font-weight: 850;
-      font-size: 0.88rem;
+      font-weight: 900;
+      font-size: 1.05rem;
       cursor: pointer;
       transition: all 0.2s;
       background: transparent;
@@ -430,11 +430,11 @@
 
     .class-filter-select {
       width: 100%;
-      padding: 0.65rem 2rem 0.65rem 2.4rem;
+      padding: 0.85rem 2rem 0.85rem 2.4rem;
       border-radius: 14px;
       border: 1.5px solid #e2e8f0;
-      font-size: 0.88rem;
-      font-weight: 750;
+      font-size: 1.05rem;
+      font-weight: 850;
       color: #0f172a;
       outline: none;
       transition: all 0.2s ease;
@@ -482,11 +482,11 @@
     }
 
     .filter-chip {
-      padding: 0.55rem 0.95rem;
-      border-radius: 14px;
+      padding: 0.75rem 1rem;
+      border-radius: 16px;
       border: 1px solid rgba(15, 23, 42, 0.05);
-      font-size: 0.8rem;
-      font-weight: 850;
+      font-size: 0.95rem;
+      font-weight: 900;
       color: #64748b;
       background: rgba(15, 23, 42, 0.04);
       cursor: pointer;
@@ -571,9 +571,9 @@
     }
     
     .student-name {
-      font-weight: 850;
+      font-weight: 900;
       color: #0f172a;
-      font-size: 1.05rem;
+      font-size: 1.25rem;
       display: flex;
       align-items: center;
       gap: 0.4rem;
@@ -591,12 +591,13 @@
     
     .student-meta {
       color: #64748b;
-      font-size: 0.82rem;
-      margin-top: 0.25rem;
+      font-size: 0.95rem;
+      margin-top: 0.35rem;
       display: flex;
       align-items: center;
       gap: 0.4rem;
       flex-wrap: wrap;
+      font-weight: 600;
     }
 
     .student-meta .divider {
@@ -604,15 +605,15 @@
     }
 
     .call-parent-btn {
-      width: 44px;
-      height: 44px;
+      width: 54px;
+      height: 54px;
       border-radius: 50%;
       background: rgba(16, 185, 129, 0.1);
       color: #059669;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
+      font-size: 1.4rem;
       transition: all 0.2s ease;
       flex-shrink: 0;
       border: 1px solid rgba(16, 185, 129, 0.2);
@@ -637,17 +638,17 @@
 
     .action-btn {
       flex: 1;
-      min-height: 52px;
+      min-height: 68px;
       border-radius: 16px;
-      border: 1.5px solid #e2e8f0;
+      border: 2px solid #e2e8f0;
       background: #f8fafc;
       color: #475569;
-      font-size: 0.95rem;
-      font-weight: 850;
+      font-size: 1.25rem;
+      font-weight: 900;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.4rem;
+      gap: 0.5rem;
       cursor: pointer;
       touch-action: manipulation;
       transition: all 0.15s var(--ease-smooth);
@@ -673,6 +674,27 @@
   </style>
 </head>
 <body>
+  <!-- ── GLOBAL SUPABASE LOADER ── -->
+  <div id="mssAppLoader" class="mss-app-loader">
+    <div class="mss-loader-icon">
+      <div class="mss-loader-spinner"></div>
+      <img src="../assets/logo.png" alt="MSS Logo" />
+    </div>
+    <div class="mss-loader-text">MSS School System</div>
+    <div class="mss-loader-sub"><span></span> Loading...</div>
+  </div>
+  <script>
+    window.addEventListener('mss-db-sync', () => {
+      const loader = document.getElementById('mssAppLoader');
+      if (loader) loader.classList.add('fade-out');
+    }, { once: true });
+    setTimeout(() => {
+      const loader = document.getElementById('mssAppLoader');
+      if (loader && !loader.classList.contains('fade-out')) {
+        loader.classList.add('fade-out');
+      }
+    }, 8000);
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/config.js"></script>
   <script src="../js/supabase.js"></script>
@@ -692,7 +714,7 @@
 
       <form id="busLoginForm">
         <div class="form-group" style="text-align:left; margin-bottom: 1.1rem;">
-          <label class="form-label" style="font-weight:800; font-size:0.85rem; color:#475569; margin-bottom:0.4rem; display:block;">Select Bus Route</label>
+          <label class="form-label" style="font-weight:800; font-size:0.85rem; color:#475569; margin-bottom:0.4rem; display:block;">Select Bus No.</label>
           <select id="loginBusNum" class="form-input-lg" required></select>
         </div>
         <div class="form-group" style="text-align:left; margin-bottom: 1.25rem;">
@@ -750,11 +772,24 @@
         </div>
       </div>
 
-      <!-- Date and Shift Card -->
+      <!-- Date, Route and Shift Card -->
       <div class="control-card">
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
           <span style="font-size: 0.88rem; font-weight: 850; color: #0f172a;"><i class="bi bi-calendar-event" style="color:#6366f1;"></i> Attendance Date</span>
           <input type="date" id="attDate" class="form-control" style="width: auto; font-weight: 800; padding: 0.5rem 0.75rem; border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 0.88rem; outline: none; margin: 0; background:#f8fafc; color:#0f172a;">
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.25rem;">
+          <span style="font-size: 0.88rem; font-weight: 850; color: #0f172a;"><i class="bi bi-signpost-split" style="color:#f43f5e;"></i> Route</span>
+          <select id="routeSelect" class="form-control" onchange="loadAttendance()" style="width: 100%; font-weight: 800; padding: 0.65rem 0.75rem; border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 0.88rem; outline: none; margin: 0; background:#f8fafc; color:#0f172a; appearance: none;"></select>
+        </div>
+        
+        <!-- Class Filter Select -->
+        <div class="class-filter-wrapper">
+          <i class="bi bi-funnel-fill class-filter-icon"></i>
+          <select id="classFilterSelect" onchange="handleClassFilterChange()" class="class-filter-select">
+            <option value="">All Passenger Classes</option>
+          </select>
         </div>
         
         <!-- Shift Selector Tabs -->
@@ -774,14 +809,7 @@
           </button>
         </div>
         
-        <!-- Class Filter Select -->
-        <div class="class-filter-wrapper">
-          <i class="bi bi-funnel-fill class-filter-icon"></i>
-          <select id="classFilterSelect" onchange="handleClassFilterChange()" class="class-filter-select">
-            <option value="">All Passenger Classes</option>
-          </select>
-        </div>
-        
+
         <div class="filter-chips">
           <button class="filter-chip active" id="chipAll" onclick="filterChipClick('all')">All</button>
           <button class="filter-chip" id="chipUnmarked" onclick="filterChipClick('unmarked')">Remaining</button>
@@ -878,9 +906,12 @@
 
     function populateBusSelect() {
       const buses = DB.get('buses') || [];
+      const uniqueBusNumbers = [...new Set(buses.map(b => b.number))].filter(Boolean).sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
       const select = document.getElementById('loginBusNum');
       if (select) {
-        select.innerHTML = '<option value="">Select Bus Route</option>' + buses.map(b => `<option value="${b.number}">${b.number}${b.route ? ' – ' + b.route : ''}</option>`).join('');
+        select.innerHTML = '<option value="">Select Bus No.</option>' + uniqueBusNumbers.map(num => {
+          return `<option value="${num}">Bus ${num}</option>`;
+        }).join('');
       }
       const btn = document.getElementById('busLoginBtn');
       const txt = document.getElementById('busLoginBtnText');
@@ -930,9 +961,9 @@
       btn.disabled = true;
       if (txt) txt.textContent = 'Signing in...';
 
-      const bnum = document.getElementById('loginBusNum').value;
+      const busNumber = document.getElementById('loginBusNum').value;
       const pin = document.getElementById('loginBusPin').value;
-      const session = Auth.loginBus(bnum, pin);
+      const session = Auth.loginBus(busNumber, pin);
       if (session) {
         showToast('Login successful', 'success');
         await DB.fetchAllExtendedData();
@@ -961,9 +992,22 @@
       
       classesPopulated = false;
       selectedClassFilter = '';
-      myBusId = session.id;
+      myBusId = session.id; // actually myBusNumber now
       document.getElementById('busNameDisplay').textContent = session.name;
       
+      // Populate route select for this bus
+      const buses = DB.get('buses') || [];
+      const busStops = DB.get('busStops') || [];
+      
+      // In the new requested schema, the buses table ITSELF contains the routes.
+      // But until fully migrated, we'll support both: routes directly in buses or busStops
+      // Let's get all routes associated with myBusId (which is the bus number).
+      const routesForThisBus = buses.filter(b => String(b.number) === String(myBusId));
+      
+      // The user wants: "modify this into id ,route,bus no. the bus no. will be 1,2,3,4 .. so if 1 selcted then show all routes in busno."
+      const routeSelect = document.getElementById('routeSelect');
+      routeSelect.innerHTML = '<option value="">-- Select Route --</option>' + routesForThisBus.map(b => `<option value="${b.id}">${b.route}</option>`).join('');
+
       const dateInput = document.getElementById('attDate');
       dateInput.value = today();
       dateInput.addEventListener('change', function() {
@@ -985,14 +1029,19 @@
     function loadAttendance() {
       const students = DB.get('students') || [];
       const classes = DB.get('classes') || [];
-      const busStudents = students.filter(s => s.type === 'bus' && s.busId === myBusId);
+      
+      const selectedRouteId = document.getElementById('routeSelect').value;
+      const list = document.getElementById('attendanceList');
+
+      if (!selectedRouteId) {
+        list.innerHTML = "<div class='card text-center' style='padding:2.5rem 1.5rem; border-radius:24px; color:#64748b; background:#fff; border:1px solid rgba(15,23,42,0.06);'><i class='bi bi-signpost-split' style='font-size:2rem;color:#6366f1;display:block;margin-bottom:0.5rem;'></i><p style='margin:0;font-weight:750;'>Please select a route to view passengers.</p></div>"; 
+        updateLiveStats([], []);
+        return;
+      }
+
+      const busStudents = students.filter(s => s.type === 'bus' && s.busId === selectedRouteId);
       
       const date = document.getElementById('attDate').value;
-      const list = document.getElementById('attendanceList');
-      if (busStudents.length === 0) { 
-        list.innerHTML = "<div class='card text-center' style='padding:2.5rem 1.5rem; border-radius:24px; color:#64748b; background:#fff; border:1px solid rgba(15,23,42,0.06);'><i class='bi bi-bus-front' style='font-size:2rem;color:#6366f1;display:block;margin-bottom:0.5rem;'></i><p style='margin:0;font-weight:750;'>No passengers assigned to this route.</p></div>"; 
-        return; 
-      }
       
       const bulkLog = Attendance.getBulkForDate(date, 'bus-' + currentShift);
 
@@ -1144,6 +1193,16 @@
         loadAttendance();
       }
     }
+
+    // Fix mobile keyboard hiding inputs
+    const loginInputs = document.querySelectorAll('#busLoginForm input');
+    loginInputs.forEach(input => {
+      input.addEventListener('focus', function() {
+        setTimeout(() => {
+          this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      });
+    });
   </script>
 </body>
 </html>

@@ -263,18 +263,14 @@ function triggerBackgroundSync(key, value, oldValue) {
           const old = oldArray.find(o => o.id === b.id);
           if (!old) return true;
           return old.number !== b.number ||
-                 old.route !== b.route ||
-                 old.driver !== b.driver ||
-                 old.phone !== b.phone;
+                 old.route !== b.route;
         });
 
         if (toUpsert.length > 0) {
           const rows = toUpsert.map(b => ({
             id: b.id,
             number: b.number || '',
-            route: b.route || '',
-            driver: b.driver || null,
-            phone: b.phone || null
+            route: b.route || ''
           }));
           const { error: upsertErr } = await client.from('buses').upsert(rows);
           if (upsertErr) throw upsertErr;
@@ -1242,9 +1238,6 @@ CREATE TABLE IF NOT EXISTS buses (
   id TEXT PRIMARY KEY,
   number TEXT NOT NULL,
   route TEXT,
-  driver TEXT,
-  phone TEXT,
-  capacity INTEGER DEFAULT 40,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
